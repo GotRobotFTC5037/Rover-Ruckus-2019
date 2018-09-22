@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib
 
-class RobotLocalizer {
+abstract class RobotLocalizer {
+    abstract val course: Double
+    abstract val heading: Double
 }

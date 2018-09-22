@@ -1,35 +1,18 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.lib
 
-import com.qualcomm.robotcore.hardware.DcMotor
-import java.util.*
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import kotlinx.coroutines.experimental.*
 
 abstract class Robot {
-    abstract val driveTrain: RobotDriveTrain
-}
+    internal abstract val linearOpMode: LinearOpMode
+    internal abstract val driveTrain: RobotDriveTrain
+    internal abstract val localizer: RobotLocalizer
 
-abstract class RobotComponent
+    fun<R> runAction(action: RobotAction<R>): Deferred<R> = GlobalScope.async {
+        action.block(this@Robot)
+    }
 
-abstract class RobotDriveTrain: RobotComponent() {
-    abstract fun move(angle: Double, power: Double)
-}
-
-class RobotTankDriveTrain: RobotDriveTrain() {
-
-    private var leftMotors: MutableList<DcMotor> = mutableListOf()
-    private var rightMotors: MutableList<DcMotor> = mutableListOf()
-
-    override fun move(angle: Double, power: Double) {
-        leftMotors.forEach { it.power = power }
-        rightMotors.forEach { it.power = power }
+    fun runAction(action: RobotAction<Unit>): Job = GlobalScope.launch {
+        action.block(this@Robot)
     }
 }
-
-class RobotTravelPath {
-    val elements: MutableList<RobotTravelPathElement> = mutableListOf()
-}
-
-abstract class RobotTravelPathElement {
-    abstract fun vectorAt(position: Double): Pair
-}
-
-

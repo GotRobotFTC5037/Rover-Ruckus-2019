@@ -4,11 +4,14 @@
  * It is extraordinarily rare that you will ever need to edit this file.
  */
 buildscript {
+    ext.kotlin_version = '1.2.70'
+    ext.kotlin_coroutines_version = '0.26.1'
     repositories {
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 

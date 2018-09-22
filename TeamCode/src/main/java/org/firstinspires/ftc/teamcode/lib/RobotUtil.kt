@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.lib
 
 typealias RobotHeading = Double
 
-data class RobotVelocity(
-    val x: Double,
-    val y: Double
+data class RobotPowerVector(
+    val direction: Double,
+    val power: Double
 )
