@@ -2,47 +2,31 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import kotlinx.coroutines.experimental.runBlocking
-import org.firstinspires.ftc.teamcode.lib.RobotAction
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 
 @Autonomous
-class RobotLibraryTest: LinearOpMode() {
+class TestAuto : LinearOpMode() {
 
-    @Throws(InterruptedException::class)
-    override fun runOpMode() {
-        val robot = TestRobot(this)
-        waitForStart()
-        runBlocking { robot.runAction(testAction).join() }
-    }
-
-    companion object {
-        val testAction = RobotAction.customAction {
-
-        }
-    }
-
-}
-
-@Autonomous
-class TestAuto: LinearOpMode() {
-    val leftMotor by lazy {
+    val leftMotor: DcMotor by lazy {
         hardwareMap.dcMotor.get("left motor").apply {
             direction = DcMotorSimple.Direction.REVERSE
+            zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         }
     }
 
-    val rightMotor by lazy {
-        hardwareMap.dcMotor.get("right motor")
+    val rightMotor: DcMotor by lazy {
+        hardwareMap.dcMotor.get("right motor").apply {
+            direction = DcMotorSimple.Direction.FORWARD
+            zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        }
     }
 
     override fun runOpMode() {
-        leftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        rightMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        leftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        rightMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        leftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        rightMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
         waitForStart()
 
         drive(0.5, 2000)
@@ -55,24 +39,24 @@ class TestAuto: LinearOpMode() {
         drive(0.5, 5000)
     }
 
-    fun drive(power: Double, distance: Int){
+    fun drive(power: Double, distance: Int) {
         val initialRightMotorPosition = rightMotor.currentPosition
         val initialLeftMotorPosition = leftMotor.currentPosition
         rightMotor.power = power
         leftMotor.power = power
         when {
             distance > 0 -> while (
-                    leftMotor.currentPosition < initialLeftMotorPosition + distance &&
-                    rightMotor.currentPosition < initialRightMotorPosition + distance &&
-                    opModeIsActive()
-            ){
+                leftMotor.currentPosition < initialLeftMotorPosition + distance &&
+                rightMotor.currentPosition < initialRightMotorPosition + distance &&
+                opModeIsActive()
+            ) {
                 idle()
             }
             distance < 0 -> while (
-                    leftMotor.currentPosition > initialLeftMotorPosition + distance &&
-                    rightMotor.currentPosition > initialRightMotorPosition + distance &&
-                    opModeIsActive()
-            ){
+                leftMotor.currentPosition > initialLeftMotorPosition + distance &&
+                rightMotor.currentPosition > initialRightMotorPosition + distance &&
+                opModeIsActive()
+            ) {
                 idle()
             }
             else -> return
