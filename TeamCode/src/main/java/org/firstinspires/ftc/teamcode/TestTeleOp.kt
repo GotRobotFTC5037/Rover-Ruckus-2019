@@ -13,10 +13,10 @@ class TestTeleOp: LinearOpMode() {
         waitForStart()
         while (opModeIsActive()) {
 
-            var leftMotorPower = -gamepad1.left_stick_y.toDouble()
-            var rightMotorPower = -gamepad1.right_stick_y.toDouble()
-            leftMotor.power = leftMotorPower
-            rightMotor.power = rightMotorPower
+            val leftMotorPower = -gamepad1.left_stick_y * -gamepad1.right_stick_x
+            val rightMotorPower = -gamepad1.left_stick_y * gamepad1.right_stick_x
+            leftMotor.power = leftMotorPower.toDouble()
+            rightMotor.power = rightMotorPower.toDouble()
 
         }
 
