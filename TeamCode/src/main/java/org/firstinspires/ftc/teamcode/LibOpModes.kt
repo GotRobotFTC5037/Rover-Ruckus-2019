@@ -39,13 +39,10 @@ class LibAutonomous : LinearOpMode() {
     @Throws(InterruptedException::class)
     override fun runOpMode() {
         val robot = TestRobot(this)
-        robot.setup()
-        waitForStart()
-        robot.start()
+        robot.setupAndWaitForStart()
         robot.run(RobotMoveAction.linearTimeDrive(0.5, 500L))
         robot.run(RobotMoveAction.timeTurn(0.5, 1000L))
         robot.run(RobotMoveAction.linearTimeDrive(0.5, 500L))
-        robot.stop()
     }
 
 }

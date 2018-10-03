@@ -1,31 +1,34 @@
 package org.firstinspires.ftc.teamcode.lib
 
-import com.qualcomm.robotcore.util.ElapsedTime
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.withTimeout
 
-typealias RobotActionBlock = Robot.() -> Unit
+typealias RobotActionBlock = suspend Robot.() -> Unit
 
 sealed class RobotAction {
-    internal abstract val block: RobotActionBlock
+    abstract suspend fun run(robot: Robot)
 }
 
-class RobotMoveAction private constructor(override val block: RobotActionBlock) : RobotAction() {
+class RobotMoveAction private constructor(val block: RobotActionBlock) : RobotAction() {
+
+    var timoutDuration = Long.MAX_VALUE
+
+    override suspend fun run(robot: Robot) {
+        withTimeout(timoutDuration) {
+            block(robot)
+        }
+    }
 
     companion object {
         fun linearTimeDrive(power: Double, duration: Long) = RobotMoveAction {
-            val elapsedTime = ElapsedTime()
             driveTrain.setPower(RobotVector(linear = power))
-            while (elapsedTime.milliseconds() < duration) {
-                linearOpMode.idle()
-            }
+            delay(duration)
             driveTrain.stop()
         }
 
         fun timeTurn(power: Double, duration: Long) = RobotMoveAction {
-            val elapsedTime = ElapsedTime()
             driveTrain.setPower(RobotVector(heading = power))
-            while (elapsedTime.milliseconds() < duration) {
-                linearOpMode.idle()
-            }
+            delay(duration)
             driveTrain.stop()
         }
     }

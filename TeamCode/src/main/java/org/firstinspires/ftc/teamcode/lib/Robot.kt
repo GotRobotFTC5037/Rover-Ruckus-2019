@@ -1,20 +1,22 @@
 package org.firstinspires.ftc.teamcode.lib
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.*
 import kotlin.coroutines.experimental.CoroutineContext
 
-abstract class Robot(val linearOpMode: LinearOpMode) : CoroutineScope {
+abstract class Robot(private val linearOpMode: LinearOpMode) : CoroutineScope {
+
+    private lateinit var job: Job
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default + job
 
     abstract val driveTrain: RobotDriveTrain
 
-    private lateinit var job: Job
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Unconfined + job
+    fun setupAndWaitForStart() {
+        setup()
+        linearOpMode.waitForStart()
+        start()
+    }
 
     fun setup() {
         job = Job()
@@ -23,14 +25,21 @@ abstract class Robot(val linearOpMode: LinearOpMode) : CoroutineScope {
 
     fun start() {
         driveTrain.start()
+        GlobalScope.launch {
+            while (!linearOpMode.isStopRequested) {
+                yield()
+            }
+            job.cancel()
+        }
     }
 
     fun run(action: RobotAction) = runBlocking {
-        action.block(this@Robot)
+        action.run(this@Robot)
     }
 
     fun stop() {
         driveTrain.stop()
+        job.cancelChildren()
     }
 
 }
