@@ -1,51 +1,30 @@
 package org.firstinspires.ftc.teamcode.lib
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import kotlinx.coroutines.experimental.CoroutineStart
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Job
 
-/**
- * The [Robot] class is the fundamental core of the library. Instances of this class are what run
- * instances of [RobotAction] and manage their usage.
- */
-abstract class Robot {
-    internal abstract val opMode: LinearOpMode
-    internal abstract val driveTrain: RobotDriveTrain?
+abstract class Robot(val linearOpMode: LinearOpMode) : CoroutineScope {
 
-    private val actionJobs = mutableListOf<RobotActionJob>()
-    val hasAction get() = actionJobs.isNotEmpty()
+    abstract val driveTrain: RobotDriveTrain
+
+    lateinit var job: Job
 
     fun setup() {
-        driveTrain?.setup()
+        job = Job()
+        driveTrain.setup()
     }
 
     fun start() {
-        // TODO: Do something here.
+        driveTrain.start()
     }
 
-    fun setupAndWaitForStart() {
-        setup()
-        opMode.waitForStart()
-        start()
+    fun run(action: RobotAction) {
+        action.block(this)
     }
 
-    fun runAction(action: RobotAction): RobotActionJob =
-        GlobalScope.launch(start = CoroutineStart.LAZY) { action.run(this@Robot) }
-            .also {
-                actionJobs.add(it)
-            }.apply {
-                invokeOnCompletion { actionJobs.remove(this) }
-                start()
-            }
-
-    fun waitForActionsToComplete() {
-        while (hasAction) {
-            opMode.idle()
-        }
+    fun stop() {
+        driveTrain.stop()
     }
-
-    companion object
 
 }
-

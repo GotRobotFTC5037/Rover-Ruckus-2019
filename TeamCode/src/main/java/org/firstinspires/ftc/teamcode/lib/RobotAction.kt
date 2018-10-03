@@ -1,28 +1,33 @@
 package org.firstinspires.ftc.teamcode.lib
 
-abstract class RobotAction {
-    abstract suspend fun run(robot: Robot)
+import com.qualcomm.robotcore.util.ElapsedTime
+
+typealias RobotActionBlock = Robot.() -> Unit
+
+sealed class RobotAction {
+    internal abstract val block: RobotActionBlock
 }
 
-class RobotMoveAction
-private constructor(private val block: suspend Robot.() -> Unit) : RobotAction() {
-
-    var timeout = 0
-
-    override suspend fun run(robot: Robot) {
-        block(robot)
-    }
+class RobotMoveAction private constructor(override val block: RobotActionBlock) : RobotAction() {
 
     companion object {
-
-        fun linearDistanceDrive(power: Double, distance: Double) = RobotMoveAction {
-            driveTrain?.setLinearDrivePower(
-                if (distance < 0) Math.abs(power)
-                else -Math.abs(power)
-            )
-
-            
+        fun linearTimeDrive(power: Double, duration: Long) = RobotMoveAction {
+            val elapsedTime = ElapsedTime()
+            driveTrain.setPower(RobotVector(linear = power))
+            while (elapsedTime.milliseconds() < duration) {
+                linearOpMode.idle()
+            }
+            driveTrain.stop()
         }
 
+        fun timeTurn(power: Double, duration: Long) = RobotMoveAction {
+            val elapsedTime = ElapsedTime()
+            driveTrain.setPower(RobotVector(heading = power))
+            while (elapsedTime.milliseconds() < duration) {
+                linearOpMode.idle()
+            }
+            driveTrain.stop()
+        }
     }
+
 }
