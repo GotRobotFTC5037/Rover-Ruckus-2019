@@ -5,10 +5,3 @@ data class RobotVector(
     val lateral: Double = 0.0,
     val heading: Double = 0.0
 )
-
-data class RobotLocation(
-    val xPosition: Double,
-    val yPosition: Double,
-    val heading: Double,
-    val course: Double?
-)

@@ -14,7 +14,7 @@ import kotlin.math.abs
 class TestAuto : LinearOpMode() {
 
     val leftMotor: DcMotor by lazy {
-        hardwareMap.dcMotor.get("left motor").apply {
+        hardwareMap.dcMotor.get("left addMotor").apply {
             direction = DcMotorSimple.Direction.REVERSE
             zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -23,7 +23,7 @@ class TestAuto : LinearOpMode() {
     }
 
     val rightMotor: DcMotor by lazy {
-        hardwareMap.dcMotor.get("right motor").apply {
+        hardwareMap.dcMotor.get("right addMotor").apply {
             direction = DcMotorSimple.Direction.FORWARD
             zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
