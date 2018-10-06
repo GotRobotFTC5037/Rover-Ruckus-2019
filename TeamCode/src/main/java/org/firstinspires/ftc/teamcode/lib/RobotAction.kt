@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.lib
 
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.yield
+import kotlin.math.abs
 
 typealias RobotActionBlock = suspend Robot.() -> Unit
 typealias MoveAction = RobotMoveAction
@@ -32,14 +33,19 @@ class RobotMoveAction private constructor(val block: RobotActionBlock) : RobotAc
         fun turnTo(targetHeading: Double, power: Double) = RobotMoveAction {
             val location = localizer.locationProducer
             val currentHeading = location.receive().heading
-            val predicate: suspend () -> Boolean = when {
+            val predicate: suspend () -> Boolean
+            when {
                 targetHeading > currentHeading -> {
-                    { targetHeading > location.receive().heading }
+                    driveTrain.setPower(RobotVector(heading = abs(power)))
+                    predicate = { targetHeading > location.receive().heading }
                 }
                 targetHeading < currentHeading -> {
-                    { targetHeading < location.receive().heading }
+                    driveTrain.setPower(RobotVector(heading = -abs(power)))
+                    predicate = { targetHeading < location.receive().heading }
                 }
-                else -> { { false } }
+                else -> {
+                    predicate = { false }
+                }
             }
             while (predicate()) {
                 yield()
