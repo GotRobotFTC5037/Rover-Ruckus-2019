@@ -72,6 +72,10 @@ class Robot(private val linearOpMode: LinearOpMode) : CoroutineScope {
         }
     }
 
+    fun waitForCurrentActionToEnd() = runBlocking {
+        currentAction?.join()
+    }
+
     fun stop() {
         for (component in components) {
             component.stop()
