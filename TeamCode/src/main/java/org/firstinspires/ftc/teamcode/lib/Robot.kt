@@ -67,7 +67,7 @@ class Robot(private val linearOpMode: LinearOpMode) : CoroutineScope {
             runBlocking { it.join() }
             currentAction = null
         }
-        launch {
+        currentAction = launch {
             action.run(this@Robot)
         }
     }
