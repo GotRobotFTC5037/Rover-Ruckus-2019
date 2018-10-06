@@ -11,6 +11,8 @@ class Robot(private val linearOpMode: LinearOpMode) : CoroutineScope {
     private lateinit var job: Job
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + job
 
+    var currentAction: Job? = null
+
     private val components = mutableListOf<Component>()
 
     var driveTrain: RobotDriveTrain
@@ -60,8 +62,14 @@ class Robot(private val linearOpMode: LinearOpMode) : CoroutineScope {
         }
     }
 
-    fun runAction(action: RobotAction) = runBlocking {
-        action.run(this@Robot)
+    fun runAction(action: RobotAction) {
+        currentAction?.let {
+            runBlocking { it.join() }
+            currentAction = null
+        }
+        launch {
+            action.run(this@Robot)
+        }
     }
 
     fun stop() {
