@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
+import android.support.annotation.IntegerRes
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -64,5 +65,20 @@ class TestAuto : LinearOpMode() {
 
         leftMotor.power = 0.0
         rightMotor.power = 0.0
+    }
+
+  /*  fun gyroTurn(heading: Double) {
+        var gyroSensor =
+       Assume start heading is 315.
+       We know target heading from function call.
+       Determine we need to turn right or left.
+       Determine speed of motors.
+       Turn the robot.
+       Stop the turn at the perfect degree.
+
+         225 degrees for depot.
+                           X = degrees we want to go to.
+                           4 numbers. 45, 135, 225, 315. *\
+
     }
 }
