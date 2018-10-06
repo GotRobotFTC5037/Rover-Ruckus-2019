@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.lib
 
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.withTimeout
 
 typealias RobotActionBlock = suspend Robot.() -> Unit
+typealias MoveAction = RobotMoveAction
 
 sealed class RobotAction {
     abstract suspend fun run(robot: Robot)
@@ -11,12 +11,8 @@ sealed class RobotAction {
 
 class RobotMoveAction private constructor(val block: RobotActionBlock) : RobotAction() {
 
-    var timoutDuration = Long.MAX_VALUE
-
     override suspend fun run(robot: Robot) {
-        withTimeout(timoutDuration) {
-            block(robot)
-        }
+        block(robot)
     }
 
     companion object {

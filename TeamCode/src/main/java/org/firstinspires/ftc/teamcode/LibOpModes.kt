@@ -2,57 +2,26 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotorSimple
-import org.firstinspires.ftc.teamcode.lib.Robot
-import org.firstinspires.ftc.teamcode.lib.RobotMoveAction
-import org.firstinspires.ftc.teamcode.lib.RobotTankDriveTrain
-
-class TestRobot(linearOpMode: LinearOpMode) : Robot(linearOpMode) {
-
-    override val driveTrain by lazy {
-        RobotTankDriveTrain().apply {
-            motors.add(
-                RobotTankDriveTrain.Motor(
-                    linearOpMode.hardwareMap.dcMotor.get("left motor").apply {
-                        direction = DcMotorSimple.Direction.REVERSE
-                    },
-                    RobotTankDriveTrain.Side.LEFT
-                )
-            )
-            motors.add(
-                RobotTankDriveTrain.Motor(
-                    linearOpMode.hardwareMap.dcMotor.get("right motor").apply {
-                        direction = DcMotorSimple.Direction.FORWARD
-                    },
-                    RobotTankDriveTrain.Side.RIGHT
-                )
-            )
-        }
-    }
-
-}
+import org.firstinspires.ftc.teamcode.lib.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.MoveAction
+import org.firstinspires.ftc.teamcode.lib.TankDrive
+import org.firstinspires.ftc.teamcode.lib.createRobot
 
 @Autonomous
 class LibAutonomous : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     override fun runOpMode() {
-        val robot = TestRobot(this)
+        val robot = createRobot(this) {
+            driveTrain(TankDrive::class) {
+                leftMotor("left motor")
+                rightMotor("right motor")
+            }
+            setLocalizer(IMULocalizer::class)
+
+        }
         robot.setupAndWaitForStart()
-        robot.run(RobotMoveAction.linearTimeDrive(0.5, 500L))
-        robot.run(RobotMoveAction.timeTurn(0.5, 1000L))
-        robot.run(RobotMoveAction.linearTimeDrive(0.5, 500L))
-    }
-
-}
-
-@TeleOp
-class LibTeleOp : LinearOpMode() {
-
-    @Throws(InterruptedException::class)
-    override fun runOpMode() {
-
+        robot.runAction(MoveAction.linearTimeDrive(0.5, 500L))
     }
 
 }

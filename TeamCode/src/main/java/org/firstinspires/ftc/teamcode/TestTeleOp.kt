@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 @TeleOp
 class TestTeleOp: LinearOpMode() {
     override fun runOpMode() {
-        val leftMotor = hardwareMap.dcMotor.get("left motor").apply { direction = DcMotorSimple.Direction.REVERSE }
-        val rightMotor = hardwareMap.dcMotor.get("right motor")
+        val leftMotor = hardwareMap.dcMotor.get("left addMotor").apply { direction = DcMotorSimple.Direction.REVERSE }
+        val rightMotor = hardwareMap.dcMotor.get("right addMotor")
 
         waitForStart()
         while (opModeIsActive()) {
