@@ -21,7 +21,8 @@ class Robot(private val linearOpMode: LinearOpMode) : CoroutineScope {
             }
         }
 
-    private lateinit var localizer: RobotLocalizer
+    lateinit var localizer: RobotLocalizer
+    private set
 
     fun <T : RobotDriveTrain>driveTrain(driveTrainType: KClass<out T>, init: T.() -> Unit) {
         val driveTrain = driveTrainType.createInstance()

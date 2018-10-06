@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib
 
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.yield
 
 typealias RobotActionBlock = suspend Robot.() -> Unit
 typealias MoveAction = RobotMoveAction
@@ -16,15 +17,33 @@ class RobotMoveAction private constructor(val block: RobotActionBlock) : RobotAc
     }
 
     companion object {
-        fun linearTimeDrive(power: Double, duration: Long) = RobotMoveAction {
+        fun linearTimeDrive(duration: Long, power: Double) = RobotMoveAction {
             driveTrain.setPower(RobotVector(linear = power))
             delay(duration)
             driveTrain.stop()
         }
 
-        fun timeTurn(power: Double, duration: Long) = RobotMoveAction {
+        fun timeTurn(duration: Long, power: Double) = RobotMoveAction {
             driveTrain.setPower(RobotVector(heading = power))
             delay(duration)
+            driveTrain.stop()
+        }
+
+        fun turnTo(targetHeading: Double, power: Double) = RobotMoveAction {
+            val location = localizer.locationProducer
+            val currentHeading = location.receive().heading
+            val predicate: suspend () -> Boolean = when {
+                targetHeading > currentHeading -> {
+                    { targetHeading > location.receive().heading }
+                }
+                targetHeading < currentHeading -> {
+                    { targetHeading < location.receive().heading }
+                }
+                else -> { { false } }
+            }
+            while (predicate()) {
+                yield()
+            }
             driveTrain.stop()
         }
     }
