@@ -48,7 +48,6 @@ class RobotTankDriveTrain : RobotDriveTrain() {
                 dcMotor,
                 pendingMotor.third
             )
-            pendingMotors.remove(pendingMotor)
         }
         for (motor in motors) {
             motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
