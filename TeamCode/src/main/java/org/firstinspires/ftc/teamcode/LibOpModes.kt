@@ -25,6 +25,7 @@ class LibAutonomous : LinearOpMode() {
         robot.runAction(MoveAction.linearTimeDrive(500L, -0.5))
         robot.runAction(MoveAction.turnTo(-105.0, 0.5))
         robot.runAction(MoveAction.linearTimeDrive(6000L, 0.75))
+        robot.waitForCurrentActionToEnd()
     }
 
 }
