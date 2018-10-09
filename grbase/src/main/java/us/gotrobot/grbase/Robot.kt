@@ -2,66 +2,61 @@ package us.gotrobot.grbase
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.CoroutineContext
 
-class MissingRobotComponentExeption(override val message: String?): Exception()
+class MissingRobotFeatureException(override val message: String?) : Exception()
 
-interface Robot : Component {
+interface Robot : CoroutineScope {
 
     val hardwareMap: HardwareMap
 
-    fun <C : ComponentConfiguration, T : Component> addComponent(
-        installer: RobotComponentInstaller<C, T>,
+    fun <C : RobotFeatureConfiguration, F : Any>install(
+        feature: RobotFeature<C, F>,
         configure: C.() -> Unit
     )
 
-    fun <C : Component>getComponent(installer: ComponentInstaller<*, C>): C
+    fun <T : Any>feature(feature: RobotFeatureDescriptor<T>): T
 
-    fun runAction(action: Action): Job
-
-    fun joinCurrentAction(): Unit?
+    fun runAction(action: Action)
 }
 
-internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot, CoroutineScope {
+internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
 
     private lateinit var job: Job
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + job
 
-    private val components = mutableMapOf<ComponentInstallerKey<*>, Component>()
-
-    private var currentJob: Job? = null
-
     override val hardwareMap: HardwareMap
         get() = linearOpMode.hardwareMap
 
-    override fun <C : ComponentConfiguration, T : Component> addComponent(
-        installer: RobotComponentInstaller<C, T>,
+    private val features = mutableMapOf<RobotFeatureKey<*>, Any>()
+
+    override fun <C : RobotFeatureConfiguration, F : Any> install(
+        feature: RobotFeature<C, F>,
         configure: C.() -> Unit
     ) {
-        val component = installer.install(this, configure)
-        components[installer.key] = component
+        if (features[feature.key] == null) {
+            features[feature.key] = feature.install(this, configure)
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <C : Component> getComponent(installer: ComponentInstaller<*, C>): C =
-        components[installer.key] as? C ?: throw MissingRobotComponentExeption(installer.key.name)
-
-    override fun runAction(action: Action): Job {
-        if (currentJob?.isActive == true) runBlocking { currentJob?.join() }
-        val job = launch {
-            action.run(this@RobotImpl, this)
-        }
-        currentJob = job
-        return job
+    override fun <T : Any> feature(feature: RobotFeatureDescriptor<T>): T {
+        return features[feature.key] as T?
+                ?: throw MissingRobotFeatureException("Robot does not the have the feature '${feature.key.name}' installed.")
     }
 
-    override fun joinCurrentAction() = runBlocking { currentJob?.run { join() } }
+    override fun runAction(action: Action) = runBlocking {
+        action.run(this@RobotImpl, this@RobotImpl)
+    }
 
 }
 
 fun createRobot(linearOpMode: LinearOpMode, init: Robot.() -> Unit): Robot {
-    val robot =  RobotImpl(linearOpMode)
+    val robot = RobotImpl(linearOpMode)
     robot.init()
     return robot
 }

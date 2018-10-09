@@ -3,6 +3,14 @@ package us.gotrobot.grbase
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 
 typealias MotorDirection = DcMotorSimple.Direction
-typealias DriveTrain = RobotDriveTrain
 
-interface RobotDriveTrain: Component
+interface RobotDriveTrain {
+
+    fun setPower(linearPower: Double, lateralPower: Double)
+    fun setHeadingPower(power: Double)
+    fun stopAllMotors()
+
+    companion object Descriptor : RobotFeatureDescriptor<RobotDriveTrain> {
+        override val key = RobotFeatureKey<RobotDriveTrain>("RobotDriveTrain")
+    }
+}

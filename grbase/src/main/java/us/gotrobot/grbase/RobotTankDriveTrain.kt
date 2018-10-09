@@ -3,13 +3,22 @@ package us.gotrobot.grbase
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 
-typealias TankDrive = RobotTankDriveTrain
-typealias TankDriveConfiguration = RobotTankDriveTrain.Configuration
+class InvalidDriveTrainOperationException(override val message: String? = null) : Exception()
 
 class RobotTankDriveTrain(
     private val leftMotors: List<DcMotor>,
     private val rightMotors: List<DcMotor>
 ) : RobotDriveTrain {
+
+    override fun setHeadingPower(power: Double) {
+        setMotorPowers(-power, power)
+    }
+
+    override fun setPower(linearPower: Double, lateralPower: Double) {
+        // TODO: Add a message to the exception.
+        if (lateralPower != 0.0) throw InvalidDriveTrainOperationException()
+        setMotorPowers(linearPower, linearPower)
+    }
 
     fun setMotorPowers(leftPower: Double, rightPower: Double) {
         fun setMotorPowers(power: Double, motors: List<DcMotor>) {
@@ -21,7 +30,11 @@ class RobotTankDriveTrain(
         setMotorPowers(rightPower, rightMotors)
     }
 
-    class Configuration(override val hardwareMap: HardwareMap) : ComponentConfiguration {
+    override fun stopAllMotors() {
+        setMotorPowers(0.0, 0.0)
+    }
+
+    class Configuration(val hardwareMap: HardwareMap) : RobotFeatureConfiguration {
 
         val leftMotors = mutableListOf<DcMotor>()
         val rightMotors = mutableListOf<DcMotor>()
@@ -40,16 +53,16 @@ class RobotTankDriveTrain(
 
     }
 
-    companion object Installer : ComponentInstaller<TankDriveConfiguration, TankDrive> {
+    companion object Feature : RobotFeature<Configuration, RobotTankDriveTrain> {
 
-        override val key = RobotComponentInstallerKey<TankDrive>("RobotTankDriveTrain")
+        override val key = RobotFeatureKey<RobotTankDriveTrain>("RobotTankDriveTrain")
 
         override fun install(
             robot: Robot,
-            configure: TankDriveConfiguration.() -> Unit
-        ): TankDrive {
+            configure: Configuration.() -> Unit
+        ): RobotTankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
-            return TankDrive(configuration.leftMotors, configuration.rightMotors)
+            return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)
         }
 
     }
