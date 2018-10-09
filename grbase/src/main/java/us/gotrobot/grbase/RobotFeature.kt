@@ -3,6 +3,7 @@ package us.gotrobot.grbase
 @DslMarker
 annotation class RobotFeatureMarker
 
+@RobotFeatureMarker
 interface RobotFeature<out TConfiguration : RobotFeatureConfiguration, TFeature : Any> : RobotFeatureDescriptor<TFeature> {
     fun install(robot: Robot, configure: TConfiguration.() -> Unit): TFeature
 }

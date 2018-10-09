@@ -2,6 +2,9 @@ package us.gotrobot.grbase
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.produce
 
 class InvalidDriveTrainOperationException(override val message: String? = null) : Exception()
 
@@ -34,6 +37,54 @@ class RobotTankDriveTrain(
         setMotorPowers(0.0, 0.0)
     }
 
+    inner class Localizer(private val coroutineScope: CoroutineScope) : RobotPositionLocalizer {
+
+        private fun CoroutineScope.motorPositionChannel() = produce<Int> {
+            val motors = leftMotors + rightMotors
+            val currentPosition = motors.sumBy { it.currentPosition }
+            offer(currentPosition / motors.count())
+        }
+
+        private fun CoroutineScope.positionChannel(motorPositionChannel: ReceiveChannel<Int>) =
+            produce<RobotPosition> {
+                offer(RobotPosition(motorPositionChannel.receive().toDouble(), 0.0))
+            }
+
+        override fun newPositionChannel(): ReceiveChannel<RobotPosition> {
+            (leftMotors + rightMotors).forEach {
+                it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            }
+            val motorPosition = coroutineScope.motorPositionChannel()
+            return coroutineScope.positionChannel(motorPosition)
+
+        }
+    }
+
+    object PositionLocalizer : RobotFeature<Nothing, Localizer> {
+        override val key: RobotFeatureKey<Localizer> =
+            RobotFeatureKey("RobotTankDriveLocalizer")
+
+        override fun install(robot: Robot, configure: Nothing.() -> Unit): Localizer {
+            return robot.feature(RobotTankDriveTrain).Localizer(robot)
+        }
+    }
+
+    companion object Feature : RobotFeature<Configuration, RobotTankDriveTrain> {
+
+        override val key = RobotFeatureKey<RobotTankDriveTrain>("RobotTankDriveTrain")
+
+        override fun install(
+            robot: Robot,
+            configure: Configuration.() -> Unit
+        ): RobotTankDriveTrain {
+            val configuration = Configuration(robot.hardwareMap).apply(configure)
+            return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)
+        }
+
+    }
+
+    @RobotFeatureMarker
     class Configuration(val hardwareMap: HardwareMap) : RobotFeatureConfiguration {
 
         val leftMotors = mutableListOf<DcMotor>()
@@ -53,18 +104,5 @@ class RobotTankDriveTrain(
 
     }
 
-    companion object Feature : RobotFeature<Configuration, RobotTankDriveTrain> {
-
-        override val key = RobotFeatureKey<RobotTankDriveTrain>("RobotTankDriveTrain")
-
-        override fun install(
-            robot: Robot,
-            configure: Configuration.() -> Unit
-        ): RobotTankDriveTrain {
-            val configuration = Configuration(robot.hardwareMap).apply(configure)
-            return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)
-        }
-
-    }
-
 }
+

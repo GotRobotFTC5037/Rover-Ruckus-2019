@@ -6,9 +6,6 @@ import kotlinx.coroutines.experimental.isActive
 import kotlinx.coroutines.experimental.yield
 import kotlin.math.abs
 
-typealias Action = RobotAction
-typealias MoveAction = RobotMoveAction
-
 class IncompatibleRobotActionException(override val message: String?) : Exception()
 
 interface RobotActions {
@@ -18,9 +15,10 @@ interface RobotActions {
 }
 
 interface RobotMoveActions {
-    fun timeDrive(duration: Long, power: Double): MoveAction
-    fun timeTurn(duration: Long, power: Double): MoveAction
-    fun turnTo(heading: Double, power: Double): MoveAction
+    fun timeDrive(duration: Long, power: Double): RobotMoveAction
+    fun timeTurn(duration: Long, power: Double): RobotMoveAction
+    fun turnTo(heading: Double, power: Double): RobotMoveAction
+    fun driveTo(distance: Long, power: Double): RobotMoveAction
 }
 
 typealias RobotActionBlock = suspend RobotAction.Context.() -> Unit
@@ -71,35 +69,49 @@ open class RobotAction(private val actionBlock: RobotActionBlock) {
     }
 }
 
-class RobotMoveAction(actionBlock: RobotActionBlock) : Action(actionBlock) {
+class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) {
 
     companion object Builder : RobotMoveActions {
 
-        override fun timeDrive(duration: Long, power: Double) = MoveAction {
+        override fun timeDrive(duration: Long, power: Double) = RobotMoveAction {
             val driveTrain = requiredFeature(RobotDriveTrain)
             driveTrain.setPower(1.0, 0.0)
             delay(duration)
             driveTrain.stopAllMotors()
         }
 
-        override fun timeTurn(duration: Long, power: Double) = MoveAction {
+        override fun timeTurn(duration: Long, power: Double) = RobotMoveAction {
             val driveTrain = requiredFeature(RobotDriveTrain)
             driveTrain.setHeadingPower(power)
             delay(duration)
             driveTrain.stopAllMotors()
         }
 
-        override fun turnTo(heading: Double, power: Double) = MoveAction {
+        override fun turnTo(heading: Double, power: Double) = RobotMoveAction {
             val localizer = requiredFeature(RobotHeadingLocalizer)
             val driveTrain = requiredFeature(RobotDriveTrain)
-            val currentHeading = localizer.headingChannel.receive()
+            val headingChannel = localizer.newHeadingChannel()
+
+            val currentHeading = headingChannel.receive()
             if (currentHeading > heading) {
                 driveTrain.setHeadingPower(-abs(power))
-                while(currentHeading > localizer.headingChannel.receive()) { yield() }
+                while(currentHeading > headingChannel.receive()) { yield() }
             } else if (currentHeading < heading) {
                 driveTrain.setHeadingPower(abs(power))
-                while(currentHeading < localizer.headingChannel.receive()) { yield() }
+                while(currentHeading < headingChannel.receive()) { yield() }
             }
+            headingChannel.cancel()
+            driveTrain.stopAllMotors()
+        }
+
+        override fun driveTo(distance: Long, power: Double) = RobotMoveAction {
+            val localizer = requiredFeature(RobotPositionLocalizer)
+            val driveTrain = requiredFeature(RobotDriveTrain)
+            val positionChannel = localizer.newPositionChannel()
+
+            driveTrain.setPower(power, 0.0)
+            while(positionChannel.receive().linearPosition < distance) { yield() }
+            positionChannel.cancel()
             driveTrain.stopAllMotors()
         }
 
