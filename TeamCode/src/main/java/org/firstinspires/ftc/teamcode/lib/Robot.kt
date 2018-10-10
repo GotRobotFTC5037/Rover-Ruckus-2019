@@ -63,7 +63,7 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> feature(feature: RobotFeatureDescriptor<T>): T {
-        return features[feature.key] as T?
+        return features.filter { it.key as? T != null }.entries.singleOrNull() as? T
                 ?: throw MissingRobotFeatureException("Robot does not the have the feature '${feature.key.name}' installed.")
     }
 

@@ -12,7 +12,7 @@ interface RobotFeatureDescriptor<TFeature : Any> {
     val key: RobotFeatureKey<TFeature>
 }
 
-class RobotFeatureKey<T : Any>(val name: String)
+class RobotFeatureKey<out T : Any>(val name: String)
 
 @RobotFeatureMarker
 interface RobotFeatureConfiguration
