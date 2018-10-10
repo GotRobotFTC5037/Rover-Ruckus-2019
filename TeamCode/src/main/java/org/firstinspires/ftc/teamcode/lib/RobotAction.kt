@@ -75,7 +75,7 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
 
         override fun timeDrive(duration: Long, power: Double) = RobotMoveAction {
             val driveTrain = requiredFeature(RobotDriveTrain)
-            driveTrain.setPower(1.0, 0.0)
+            driveTrain.setPower(power, 0.0)
             delay(duration)
             driveTrain.stopAllMotors()
         }
