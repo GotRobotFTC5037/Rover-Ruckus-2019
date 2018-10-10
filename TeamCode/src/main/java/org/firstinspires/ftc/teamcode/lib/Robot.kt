@@ -31,6 +31,8 @@ interface Robot : CoroutineScope {
             configure: C.() -> Unit = {}
     )
 
+    fun setupAndWaitForStart()
+
     /**
      * Returns the [RobotFeature] as described by the provided [RobotFeatureDescriptor].
      */
@@ -52,6 +54,10 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
 
     private val features = mutableMapOf<RobotFeatureKey<*>, Any>()
 
+    override fun setupAndWaitForStart() {
+        linearOpMode.waitForStart()
+    }
+
     override fun <C : RobotFeatureConfiguration, F : Any> install(
             feature: RobotFeature<C, F>,
             configure: C.() -> Unit
@@ -63,7 +69,7 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> feature(feature: RobotFeatureDescriptor<T>): T {
-        return features.filter { it.key as? T != null }.entries.singleOrNull() as? T
+        return features.filter { it.key as? T != null }.entries.singleOrNull()?.value as? T
                 ?: throw MissingRobotFeatureException("Robot does not the have the feature '${feature.key.name}' installed.")
     }
 
