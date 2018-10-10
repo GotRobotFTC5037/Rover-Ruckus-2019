@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.lib.RobotMoveAction
 import org.firstinspires.ftc.teamcode.lib.RobotTankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.createRobot
 
 @Autonomous
+@Disabled
 class LibAutonomous : LinearOpMode() {
 
     @Throws(InterruptedException::class)

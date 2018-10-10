@@ -13,11 +13,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import kotlin.math.abs
 
 @Autonomous
-@Disabled
 class TestAuto : LinearOpMode() {
 
     val leftMotor: DcMotor by lazy {
-        hardwareMap.dcMotor.get("left addMotor").apply {
+        hardwareMap.dcMotor.get("left motor").apply {
             direction = DcMotorSimple.Direction.REVERSE
             zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -26,7 +25,7 @@ class TestAuto : LinearOpMode() {
     }
 
     val rightMotor: DcMotor by lazy {
-        hardwareMap.dcMotor.get("right addMotor").apply {
+        hardwareMap.dcMotor.get("right motor").apply {
             direction = DcMotorSimple.Direction.FORWARD
             zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -60,9 +59,9 @@ class TestAuto : LinearOpMode() {
     override fun runOpMode() {
         waitForStart()
         imu.waitForGyoCalibraion()
-        drive(0.6,1200)
-        turn(0.5, 90.0)
-        turn(0.5,-90.0)
+        drive(0.5,1200)
+        turn(0.5, 110.0)
+        drive(0.8,3000)
     }
 
     fun drive(power: Double, distance: Int) {

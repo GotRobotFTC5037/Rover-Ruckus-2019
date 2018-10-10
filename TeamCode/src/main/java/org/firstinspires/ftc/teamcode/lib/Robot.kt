@@ -50,7 +50,7 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
     override val hardwareMap: HardwareMap
         get() = linearOpMode.hardwareMap
 
-    private val features = mutableMapOf<RobotFeatureKey<Any>, Any>()
+    private val features = mutableMapOf<RobotFeatureKey<*>, Any>()
 
     override fun <C : RobotFeatureConfiguration, F : Any> install(
             feature: RobotFeature<C, F>,
