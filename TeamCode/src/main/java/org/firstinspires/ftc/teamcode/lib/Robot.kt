@@ -1,4 +1,4 @@
-package us.gotrobot.grbase
+package org.firstinspires.ftc.teamcode.lib
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -27,8 +27,8 @@ interface Robot : CoroutineScope {
      * Installs a [RobotFeature] into the robot.
      */
     fun <C : RobotFeatureConfiguration, F : Any>install(
-        feature: RobotFeature<C, F>,
-        configure: C.() -> Unit = {}
+            feature: RobotFeature<C, F>,
+            configure: C.() -> Unit = {}
     )
 
     /**
@@ -50,11 +50,11 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
     override val hardwareMap: HardwareMap
         get() = linearOpMode.hardwareMap
 
-    private val features = mutableMapOf<RobotFeatureKey<*>, Any>()
+    private val features = mutableMapOf<RobotFeatureKey<Any>, Any>()
 
     override fun <C : RobotFeatureConfiguration, F : Any> install(
-        feature: RobotFeature<C, F>,
-        configure: C.() -> Unit
+            feature: RobotFeature<C, F>,
+            configure: C.() -> Unit
     ) {
         if (features[feature.key] == null) {
             features[feature.key] = feature.install(this, configure)

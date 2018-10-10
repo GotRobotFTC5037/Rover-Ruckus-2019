@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import us.gotrobot.grbase.IMULocalizer
-import us.gotrobot.grbase.RobotMoveAction
-import us.gotrobot.grbase.RobotTankDriveTrain
-import us.gotrobot.grbase.createRobot
+import org.firstinspires.ftc.teamcode.lib.RobotMoveAction
+import org.firstinspires.ftc.teamcode.lib.RobotTankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.createRobot
 
 @Autonomous
 class LibAutonomous : LinearOpMode() {
@@ -17,12 +16,10 @@ class LibAutonomous : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
-            install(RobotTankDriveTrain.PositionLocalizer)
-            install(IMULocalizer)
         }
-
-        robot.runAction(RobotMoveAction.timeDrive(1000, 0.5))
-        robot.runAction(RobotMoveAction.turnTo(-135.0, 0.5))
-        robot.runAction(RobotMoveAction.timeDrive(1000, 0.5))
+        robot.runAction(RobotMoveAction.timeDrive(3000,0.5))
+        robot.runAction(RobotMoveAction.timeTurn(1500,-0.5))
+        robot.runAction(RobotMoveAction.timeDrive(1000,-0.5))
     }
+
 }

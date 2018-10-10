@@ -1,4 +1,4 @@
-package us.gotrobot.grbase
+package org.firstinspires.ftc.teamcode.lib
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -63,7 +63,7 @@ class RobotTankDriveTrain(
 
     object PositionLocalizer : RobotFeature<Nothing, Localizer> {
         override val key: RobotFeatureKey<Localizer> =
-            RobotFeatureKey("RobotTankDriveLocalizer")
+                RobotFeatureKey("RobotTankDriveLocalizer")
 
         override fun install(robot: Robot, configure: Nothing.() -> Unit): Localizer {
             return robot.feature(RobotTankDriveTrain).Localizer(robot)
@@ -75,8 +75,8 @@ class RobotTankDriveTrain(
         override val key = RobotFeatureKey<RobotTankDriveTrain>("RobotTankDriveTrain")
 
         override fun install(
-            robot: Robot,
-            configure: Configuration.() -> Unit
+                robot: Robot,
+                configure: Configuration.() -> Unit
         ): RobotTankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
             return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)

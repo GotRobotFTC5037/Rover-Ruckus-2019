@@ -1,4 +1,4 @@
-package us.gotrobot.grbase
+package org.firstinspires.ftc.teamcode.lib
 
 import com.qualcomm.hardware.bosch.BNO055IMU
 import kotlinx.coroutines.experimental.CoroutineScope
@@ -29,7 +29,7 @@ interface RobotHeadingLocalizer {
 
     companion object Descriptor : RobotFeatureDescriptor<RobotHeadingLocalizer> {
         override val key: RobotFeatureKey<RobotHeadingLocalizer> =
-            RobotFeatureKey("RobotHeadingLocalizer")
+                RobotFeatureKey("RobotHeadingLocalizer")
     }
 }
 
@@ -42,7 +42,7 @@ interface RobotPositionLocalizer {
 
     companion object Descriptor : RobotFeatureDescriptor<RobotPositionLocalizer> {
         override val key: RobotFeatureKey<RobotPositionLocalizer> =
-            RobotFeatureKey("RobotPositionLocalizer")
+                RobotFeatureKey("RobotPositionLocalizer")
     }
 
 }

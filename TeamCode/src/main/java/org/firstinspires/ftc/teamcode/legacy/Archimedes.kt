@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.produce
+import kotlin.coroutines.experimental.coroutineContext
 
 class Archimedes(
     private val linearOpMode: LinearOpMode,
@@ -90,6 +91,8 @@ class Archimedes(
 
         ballLauncher.power = 0.0
     }
+
+    fun stopBallLauncher() = runBlocking { coroutineContext.cancelChildren() }
 
 
     companion object {

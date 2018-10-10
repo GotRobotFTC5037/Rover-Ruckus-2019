@@ -25,7 +25,7 @@ class RobotTeleOp : LinearOpMode() {
                 else -> 0.0
             }
         }
-        coroutineContext.cancelChildren()
+        robot.stopBallLauncher()
     }
 
 }

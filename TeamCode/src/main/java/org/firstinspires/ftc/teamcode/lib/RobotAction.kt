@@ -1,4 +1,4 @@
-package us.gotrobot.grbase
+package org.firstinspires.ftc.teamcode.lib
 
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.delay
@@ -43,7 +43,7 @@ open class RobotAction(private val actionBlock: RobotActionBlock) {
                 robot.feature(feature)
             } catch (e: MissingRobotFeatureException) {
                 throw IncompatibleRobotActionException(
-                    "Action requires feature '${feature.key.name}' to be installed."
+                        "Action requires feature '${feature.key.name}' to be installed."
                 )
             }
     }
@@ -95,10 +95,14 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
             val currentHeading = headingChannel.receive()
             if (currentHeading > heading) {
                 driveTrain.setHeadingPower(-abs(power))
-                while(currentHeading > headingChannel.receive()) { yield() }
+                while (currentHeading > headingChannel.receive()) {
+                    yield()
+                }
             } else if (currentHeading < heading) {
                 driveTrain.setHeadingPower(abs(power))
-                while(currentHeading < headingChannel.receive()) { yield() }
+                while (currentHeading < headingChannel.receive()) {
+                    yield()
+                }
             }
             headingChannel.cancel()
             driveTrain.stopAllMotors()
@@ -110,7 +114,9 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
             val positionChannel = localizer.newPositionChannel()
 
             driveTrain.setPower(power, 0.0)
-            while(positionChannel.receive().linearPosition < distance) { yield() }
+            while (positionChannel.receive().linearPosition < distance) {
+                yield()
+            }
             positionChannel.cancel()
             driveTrain.stopAllMotors()
         }

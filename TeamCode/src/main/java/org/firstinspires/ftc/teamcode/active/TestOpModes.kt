@@ -56,9 +56,11 @@ class TestAuto : LinearOpMode() {
         telemetry.update()
     }
 
+    @Throws(InterruptedException::class)
     override fun runOpMode() {
         waitForStart()
         imu.waitForGyoCalibraion()
+        drive(0.6,1200)
         turn(0.5, 90.0)
         turn(0.5,-90.0)
     }
