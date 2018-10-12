@@ -18,13 +18,12 @@ class LibAutonomous : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
-            install(IMULocalizer)
         }
         robot.setupAndWaitForStart()
         robot.runAction(RobotMoveAction.timeDrive(1500L,0.5))
-        robot.runAction(RobotMoveAction.timeDrive(1000L,-0.5))
-        robot.runAction(RobotMoveAction.turnTo(-110.0,0.5))
-        robot.runAction(RobotMoveAction.timeDrive(3500,0.7))
+        robot.runAction(RobotMoveAction.timeDrive(500L,-0.5))
+        robot.runAction(RobotMoveAction.timeTurn(900,-0.4))
+        robot.runAction(RobotMoveAction.timeDrive(3500,1.0))
     }
 
 }
