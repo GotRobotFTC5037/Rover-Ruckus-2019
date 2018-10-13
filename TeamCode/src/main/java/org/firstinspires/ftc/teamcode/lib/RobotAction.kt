@@ -43,24 +43,24 @@ open class RobotAction(private val actionBlock: RobotActionBlock) {
                 robot.feature(feature)
             } catch (e: MissingRobotFeatureException) {
                 throw IncompatibleRobotActionException(
-                        "Action requires feature '${feature.key.name}' to be installed."
+                    "Action requires feature '${feature.key.name}' to be installed."
                 )
             }
     }
 
     companion object Builder : RobotActions {
 
-        override fun wait(duration: Long) = RobotAction {
+        override fun wait(duration: Long): RobotAction = RobotAction {
             delay(duration)
         }
 
-        override fun sequence(actions: List<RobotAction>) = RobotAction {
+        override fun sequence(actions: List<RobotAction>): RobotAction = RobotAction {
             for (action in actions) {
                 action.run(this)
             }
         }
 
-        override fun forever(action: RobotAction) = RobotAction {
+        override fun forever(action: RobotAction): RobotAction = RobotAction {
             while (isActive) {
                 action.run(this)
             }
@@ -73,23 +73,24 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
 
     companion object Builder : RobotMoveActions {
 
-        override fun timeDrive(duration: Long, power: Double) = RobotMoveAction {
-            val driveTrain = requiredFeature(RobotDriveTrain)
+        override fun timeDrive(duration: Long, power: Double): RobotMoveAction = RobotMoveAction {
+            val driveTrain = requiredFeature(RobotTankDriveTrain)
             driveTrain.setPower(1.0, 0.0)
             delay(duration)
             driveTrain.stopAllMotors()
         }
 
-        override fun timeTurn(duration: Long, power: Double) = RobotMoveAction {
-            val driveTrain = requiredFeature(RobotDriveTrain)
+        override fun timeTurn(duration: Long, power: Double): RobotMoveAction = RobotMoveAction {
+            val driveTrain = requiredFeature(RobotTankDriveTrain)
             driveTrain.setHeadingPower(power)
             delay(duration)
             driveTrain.stopAllMotors()
         }
 
-        override fun turnTo(heading: Double, power: Double) = RobotMoveAction {
-            val localizer = requiredFeature(RobotHeadingLocalizer)
-            val driveTrain = requiredFeature(RobotDriveTrain)
+        override fun turnTo(heading: Double, power: Double): RobotMoveAction = RobotMoveAction {
+            // TODO: Find a way to specify that you want a [HeadingLocalizer] without specifying which subclass you actually want.
+            val localizer = requiredFeature(IMULocalizer)
+            val driveTrain = requiredFeature(RobotTankDriveTrain)
             val headingChannel = localizer.newHeadingChannel()
 
             val currentHeading = headingChannel.receive()
@@ -108,9 +109,9 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
             driveTrain.stopAllMotors()
         }
 
-        override fun driveTo(distance: Long, power: Double) = RobotMoveAction {
-            val localizer = requiredFeature(RobotPositionLocalizer)
-            val driveTrain = requiredFeature(RobotDriveTrain)
+        override fun driveTo(distance: Long, power: Double): RobotMoveAction = RobotMoveAction {
+            val localizer = requiredFeature(RobotTankDriveTrain.PositionLocalizer)
+            val driveTrain = requiredFeature(RobotTankDriveTrain)
             val positionChannel = localizer.newPositionChannel()
 
             driveTrain.setPower(power, 0.0)

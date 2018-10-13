@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.lib.RobotMoveAction
 import org.firstinspires.ftc.teamcode.lib.RobotTankDriveTrain
@@ -18,10 +17,11 @@ class LibAutonomous : LinearOpMode() {
                 addRightMotor("right motor")
             }
         }
+
         robot.setupAndWaitForStart()
-        robot.runAction(RobotMoveAction.timeDrive(3000,0.5))
-        robot.runAction(RobotMoveAction.timeTurn(1500,-0.5))
-        robot.runAction(RobotMoveAction.timeDrive(1000,-0.5))
+        robot.runAction(RobotMoveAction.timeDrive(3000, 0.5))
+        robot.runAction(RobotMoveAction.timeTurn(1500, -0.5))
+        robot.runAction(RobotMoveAction.timeDrive(1000, -0.5))
     }
 
 }

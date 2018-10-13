@@ -9,8 +9,4 @@ interface RobotDriveTrain {
     fun setPower(linearPower: Double, lateralPower: Double)
     fun setHeadingPower(power: Double)
     fun stopAllMotors()
-
-    companion object Descriptor : RobotFeatureDescriptor<RobotDriveTrain> {
-        override val key = RobotFeatureKey<RobotDriveTrain>("RobotDriveTrain")
-    }
 }
