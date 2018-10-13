@@ -66,7 +66,12 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot, Corout
         return features.getOrNull(feature) ?: throw MissingRobotFeatureException()
     }
 
+    private fun setup() {
+        job = Job()
+    }
+
     override fun setupAndWaitForStart() {
+        setup()
         linearOpMode.waitForStart()
     }
 

@@ -87,21 +87,21 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
             driveTrain.stopAllMotors()
         }
 
-        override fun turnTo(heading: Double, power: Double): RobotMoveAction = RobotMoveAction {
+        override fun turnTo(targetHeading: Double, power: Double): RobotMoveAction = RobotMoveAction {
             // TODO: Find a way to specify that you want a [HeadingLocalizer] without specifying which subclass you actually want.
-            val localizer = requiredFeature(IMULocalizer)
+            val localizer = requiredFeature(IMULocalizer).apply { while(!isCalibrated) { yield() } }
             val driveTrain = requiredFeature(RobotTankDriveTrain)
             val headingChannel = localizer.newHeadingChannel()
 
-            val currentHeading = headingChannel.receive()
-            if (currentHeading > heading) {
+            val initialHeading = headingChannel.receive()
+            if (initialHeading > targetHeading) {
                 driveTrain.setHeadingPower(-abs(power))
-                while (currentHeading > headingChannel.receive()) {
+                while (targetHeading < headingChannel.receive()) {
                     yield()
                 }
-            } else if (currentHeading < heading) {
+            } else if (initialHeading < targetHeading) {
                 driveTrain.setHeadingPower(abs(power))
-                while (currentHeading < headingChannel.receive()) {
+                while (targetHeading > headingChannel.receive()) {
                     yield()
                 }
             }

@@ -15,14 +15,17 @@ class LibAutonomous : LinearOpMode() {
     @Throws(InterruptedException::class)
     override fun runOpMode() {
         val robot = createRobot(this) {
+            install(IMULocalizer)
             install(RobotTankDriveTrain) {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
-
             }
         }
 
         robot.setupAndWaitForStart()
+
+
+
         when {
             potentiometer.voltage < 1.1 -> {
                 left(robot)
@@ -37,7 +40,7 @@ class LibAutonomous : LinearOpMode() {
         }
     }
 
-    fun left(robot: Robot) {
+    private fun left(robot: Robot) {
         robot.runAction(RobotMoveAction.timeTurn(425,-0.3))
         sleep(100)
         robot.runAction(RobotMoveAction.timeDrive(650,0.5))
@@ -53,14 +56,16 @@ class LibAutonomous : LinearOpMode() {
         robot.runAction(RobotMoveAction.timeDrive(700,-0.5))
     }
 
-    fun center(robot: Robot) {
-        robot.runAction(RobotMoveAction.timeDrive(1500L,0.5))
-        robot.runAction(RobotMoveAction.timeDrive(500L,-0.5))
-        robot.runAction(RobotMoveAction.timeTurn(900,-0.4))
-        robot.runAction(RobotMoveAction.timeDrive(500,1.0))
+    private fun center(robot: Robot) {
+        robot.runAction(RobotMoveAction.timeDrive(1300L,0.5))
+        robot.runAction(RobotMoveAction.timeDrive(300L,-0.3))
+        sleep(100)
+        robot.runAction(RobotMoveAction.turnTo(-135.0,0.3))
+        sleep(100)
+        robot.runAction(RobotMoveAction.timeDrive(500,0.7))
     }
 
-    fun right(robot: Robot) {
+    private fun right(robot: Robot) {
         robot.runAction(RobotMoveAction.timeTurn(400,0.3))
         robot.runAction(RobotMoveAction.timeDrive(875,0.45))
         sleep(100)
@@ -68,10 +73,9 @@ class LibAutonomous : LinearOpMode() {
         robot.runAction(RobotMoveAction.timeDrive(650,0.5))
         robot.runAction(RobotMoveAction.timeTurn(550, -0.5))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeDrive(50, 0.7))
-        robot.runAction(RobotMoveAction.timeTurn(100,-0.35))
+        robot.runAction(RobotMoveAction.timeDrive(450, 0.7))
+        robot.runAction(RobotMoveAction.timeTurn(100,-0.30))
         robot.runAction(RobotMoveAction.timeDrive(500,0.7))
     }
 
 }
-

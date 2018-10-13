@@ -45,6 +45,8 @@ class IMULocalizer(
     private val coroutineScope: CoroutineScope
 ) : RobotHeadingLocalizer {
 
+    val isCalibrated get() = imu.isGyroCalibrated
+
     private fun CoroutineScope.orientation(ticker: ReceiveChannel<Unit>) = produce<Orientation> {
         while (isActive) {
             val orientation = imu.getAngularOrientation(
