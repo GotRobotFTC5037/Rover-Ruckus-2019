@@ -73,9 +73,9 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
 
     companion object Builder : RobotMoveActions {
 
-        override fun timeDrive(duration: Long, power: Double): RobotMoveAction = RobotMoveAction {
+        override fun timeDrive(duration: Long, power: Double) = RobotMoveAction {
             val driveTrain = requiredFeature(RobotTankDriveTrain)
-            driveTrain.setPower(1.0, 0.0)
+            driveTrain.setPower(power, 0.0)
             delay(duration)
             driveTrain.stopAllMotors()
         }
