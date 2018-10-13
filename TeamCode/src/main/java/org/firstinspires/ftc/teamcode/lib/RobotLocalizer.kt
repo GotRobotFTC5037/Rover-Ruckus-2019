@@ -26,11 +26,6 @@ interface RobotHeadingLocalizer {
      * Returns a [ReceiveChannel] with the current heading of the robot.
      */
     fun newHeadingChannel(): ReceiveChannel<Double>
-
-    companion object Descriptor : RobotFeatureDescriptor<RobotHeadingLocalizer> {
-        override val key: RobotFeatureKey<RobotHeadingLocalizer> =
-                RobotFeatureKey("RobotHeadingLocalizer")
-    }
 }
 
 /**
@@ -40,11 +35,6 @@ interface RobotPositionLocalizer {
 
     fun newPositionChannel(): ReceiveChannel<RobotPosition>
 
-    companion object Descriptor : RobotFeatureDescriptor<RobotPositionLocalizer> {
-        override val key: RobotFeatureKey<RobotPositionLocalizer> =
-                RobotFeatureKey("RobotPositionLocalizer")
-    }
-
 }
 
 /**
@@ -53,10 +43,10 @@ interface RobotPositionLocalizer {
 class IMULocalizer(
     private val imu: BNO055IMU,
     private val coroutineScope: CoroutineScope
-): RobotHeadingLocalizer {
+) : RobotHeadingLocalizer {
 
     private fun CoroutineScope.orientation(ticker: ReceiveChannel<Unit>) = produce<Orientation> {
-        while(isActive) {
+        while (isActive) {
             val orientation = imu.getAngularOrientation(
                 AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES
             )
@@ -66,7 +56,7 @@ class IMULocalizer(
     }
 
     private fun CoroutineScope.heading(orientation: ReceiveChannel<Orientation>) = produce<Double> {
-        while(isActive) {
+        while (isActive) {
             val robotOrientation = orientation.receive()
             offer(robotOrientation.firstAngle.toDouble())
         }
@@ -96,7 +86,8 @@ class IMULocalizer(
         override val key: RobotFeatureKey<IMULocalizer> = RobotFeatureKey("IMULocalizer")
 
         override fun install(robot: Robot, configure: Configuration.() -> Unit): IMULocalizer {
-            val configuration = Configuration(robot).apply(configure)
+            // TODO: Find a more elegant way to get a coroutine scope. For the moment, [RobotImpl] is our only subclass of [Robot] and it implements [CoroutineScope], but that may not always be the case.
+            val configuration = Configuration(robot as CoroutineScope).apply(configure)
             val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
                 .apply { initialize(BNO055IMU.Parameters()) }
             return IMULocalizer(imu, configuration.coroutineScope)

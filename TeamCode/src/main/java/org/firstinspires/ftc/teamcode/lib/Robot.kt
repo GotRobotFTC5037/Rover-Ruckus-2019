@@ -11,12 +11,12 @@ import kotlin.coroutines.experimental.CoroutineContext
 /**
  * Reports a situation where a requested [RobotFeature] isn't available.
  */
-class MissingRobotFeatureException(override val message: String?) : Exception()
+class MissingRobotFeatureException(override val message: String? = "") : Exception()
 
 /**
  * Installs [RobotFeature] and runs [RobotAction]. The core interface of GRBase.
  */
-interface Robot : CoroutineScope {
+interface Robot {
 
     /**
      * A [HardwareMap] instance used for user convenience.
@@ -26,9 +26,9 @@ interface Robot : CoroutineScope {
     /**
      * Installs a [RobotFeature] into the robot.
      */
-    fun <C : RobotFeatureConfiguration, F : Any>install(
-            feature: RobotFeature<C, F>,
-            configure: C.() -> Unit = {}
+    fun <C : RobotFeatureConfiguration, F : Any> install(
+        feature: RobotFeature<C, F>,
+        configure: C.() -> Unit = {}
     )
 
     fun setupAndWaitForStart()
@@ -36,7 +36,7 @@ interface Robot : CoroutineScope {
     /**
      * Returns the [RobotFeature] as described by the provided [RobotFeatureDescriptor].
      */
-    fun <T : Any>feature(feature: RobotFeatureDescriptor<T>): T
+    fun <T : Any> feature(feature: RobotFeatureDescriptor<T>): T
 
     /**
      * Runs the provided [RobotAction].
@@ -44,7 +44,7 @@ interface Robot : CoroutineScope {
     fun runAction(action: RobotAction)
 }
 
-internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
+internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot, CoroutineScope {
 
     private lateinit var job: Job
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + job
@@ -52,25 +52,22 @@ internal class RobotImpl(private val linearOpMode: LinearOpMode) : Robot {
     override val hardwareMap: HardwareMap
         get() = linearOpMode.hardwareMap
 
-    private val features = mutableMapOf<RobotFeatureKey<*>, Any>()
+    private val features = RobotFeatureSet()
+
+    override fun <C : RobotFeatureConfiguration, F : Any> install(
+        feature: RobotFeature<C, F>,
+        configure: C.() -> Unit
+    ) {
+        val featureInstance = feature.install(this, configure)
+        features.add(feature, featureInstance)
+    }
+
+    override fun <T : Any> feature(feature: RobotFeatureDescriptor<T>): T {
+        return features.getOrNull(feature) ?: throw MissingRobotFeatureException()
+    }
 
     override fun setupAndWaitForStart() {
         linearOpMode.waitForStart()
-    }
-
-    override fun <C : RobotFeatureConfiguration, F : Any> install(
-            feature: RobotFeature<C, F>,
-            configure: C.() -> Unit
-    ) {
-        if (features[feature.key] == null) {
-            features[feature.key] = feature.install(this, configure)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> feature(feature: RobotFeatureDescriptor<T>): T {
-        return features.filter { it.key as? T != null }.entries.singleOrNull()?.value as? T
-                ?: throw MissingRobotFeatureException("Robot does not the have the feature '${feature.key.name}' installed.")
     }
 
     override fun runAction(action: RobotAction) = runBlocking {

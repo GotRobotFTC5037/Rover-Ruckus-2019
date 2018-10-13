@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.AnalogInput
 import org.firstinspires.ftc.teamcode.lib.*
@@ -22,6 +21,7 @@ class LibAutonomous : LinearOpMode() {
 
             }
         }
+
         robot.setupAndWaitForStart()
         when {
             potentiometer.voltage < 1.1 -> {
@@ -35,9 +35,6 @@ class LibAutonomous : LinearOpMode() {
             }
 
         }
-
-
-
     }
 
     fun left(robot: Robot) {

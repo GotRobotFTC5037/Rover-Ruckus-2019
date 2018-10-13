@@ -63,10 +63,10 @@ class RobotTankDriveTrain(
 
     object PositionLocalizer : RobotFeature<Nothing, Localizer> {
         override val key: RobotFeatureKey<Localizer> =
-                RobotFeatureKey("RobotTankDriveLocalizer")
+            RobotFeatureKey("RobotTankDriveLocalizer")
 
         override fun install(robot: Robot, configure: Nothing.() -> Unit): Localizer {
-            return robot.feature(RobotTankDriveTrain).Localizer(robot)
+            return robot.feature(RobotTankDriveTrain).Localizer(robot as CoroutineScope)
         }
     }
 
@@ -75,8 +75,8 @@ class RobotTankDriveTrain(
         override val key = RobotFeatureKey<RobotTankDriveTrain>("RobotTankDriveTrain")
 
         override fun install(
-                robot: Robot,
-                configure: Configuration.() -> Unit
+            robot: Robot,
+            configure: Configuration.() -> Unit
         ): RobotTankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
             return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)
