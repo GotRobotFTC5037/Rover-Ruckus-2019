@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.active
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.AnalogInput
-import org.firstinspires.ftc.teamcode.lib.*
+import org.firstinspires.ftc.teamcode.lib.Robot
+import org.firstinspires.ftc.teamcode.lib.RobotMoveAction
+import org.firstinspires.ftc.teamcode.lib.RobotTankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.createRobot
 
 @Autonomous
 class LibAutonomous : LinearOpMode() {
@@ -30,9 +33,11 @@ class LibAutonomous : LinearOpMode() {
             potentiometer.voltage < 1.1 -> {
                 left(robot)
             }
+
             potentiometer.voltage > 2.2 -> {
                 right(robot)
             }
+
             potentiometer.voltage > 1.1 && potentiometer.voltage < 2.2 -> {
                 center(robot)
             }
@@ -43,17 +48,17 @@ class LibAutonomous : LinearOpMode() {
     private fun left(robot: Robot) {
         robot.runAction(RobotMoveAction.timeTurn(425,-0.3))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeDrive(650,0.5))
+        robot.runAction(RobotMoveAction.timeDrive(650, 0.5))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeTurn(325,0.45))
+        robot.runAction(RobotMoveAction.timeTurn(325, 0.45))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeDrive(550,0.5))
+        robot.runAction(RobotMoveAction.timeDrive(550, 0.5))
         sleep(50)
-        robot.runAction(RobotMoveAction.timeDrive(500,-0.2))
+        robot.runAction(RobotMoveAction.timeDrive(500, -0.2))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeTurn(225,0.4))
+        robot.runAction(RobotMoveAction.timeTurn(225, 0.4))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeDrive(700,-0.5))
+        robot.runAction(RobotMoveAction.timeDrive(700, -0.5))
     }
 
     private fun center(robot: Robot) {
@@ -69,8 +74,8 @@ class LibAutonomous : LinearOpMode() {
         robot.runAction(RobotMoveAction.timeTurn(400,0.3))
         robot.runAction(RobotMoveAction.timeDrive(875,0.45))
         sleep(100)
-        robot.runAction(RobotMoveAction.timeTurn(300,-0.4))
-        robot.runAction(RobotMoveAction.timeDrive(650,0.5))
+        robot.runAction(RobotMoveAction.timeTurn(300, -0.4))
+        robot.runAction(RobotMoveAction.timeDrive(650, 0.5))
         robot.runAction(RobotMoveAction.timeTurn(550, -0.5))
         sleep(100)
         robot.runAction(RobotMoveAction.timeDrive(450, 0.7))

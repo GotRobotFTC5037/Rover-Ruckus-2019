@@ -37,7 +37,14 @@ class RobotTankDriveTrain(
         setMotorPowers(0.0, 0.0)
     }
 
-    inner class Localizer(private val coroutineScope: CoroutineScope) : RobotPositionLocalizer {
+    class LocalizerConfiguration : RobotFeatureConfiguration {
+        var wheelDiameter: Double = 1 / Math.PI
+    }
+
+    inner class Localizer(
+        private val coroutineScope: CoroutineScope,
+        private val wheelDiameter: Double
+    ) : RobotPositionLocalizer {
 
         private fun CoroutineScope.motorPositionChannel() = produce<Int> {
             val motors = leftMotors + rightMotors
@@ -47,7 +54,8 @@ class RobotTankDriveTrain(
 
         private fun CoroutineScope.positionChannel(motorPositionChannel: ReceiveChannel<Int>) =
             produce<RobotPosition> {
-                offer(RobotPosition(motorPositionChannel.receive().toDouble(), 0.0))
+                val position = (Math.PI * wheelDiameter) / motorPositionChannel.receive()
+                offer(RobotPosition(position, 0.0))
             }
 
         override fun newPositionChannel(): ReceiveChannel<RobotPosition> {
@@ -61,12 +69,17 @@ class RobotTankDriveTrain(
         }
     }
 
-    object PositionLocalizer : RobotFeature<Nothing, Localizer> {
+    object PositionLocalizer : RobotFeature<LocalizerConfiguration, Localizer> {
         override val key: RobotFeatureKey<Localizer> =
             RobotFeatureKey("RobotTankDriveLocalizer")
 
-        override fun install(robot: Robot, configure: Nothing.() -> Unit): Localizer {
-            return robot.feature(RobotTankDriveTrain).Localizer(robot as CoroutineScope)
+        override fun install(
+            robot: Robot,
+            configure: LocalizerConfiguration.() -> Unit
+        ): Localizer {
+            val configuration = LocalizerConfiguration().apply(configure)
+            return robot.feature(RobotTankDriveTrain)
+                .Localizer(robot as CoroutineScope, configuration.wheelDiameter)
         }
     }
 
