@@ -18,6 +18,7 @@ interface RobotMoveActions {
     fun timeDrive(duration: Long, power: Double): RobotMoveAction
     fun timeTurn(duration: Long, power: Double): RobotMoveAction
     fun turnTo(heading: Double, power: Double): RobotMoveAction
+    fun turn(deltaHeading: Double, power: Double): RobotMoveAction
     fun driveTo(distance: Long, power: Double): RobotMoveAction
 }
 
@@ -87,26 +88,53 @@ class RobotMoveAction(actionBlock: RobotActionBlock) : RobotAction(actionBlock) 
             driveTrain.stopAllMotors()
         }
 
-        override fun turnTo(targetHeading: Double, power: Double): RobotMoveAction = RobotMoveAction {
-            // TODO: Find a way to specify that you want a [HeadingLocalizer] without specifying which subclass you actually want.
-            val localizer = requiredFeature(IMULocalizer).apply { while(!isCalibrated) { yield() } }
-            val driveTrain = requiredFeature(RobotTankDriveTrain)
-            val headingChannel = localizer.newHeadingChannel()
-
-            val initialHeading = headingChannel.receive()
-            if (initialHeading > targetHeading) {
-                driveTrain.setHeadingPower(-abs(power))
-                while (targetHeading < headingChannel.receive()) {
-                    yield()
+        override fun turnTo(targetHeading: Double, power: Double): RobotMoveAction =
+            RobotMoveAction {
+                // TODO: Find a way to specify that you want a [HeadingLocalizer] without specifying which subclass you actually want.
+                val driveTrain = requiredFeature(RobotTankDriveTrain)
+                val localizer = requiredFeature(IMULocalizer).apply {
+                    while (!isCalibrated) {
+                        yield()
+                    }
                 }
-            } else if (initialHeading < targetHeading) {
-                driveTrain.setHeadingPower(abs(power))
-                while (targetHeading > headingChannel.receive()) {
+
+                val headingChannel = localizer.newHeadingChannel()
+
+                val initialHeading = headingChannel.receive()
+                if (initialHeading > targetHeading) {
+                    driveTrain.setHeadingPower(-abs(power))
+                    while (targetHeading < headingChannel.receive()) {
+                        yield()
+                    }
+                } else if (initialHeading < targetHeading) {
+                    driveTrain.setHeadingPower(abs(power))
+                    while (targetHeading > headingChannel.receive()) {
+                        yield()
+                    }
+                }
+                headingChannel.cancel()
+                driveTrain.stopAllMotors()
+            }
+
+        override fun turn(deltaHeading: Double, power: Double): RobotMoveAction = RobotMoveAction {
+            val localizer = requiredFeature(IMULocalizer).apply {
+                while (!isCalibrated) {
                     yield()
                 }
             }
-            headingChannel.cancel()
-            driveTrain.stopAllMotors()
+
+            val headingChannel = localizer.newHeadingChannel()
+
+            val initialHeading = headingChannel.receive()
+            val rawAbsoluteDesiredHeading = initialHeading + deltaHeading
+
+            tailrec fun calculateProperHeading(heading: Double): Double = when {
+                heading > 180 -> calculateProperHeading(heading - 360)
+                heading < -180 -> calculateProperHeading(heading + 360)
+                else -> heading
+            }
+
+            turnTo(calculateProperHeading(rawAbsoluteDesiredHeading), power).run(this)
         }
 
         override fun driveTo(distance: Long, power: Double): RobotMoveAction = RobotMoveAction {
