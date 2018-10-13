@@ -51,7 +51,7 @@ class LibAutonomous : LinearOpMode() {
         sleep(1000)
         robot.runAction(RobotMoveAction.timeDrive(550, 0.5))
         sleep(1000)
-        robot.runAction(RobotMoveAction.turnTo(15.0, 0.3))
+        robot.runAction(RobotMoveAction.turn(45.0, 0.5))
         sleep(1000)
         robot.runAction(RobotMoveAction.timeDrive(500, -0.5))
         sleep(1000)
