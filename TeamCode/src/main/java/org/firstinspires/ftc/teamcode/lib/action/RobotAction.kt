@@ -17,20 +17,41 @@ import kotlin.reflect.KClass
 
 typealias RobotActionBlock = suspend RobotAction.Context.() -> Unit
 
+/**
+ * Provides an action block for a [Robot] to run with the necessary context and properties for
+ * customization. Every [RobotAction] should be run using [Robot.runAction] because it provides the
+ * necessary structure to ensure actions are run within the correct time and scopes.
+ */
 open class RobotAction(private val actionBlock: RobotActionBlock) {
 
-    // TODO: Provide a new, child coroutine scope to run in.
+    /**
+     * Runs [actionBlock] and and provides a new [Context] with [robot] and [coroutineScope]. This
+     * function should only be run within an instance of [Robot] or another [RobotActionBlock]
+     */
     internal open suspend fun run(robot: Robot, coroutineScope: CoroutineScope) {
+        // TODO: Provide a new, child coroutine scope to run in.
         val context = Context(robot, coroutineScope)
         run(context)
     }
 
+    /**
+     * Runs [actionBlock] and and provides it [context] as its context. This function should only
+     * be run within an instance of [Robot] or another [RobotActionBlock]
+     */
     internal suspend fun run(context: Context) {
         actionBlock(context)
     }
 
+    /**
+     * Provides a [RobotActionBlock] with data and functions necessary to run actions.
+     */
     open class Context(val robot: Robot, private val coroutineScope: CoroutineScope) {
 
+        /**
+         * Tells [RobotActionBlock] if it is active. This should be used in order to make a
+         * [RobotAction] cancelable which is especially important for long running, robot moving
+         * tasks.
+         */
         val isActive: Boolean get() = coroutineScope.isActive
 
         fun <TFeature : RobotFeature> requiredFeature(featureClass: KClass<TFeature>): TFeature =
