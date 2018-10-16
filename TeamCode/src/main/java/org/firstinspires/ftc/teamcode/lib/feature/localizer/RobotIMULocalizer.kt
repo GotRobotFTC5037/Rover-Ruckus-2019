@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib
+package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
 import kotlinx.coroutines.experimental.CoroutineScope
@@ -11,46 +11,27 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation
-
-data class RobotPosition(
-    val linearPosition: Double,
-    val lateralPosition: Double
-)
-
-/**
- * Reports the current heading of the robot.
- */
-interface RobotHeadingLocalizer {
-
-    /**
-     * Returns a [ReceiveChannel] with the current heading of the robot.
-     */
-    fun newHeadingChannel(): ReceiveChannel<Double>
-}
-
-/**
- * Reports the position of the robot.
- */
-interface RobotPositionLocalizer {
-
-    fun newPositionChannel(): ReceiveChannel<RobotPosition>
-
-}
+import org.firstinspires.ftc.teamcode.lib.feature.RobotFeatureConfiguration
+import org.firstinspires.ftc.teamcode.lib.feature.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
 /**
  * A localizer that uses the [BNO055IMU] to detect heading.
  */
-class IMULocalizer(
+class RobotIMULocalizer(
     private val imu: BNO055IMU,
     private val coroutineScope: CoroutineScope
 ) : RobotHeadingLocalizer {
 
-    val isCalibrated get() = imu.isGyroCalibrated
+    override val isReady: Boolean
+        get() = imu.isGyroCalibrated
 
     private fun CoroutineScope.orientation(ticker: ReceiveChannel<Unit>) = produce<Orientation> {
         while (isActive) {
             val orientation = imu.getAngularOrientation(
-                AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES
+                AxesReference.INTRINSIC,
+                AxesOrder.ZYX,
+                AngleUnit.DEGREES
             )
             ticker.receive()
             offer(orientation)
@@ -65,13 +46,16 @@ class IMULocalizer(
     }
 
     override fun newHeadingChannel(): ReceiveChannel<Double> {
-        val ticker = ticker(delay = 10, mode = TickerMode.FIXED_DELAY)
+        val ticker = ticker(
+            delay = 10,
+            mode = TickerMode.FIXED_DELAY
+        )
         val orientation = coroutineScope.orientation(ticker)
         return coroutineScope.heading(orientation)
     }
 
     /**
-     * Configures a [IMULocalizer].
+     * Configures a [RobotIMULocalizer].
      *
      * @param coroutineScope The [CoroutineScope] that the channels should run on.
      */
@@ -83,16 +67,13 @@ class IMULocalizer(
         var imuName: String = "imu"
     }
 
-    companion object Feature : RobotFeature<Configuration, IMULocalizer> {
+    companion object FeatureInstaller : RobotFeatureInstaller<Configuration, RobotIMULocalizer> {
 
-        override val key: RobotFeatureKey<IMULocalizer> = RobotFeatureKey("IMULocalizer")
-
-        override fun install(robot: Robot, configure: Configuration.() -> Unit): IMULocalizer {
-            // TODO: Find a more elegant way to get a coroutine scope. For the moment, [RobotImpl] is our only subclass of [Robot] and it implements [CoroutineScope], but that may not always be the case.
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): RobotIMULocalizer {
             val configuration = Configuration(robot as CoroutineScope).apply(configure)
             val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
                 .apply { initialize(BNO055IMU.Parameters()) }
-            return IMULocalizer(imu, configuration.coroutineScope)
+            return RobotIMULocalizer(imu, configuration.coroutineScope)
         }
 
     }
