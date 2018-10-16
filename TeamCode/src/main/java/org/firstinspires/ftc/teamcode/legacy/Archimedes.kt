@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.TickerMode
 import kotlinx.coroutines.experimental.channels.produce
-import kotlin.coroutines.experimental.coroutineContext
+import kotlinx.coroutines.experimental.channels.ticker
 
 class Archimedes(
     private val linearOpMode: LinearOpMode,
@@ -55,17 +57,20 @@ class Archimedes(
         }
     }
 
-    private fun CoroutineScope.ballLauncherSpeed() = produce {
+    private fun CoroutineScope.tickerChannel() = ticker(50, mode = TickerMode.FIXED_DELAY)
+
+    private fun CoroutineScope.ballLauncherSpeed(ticker: ReceiveChannel<Unit>) = produce {
         while (isActive) {
             val initialPosition = ballLauncher.currentPosition
-            delay(50)
+            ticker.receive()
             val finalPosition = ballLauncher.currentPosition
             send((finalPosition - initialPosition) / 0.05)
         }
     }
 
     suspend fun startBallLauncher() = coroutineScope.launch {
-        val ballLauncherSpeed = ballLauncherSpeed()
+        val tickerChannel = tickerChannel()
+        val ballLauncherSpeed = ballLauncherSpeed(tickerChannel)
         var ballLauncherSpeedIntegral = 0.0
         var previousBallLauncherSpeedError = 0.0
 
