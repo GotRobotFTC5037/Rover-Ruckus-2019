@@ -36,6 +36,7 @@ class RobotIMULocalizer(
             ticker.receive()
             offer(orientation)
         }
+        ticker.cancel()
     }
 
     private fun CoroutineScope.heading(orientation: ReceiveChannel<Orientation>) = produce<Double> {
@@ -43,6 +44,7 @@ class RobotIMULocalizer(
             val robotOrientation = orientation.receive()
             offer(robotOrientation.firstAngle.toDouble())
         }
+        orientation.cancel()
     }
 
     override fun newHeadingChannel(): ReceiveChannel<Double> {
