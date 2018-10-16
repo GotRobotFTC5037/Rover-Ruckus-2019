@@ -67,25 +67,22 @@ class RobotTankDriveTrain(
             robot: Robot,
             configure: Configuration.() -> Unit
         ): RobotTankDriveTrain {
-            val configuration = Configuration(
-                robot.hardwareMap
-            ).apply(configure)
-            return RobotTankDriveTrain(
-                configuration.leftMotors,
-                configuration.rightMotors
-            )
+            val configuration = Configuration(robot.hardwareMap).apply(configure)
+            return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)
         }
 
     }
 
     class LocalizerConfiguration : RobotFeatureConfiguration {
-        var wheelDiameter: Double = 1 / Math.PI
+        var wheelDiameter: Double = 1440 / Math.PI
     }
 
     inner class Localizer(
         private val coroutineScope: CoroutineScope,
-        private val wheelDiameter: Double
+        wheelDiameter: Double
     ) : RobotPositionLocalizer {
+
+        private val wheelPositionMultiplier = Math.PI * wheelDiameter / 1440
 
         override val isReady: Boolean = true
 
@@ -101,7 +98,7 @@ class RobotTankDriveTrain(
 
         private fun CoroutineScope.positionChannel(motorPositionChannel: ReceiveChannel<Int>) =
             produce<RobotPosition> {
-                val position = (Math.PI * wheelDiameter) / motorPositionChannel.receive()
+                val position = motorPositionChannel.receive() * wheelPositionMultiplier
                 offer(RobotPosition(position, 0.0))
             }
 
