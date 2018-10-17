@@ -31,9 +31,6 @@ interface RobotPositionLocalizer : RobotFeature {
 
     val isReady: Boolean
 
-    /**
-     * Returns a [ReceiveChannel] that sends the current position of the robot.
-     */
-    fun newPositionChannel(): ReceiveChannel<RobotPosition>
+    val positionChannel: ReceiveChannel<RobotPosition>
 }
 

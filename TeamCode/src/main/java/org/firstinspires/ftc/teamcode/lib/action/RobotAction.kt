@@ -55,10 +55,10 @@ open class RobotAction(private val actionBlock: RobotActionBlock) {
         val isActive: Boolean get() = coroutineScope.isActive
 
         fun <TFeature : RobotFeature> requiredFeature(featureClass: KClass<TFeature>): TFeature =
-            (robot as RobotImpl).feature(featureClass)
+                (robot as RobotImpl).feature(featureClass)
 
         inline fun <reified TFeature : RobotFeature> requiredFeature(installer: RobotFeatureInstaller<*, TFeature>): TFeature =
-            (robot as RobotImpl).feature(TFeature::class)
+                (robot as RobotImpl).feature(TFeature::class)
 
     }
 
@@ -97,28 +97,28 @@ fun timeTurn(duration: Long, power: Double): RobotMoveAction = RobotMoveAction {
 }
 
 fun turnTo(targetHeading: Double, power: Double): RobotMoveAction =
-    RobotMoveAction {
-        val driveTrain = requiredFeature(RobotDriveTrain::class)
-        val localizer = requiredFeature(RobotHeadingLocalizer::class)
-        waitFor(localizer::isReady)
+        RobotMoveAction {
+            val driveTrain = requiredFeature(RobotDriveTrain::class)
+            val localizer = requiredFeature(RobotHeadingLocalizer::class)
+            waitFor(localizer::isReady)
 
-        val headingChannel = localizer.newHeadingChannel()
+            val headingChannel = localizer.newHeadingChannel()
 
-        val initialHeading = headingChannel.receive()
-        if (initialHeading > targetHeading) {
-            driveTrain.setHeadingPower(-abs(power))
-            while (targetHeading < headingChannel.receive()) {
-                yield()
+            val initialHeading = headingChannel.receive()
+            if (initialHeading > targetHeading) {
+                driveTrain.setHeadingPower(-abs(power))
+                while (targetHeading < headingChannel.receive()) {
+                    yield()
+                }
+            } else if (initialHeading < targetHeading) {
+                driveTrain.setHeadingPower(abs(power))
+                while (targetHeading > headingChannel.receive()) {
+                    yield()
+                }
             }
-        } else if (initialHeading < targetHeading) {
-            driveTrain.setHeadingPower(abs(power))
-            while (targetHeading > headingChannel.receive()) {
-                yield()
-            }
+            headingChannel.cancel()
+            driveTrain.stopAllMotors()
         }
-        headingChannel.cancel()
-        driveTrain.stopAllMotors()
-    }
 
 fun turn(deltaHeading: Double, power: Double): RobotMoveAction = RobotMoveAction {
     val localizer = requiredFeature(RobotHeadingLocalizer::class)
@@ -141,13 +141,12 @@ fun driveTo(distance: Long, power: Double): RobotMoveAction = RobotMoveAction {
     val driveTrain = requiredFeature(RobotDriveTrain::class)
     val localizer = requiredFeature(RobotPositionLocalizer::class)
 
-    val positionChannel = localizer.newPositionChannel()
+    val positionChannel = localizer.positionChannel
 
     driveTrain.setPower(power, 0.0)
     while (positionChannel.receive().linearPosition < distance) {
         yield()
     }
-    positionChannel.cancel()
     driveTrain.stopAllMotors()
 }
 

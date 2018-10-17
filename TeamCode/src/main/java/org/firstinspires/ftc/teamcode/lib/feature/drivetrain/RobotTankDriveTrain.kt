@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocaliz
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
 class RobotTankDriveTrain(
-    private val leftMotors: List<DcMotor>,
-    private val rightMotors: List<DcMotor>
+        private val leftMotors: List<DcMotor>,
+        private val rightMotors: List<DcMotor>
 ) : RobotDriveTrain {
 
     override fun setHeadingPower(power: Double) {
@@ -64,8 +64,8 @@ class RobotTankDriveTrain(
     companion object FeatureInstaller : RobotFeatureInstaller<Configuration, RobotTankDriveTrain> {
 
         override fun install(
-            robot: Robot,
-            configure: Configuration.() -> Unit
+                robot: Robot,
+                configure: Configuration.() -> Unit
         ): RobotTankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
             return RobotTankDriveTrain(configuration.leftMotors, configuration.rightMotors)
@@ -78,8 +78,8 @@ class RobotTankDriveTrain(
     }
 
     inner class Localizer(
-        private val coroutineScope: CoroutineScope,
-        wheelDiameter: Double
+            private val coroutineScope: CoroutineScope,
+            wheelDiameter: Double
     ) : RobotPositionLocalizer {
 
         private val wheelPositionMultiplier = Math.PI * wheelDiameter / 1440
@@ -89,35 +89,32 @@ class RobotTankDriveTrain(
         private val motors
             get() = this@RobotTankDriveTrain.leftMotors + this@RobotTankDriveTrain.rightMotors
 
+        override val positionChannel: ReceiveChannel<RobotPosition> =
+                coroutineScope.newPositionChannel(
+                        coroutineScope.motorPositionChannel(
+                                ticker(10, mode = TickerMode.FIXED_PERIOD)
+                        )
+                )
+
         private fun CoroutineScope.motorPositionChannel(ticker: ReceiveChannel<Unit>) =
-            produce<Int> {
-                ticker.receive()
-                val currentPosition = motors.sumBy { it.currentPosition }
-                offer(currentPosition / motors.count())
-            }
+                produce<Int> {
+                    ticker.receive()
+                    val currentPosition = motors.sumBy { it.currentPosition }
+                    offer(currentPosition / motors.count())
+                }
 
-        private fun CoroutineScope.positionChannel(motorPositionChannel: ReceiveChannel<Int>) =
-            produce<RobotPosition> {
-                val position = motorPositionChannel.receive() * wheelPositionMultiplier
-                offer(RobotPosition(position, 0.0))
-            }
-
-        override fun newPositionChannel(): ReceiveChannel<RobotPosition> {
-            motors.forEach {
-                it.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                it.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-            }
-            val ticker = ticker(10, mode = TickerMode.FIXED_DELAY)
-            val motorPosition = coroutineScope.motorPositionChannel(ticker)
-            return coroutineScope.positionChannel(motorPosition)
-        }
+        private fun CoroutineScope.newPositionChannel(motorPositionChannel: ReceiveChannel<Int>) =
+                produce<RobotPosition> {
+                    val position = motorPositionChannel.receive() * wheelPositionMultiplier
+                    offer(RobotPosition(position, 0.0))
+                }
     }
 
     object PositionLocalizer : RobotFeatureInstaller<LocalizerConfiguration, Localizer> {
 
         override fun install(
-            robot: Robot,
-            configure: LocalizerConfiguration.() -> Unit
+                robot: Robot,
+                configure: LocalizerConfiguration.() -> Unit
         ): Localizer {
             val configuration = LocalizerConfiguration().apply(configure)
             val driveTrain = robot.feature(RobotTankDriveTrain::class)

@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotIMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.createRobot
 
+
 /**
  * A [RobotComponent] that gives the angle that a REV Robotics Potentiometer is at.
  */
@@ -55,37 +56,40 @@ class LibAutonomous : LinearOpMode() {
      * The sequence of actions that are performed when the robot detects the gold on the left.
      */
     private val leftAction: RobotAction = sequence(
-        timeTurn(425, -0.3), wait(100),
-        timeDrive(650, 0.5), wait(100),
-        timeTurn(325, 0.45), wait(100),
-        timeDrive(550, 0.5), wait(50),
-        timeDrive(500, -0.2), wait(100),
-        timeTurn(225, 0.4), wait(100),
-        timeDrive(700, -0.5)
+            timeTurn(425, -0.3), wait(100),
+            timeDrive(650, 0.5), wait(100),
+            timeTurn(325, 0.45), wait(100),
+            timeDrive(550, 0.5), wait(50),
+            timeDrive(500, -0.2), wait(100),
+            timeTurn(225, 0.4), wait(100),
+            timeDrive(700, -0.5)
     )
 
     /**
      * The sequence of actions that are performed when the robot detects the gold in the center.
      */
     private val centerAction: RobotAction = sequence(
-        timeDrive(1300L, 0.5),
-        timeDrive(300L, -0.3), wait(100),
-        turnTo(-135.0, 0.3), wait(100),
-        timeDrive(500, 0.7)
+            // timeDrive(1300L, 0.5),
+            driveTo(1000, 0.5)
+
+            //timeDrive(300L, -0.3), wait(100),
+            //turnTo(-135.0, 0.3), wait(100),
+            //timeDrive(500, 0.7)
     )
 
     /**
      * The sequence of actions that are performed when the robot detects the gold on the right.
      */
     private val rightAction: RobotAction = sequence(
-        timeTurn(400, 0.3),
-        timeDrive(875, 0.45), wait(100),
-        timeTurn(300, -0.4),
-        timeDrive(650, 0.5),
-        timeTurn(550, -0.5), wait(100),
-        timeDrive(450, 0.7),
-        timeTurn(100, -0.30),
-        timeDrive(500, 0.7)
+            timeTurn(400, 0.3),
+            timeDrive(875, 0.45), wait(100),
+            timeTurn(300, -0.4),
+            timeDrive(650, 0.5),
+            timeTurn(550, -0.5), wait(100),
+            timeDrive(450, 0.7),
+            timeTurn(100, -0.30),
+            timeDrive(500, 0.7)
+
     )
 
     @Throws(InterruptedException::class)
