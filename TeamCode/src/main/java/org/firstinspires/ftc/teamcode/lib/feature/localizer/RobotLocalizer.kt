@@ -1,39 +1,34 @@
 package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import org.firstinspires.ftc.teamcode.lib.feature.RobotFeature
+import kotlinx.coroutines.experimental.channels.BroadcastChannel
+import org.firstinspires.ftc.teamcode.lib.feature.Feature
 
 /**
  * Describes the current position of the robot.
  */
-data class RobotPosition(
+data class Position(
     val linearPosition: Double,
     val lateralPosition: Double
 )
 
+interface Localizer : Feature {
+
+    val isReady: Boolean
+}
+
 /**
  * Reports the current heading of the robot.
  */
-interface RobotHeadingLocalizer : RobotFeature {
+interface HeadingLocalizer : Localizer {
 
-    val isReady: Boolean
-
-    /**
-     * Returns a [ReceiveChannel] that sends the current heading of the robot.
-     */
-    fun newHeadingChannel(): ReceiveChannel<Double>
+    val heading: BroadcastChannel<Double>
 }
 
 /**
  * Reports the position of the robot.
  */
-interface RobotPositionLocalizer : RobotFeature {
+interface PositionLocalizer : Localizer {
 
-    val isReady: Boolean
-
-    /**
-     * Returns a [ReceiveChannel] that sends the current position of the robot.
-     */
-    fun newPositionChannel(): ReceiveChannel<RobotPosition>
+    val position: BroadcastChannel<Position>
 }
 

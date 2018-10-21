@@ -4,15 +4,23 @@
  * It is extraordinarily rare that you will ever need to edit this file.
  */
 buildscript {
+
     ext.kotlin_version = '1.2.71'
-    ext.kotlin_coroutines_version = '0.26.1'
+    ext.kotlin_coroutines_version = '0.30.2'
+
     repositories {
         jcenter()
+
         maven {
             url 'https://maven.google.com/'
             name 'Google'
         }
+
+        maven {
+            url 'https://dl.bintray.com/kotlin/kotlin-eap'
+        }
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"

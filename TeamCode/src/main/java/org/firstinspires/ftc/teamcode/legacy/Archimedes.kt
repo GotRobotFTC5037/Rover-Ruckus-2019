@@ -16,7 +16,7 @@ class Archimedes(
     private val coroutineScope: CoroutineScope
 ) {
 
-    var shouldRecordBallLauncherIntegral = true
+    var shouldRecordBallLauncherIntegral: Boolean = true
 
     val leftMotor: DcMotor by lazy {
         linearOpMode.hardwareMap.dcMotor.get("left motor").apply {
