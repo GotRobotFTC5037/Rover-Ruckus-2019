@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.yield
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.HeadingLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.PositionLocalizer
@@ -12,9 +12,9 @@ import kotlin.math.abs
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
  * robot.
  */
-typealias MoveAction = StandardAction
+typealias MoveAction = Action
 
-fun move(block: suspend ActionScope.() -> Unit) = MoveAction(block)
+fun move(block: suspend ActionScope.() -> Unit): MoveAction = action(block)
 
 /**
  * Returns an [Action] Drives linearly with the provided [power] for the provided [duration].

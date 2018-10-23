@@ -2,33 +2,30 @@ package org.firstinspires.ftc.teamcode.active.test
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import kotlinx.coroutines.experimental.isActive
-import org.firstinspires.ftc.teamcode.lib.action.perform
+import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.robot.createRobot
+import org.firstinspires.ftc.teamcode.lib.robot.perform
+import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @TeleOp(name = "Test: IMULocalizer", group = "Tests")
 class IMULocalizerTest : LinearOpMode() {
 
-    private val mainAction = perform {
-        val imuLocalizer = requestFeature(IMULocalizer)
-        val headingChannel = imuLocalizer.heading.openSubscription()
-        val line = telemetry.addLine()
-        while (isActive) {
-            line.addData("Heading", headingChannel.receive())
-            telemetry.update()
-        }
-        headingChannel.cancel()
-    }
-
     @Throws(InterruptedException::class)
     override fun runOpMode() {
-        val robot = createRobot(this) {
+        robot(this) {
             install(IMULocalizer) {
-                pollRate = 250
+                pollRate = 250 // 250 is the update rate of [Telemetry].
             }
+        }.perform {
+            val imuLocalizer = requestFeature(IMULocalizer)
+            val headingChannel = imuLocalizer.heading.openSubscription()
+            val line = telemetry.addLine()
+            while (isActive) {
+                line.addData("Heading", headingChannel.receive())
+                telemetry.update()
+            }
+            headingChannel.cancel()
         }
-        robot.perform(mainAction)
     }
 
 }

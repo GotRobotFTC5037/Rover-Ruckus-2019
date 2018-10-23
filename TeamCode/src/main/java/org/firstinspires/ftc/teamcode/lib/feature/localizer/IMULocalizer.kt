@@ -2,16 +2,15 @@ package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.channels.*
-import kotlinx.coroutines.experimental.isActive
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
-import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.EmptyCoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A localizer that uses the [BNO055IMU] to detect heading.
@@ -19,10 +18,12 @@ import kotlin.coroutines.experimental.EmptyCoroutineContext
 class IMULocalizer(
     private val imu: BNO055IMU,
     private val pollRate: Long,
-    parentContext: CoroutineContext = EmptyCoroutineContext
+    override val coroutineContext: CoroutineContext
 ) : HeadingLocalizer, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = parentContext
+    init {
+        imu.initialize(BNO055IMU.Parameters())
+    }
 
     override val isReady: Boolean
         get() = imu.isGyroCalibrated

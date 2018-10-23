@@ -1,49 +1,31 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
-import org.firstinspires.ftc.teamcode.lib.feature.Feature
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
-import org.firstinspires.ftc.teamcode.lib.robot.MissingRobotFeatureException
+import kotlinx.coroutines.delay
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
-import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.reflect.KClass
+import kotlin.coroutines.CoroutineContext
 
-interface ActionScope : CoroutineScope {
-    fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F
-    fun <F : Feature> requestFeature(featureClass: KClass<F>): F
-    fun perform(action: Action)
+abstract class Action {
+    var name: String = "[Unnamed]"
+    abstract suspend fun run(robot: Robot, parentContext: CoroutineContext)
 }
 
-class ActionScopeImpl(
-    private val robot: Robot,
-    parentContext: CoroutineContext,
-    job: Job
-) : ActionScope {
-
-    override val coroutineContext: CoroutineContext = parentContext + job
-
-    override fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F {
-        return robot[featureKey] ?: throw MissingRobotFeatureException()
+class ActionImpl(private val block: suspend ActionScope.() -> Unit) : Action() {
+    override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
+        val scope: ActionScope = ActionScopeImpl(robot, parentContext)
+        scope.block()
     }
-
-    override fun <F : Feature> requestFeature(featureClass: KClass<F>): F {
-        return robot[featureClass] ?: throw MissingRobotFeatureException()
-    }
-
-    fun CoroutineScope.startAction(action: Action): Job = launch {
-        val job = coroutineContext[Job]!!
-        val scope = ActionScopeImpl(robot, coroutineContext, job)
-        action.start(scope)
-    }
-
-    override fun perform(action: Action) {
-        startAction(action)
-    }
-
 }
 
-interface Action {
-    suspend fun start(scope: ActionScope)
+infix fun Action.then(action: Action): Action = actionSequenceOf(this, action)
+
+fun action(block: suspend ActionScope.() -> Unit): Action = ActionImpl(block)
+
+fun actionSequenceOf(vararg actions: Action): Action = action {
+    for (action in actions) {
+        perform(action)
+    }
+}
+
+fun wait(duration: Long): Action = action {
+    delay(duration)
 }

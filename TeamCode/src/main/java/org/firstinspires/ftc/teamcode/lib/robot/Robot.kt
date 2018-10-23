@@ -12,12 +12,18 @@ interface Robot {
         configuration: TConfiguration.() -> Unit = {}
     )
 
+    operator fun contains(key: FeatureKey<*>): Boolean
+
+    operator fun contains(featureClass: KClass<Feature>): Boolean
+
     operator fun <F : Feature> get(key: FeatureKey<F>): F?
 
     operator fun <F : Feature> get(featureClass: KClass<F>): F?
 
-    fun start()
-
     fun perform(action: Action)
 
+    fun waitForActionsToComplete()
+
 }
+
+class MissingRobotFeatureException(message: String? = null) : RuntimeException(message)

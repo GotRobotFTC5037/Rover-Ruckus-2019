@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
-import kotlinx.coroutines.experimental.channels.BroadcastChannel
+import kotlinx.coroutines.channels.BroadcastChannel
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 
 /**
@@ -11,6 +11,10 @@ data class Position(
     val lateralPosition: Double
 )
 
+/**
+ * A [Feature] that provides an the robot with information relating but not limited to to the
+ * current position, heading, course, speed or acceleration of the robot.
+ */
 interface Localizer : Feature {
 
     val isReady: Boolean

@@ -1,16 +1,17 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.legacy
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
+import org.firstinspires.ftc.teamcode.legacy.Archimedes
 
 @TeleOp(name = "Archimedes TeleOp")
 @Disabled
 class RobotTeleOp : LinearOpMode() {
 
     @Throws(InterruptedException::class)
-    override fun runOpMode() = runBlocking {
+    override fun runOpMode(): Unit = runBlocking {
         val robot = Archimedes(this@RobotTeleOp, this)
         waitForStart()
         robot.startBallLauncher()

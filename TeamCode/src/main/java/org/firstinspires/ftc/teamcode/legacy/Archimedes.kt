@@ -1,22 +1,22 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.legacy
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.Range
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.TickerMode
-import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.channels.ticker
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.TickerMode
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.ticker
 
 class Archimedes(
     private val linearOpMode: LinearOpMode,
     private val coroutineScope: CoroutineScope
 ) {
 
-    var shouldRecordBallLauncherIntegral: Boolean = true
+    private var shouldRecordBallLauncherIntegral: Boolean = true
 
     val leftMotor: DcMotor by lazy {
         linearOpMode.hardwareMap.dcMotor.get("left motor").apply {
@@ -68,7 +68,7 @@ class Archimedes(
         }
     }
 
-    suspend fun startBallLauncher() = coroutineScope.launch {
+    suspend fun startBallLauncher(): Job = coroutineScope.launch {
         val tickerChannel = tickerChannel()
         val ballLauncherSpeed = ballLauncherSpeed(tickerChannel)
         var ballLauncherSpeedIntegral = 0.0
@@ -97,7 +97,7 @@ class Archimedes(
         ballLauncher.power = 0.0
     }
 
-    fun stopBallLauncher() = runBlocking { coroutineContext.cancelChildren() }
+    fun stopBallLauncher(): Unit = runBlocking { coroutineContext.cancelChildren() }
 
 
     companion object {
