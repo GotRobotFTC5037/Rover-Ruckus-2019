@@ -63,37 +63,39 @@ class Autonomous : LinearOpMode() {
      * The sequence of actions that are performed when the robot detects the gold on the left.
      */
     private val leftAction = actionSequenceOf(
-        timeTurn(425, -0.3) then wait(100),
-        timeDrive(650, 0.5) then wait(100),
-        timeTurn(325, 0.45) then wait(100),
-        timeDrive(550, 0.5) then wait(50),
-        timeDrive(500, -0.2) then wait(100),
-        timeTurn(225, 0.4) then wait(100),
-        timeDrive(700, -0.5)
+        turnTo(35.0,0.3) then wait(100),
+        driveTo(720,0.4),
+        turnTo(-10.0,0.3) then wait(100),
+        driveTo(1080,0.4),
+        driveTo(-200,0.4),
+        turnTo(-110.0,0.3) then wait(100),
+        driveTo(1800,0.6)
+
     )
 
     /**
      * The sequence of actions that are performed when the robot detects the gold in the center.
      */
     private val centerAction = actionSequenceOf(
-        timeDrive(1300L, 0.5),
-        timeDrive(300L, -0.3) then wait(100),
-        turnTo(-135.0, 0.3) then wait(100),
-        timeDrive(500, 0.7)
+        driveTo(1801,0.4),
+         driveTo(-200,0.4) then wait(100),
+        turnTo(-110.0, 0.3) then wait(100),
+
     )
 
     /**
      * The sequence of actions that are performed when the robot detects the gold on the right.
      */
     private val rightAction = actionSequenceOf(
-        timeTurn(400, 0.3),
-        timeDrive(875, 0.45) then wait(100),
-        timeTurn(300, -0.4),
-        timeDrive(650, 0.5),
-        timeTurn(550, -0.5) then wait(100),
-        timeDrive(450, 0.7),
-        timeTurn(100, -0.30),
-        timeDrive(500, 0.7)
+        turnTo(-35.0,0.3) then wait(100),
+        driveTo(720,0.4),
+        turnTo(10.0,0.3) then wait(100),
+        driveTo(1080,0.4),
+        driveTo(-200,0.4),
+        turnTo(-110.0,0.3) then wait(100),
+        driveTo(1800,0.5)
+
+
     )
 
     val main = action {
