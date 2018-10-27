@@ -18,44 +18,6 @@ import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 import kotlin.coroutines.CoroutineContext
 
-/**
- * A [Feature] that gives the angle that a REV Robotics Potentiometer is at.
- */
-class Potentiometer(
-    private val analogInput: AnalogInput,
-    override val coroutineContext: CoroutineContext
-) : Feature, CoroutineScope {
-
-    private fun CoroutineScope.broadcastAngle(ticker: ReceiveChannel<Unit>) =
-        broadcast(capacity = Channel.CONFLATED) {
-            while (isActive) {
-                ticker.receive()
-                send(analogInput.voltage / analogInput.maxVoltage * 270)
-            }
-        }
-
-    val angle: BroadcastChannel<Double> =
-        broadcastAngle(ticker(10, mode = TickerMode.FIXED_DELAY))
-
-    class Configuration : FeatureConfiguration {
-        val name: String = "potentiometer"
-    }
-
-    companion object Installer : FeatureInstaller<Configuration, Potentiometer> {
-        override fun install(
-            robot: Robot,
-            hardwareMap: HardwareMap,
-            coroutineContext: CoroutineContext,
-            configure: Configuration.() -> Unit
-        ): Potentiometer {
-            val configuration = Configuration().apply(configure)
-            val analogInput = hardwareMap.get(AnalogInput::class.java, configuration.name)
-            return Potentiometer(analogInput, coroutineContext)
-        }
-    }
-
-}
-
 @Autonomous
 class Autonomous : LinearOpMode() {
 
@@ -93,8 +55,6 @@ class Autonomous : LinearOpMode() {
         driveTo(-200, 0.4),
         turnTo(-110.0, 0.3) then wait(100),
         driveTo(1800, 0.5)
-
-
     )
 
     val main = action {
@@ -124,23 +84,8 @@ class Autonomous : LinearOpMode() {
             }
             install(IMULocalizer)
             install(GoldDetector)
-        }.perform {
-            // Checkout the potentiometer.
-            val positionDetector = requestFeature(GoldDetector)
-
-            // Subscribe to the angle broadcasting channel.
-//            val positionChannel = positionDetector.goldPositionChannel.openSubscription()
-//            val currentPosition = positionChannel.receive()
-//            positionChannel.cancel()
-//
-//            // Check the potentiometer angle and choose which action to run.
-//            when (currentPosition) {
-//                GoldPosition.LEFT -> perform(leftAction)
-//                GoldPosition.CENTER -> perform(centerAction)
-//                GoldPosition.RIGHT -> perform(rightAction)
-//                GoldPosition.UNKNOWN -> return@perform
-//            }
-        }
+            install(Potentiometer)
+        }.perform {}
         while (opModeIsActive()) {}
     }
 
