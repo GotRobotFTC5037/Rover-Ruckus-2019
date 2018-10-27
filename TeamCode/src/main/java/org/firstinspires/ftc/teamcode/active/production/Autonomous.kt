@@ -4,6 +4,7 @@ import android.content.Context
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.AnalogInput
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
@@ -114,46 +115,68 @@ class GoldPositionDetector(
 @Autonomous
 class Autonomous : LinearOpMode() {
 
+    val touchSensor = hardwareMap.get(DigitalChannel::class.java, "Program Selector")
+        .apply { mode = DigitalChannel.Mode.INPUT }
     /**
      * The sequence of actions that are performed when the robot detects the gold on the left.
      */
     private val leftAction = actionSequenceOf(
-        timeTurn(425, -0.3) then wait(100),
-        timeDrive(650, 0.5) then wait(100),
-        timeTurn(325, 0.45) then wait(100),
-        timeDrive(550, 0.5) then wait(50),
-        timeDrive(500, -0.2) then wait(100),
-        timeTurn(225, 0.4) then wait(100),
-        timeDrive(700, -0.5)
+        turnTo(35.0, 0.3) then wait(100),
+        driveTo(720, 0.4),
+        turnTo(-10.0, 0.3) then wait(100),
+        driveTo(1080, 0.4),
+        driveTo(-200, 0.4),
+        turnTo(-110.0, 0.3) then wait(100),
+        driveTo(1800, 0.6)
+
     )
 
     /**
      * The sequence of actions that are performed when the robot detects the gold in the center.
      */
     private val centerAction = actionSequenceOf(
-        timeDrive(1300L, 0.5),
-        timeDrive(300L, -0.3) then wait(100),
-        turnTo(-135.0, 0.3) then wait(100),
-        timeDrive(500, 0.7)
+        driveTo(1801, 0.4),
+        driveTo(-200, 0.4) then wait(100),
+        turnTo(-110.0, 0.3) then wait(100)
     )
 
     /**
      * The sequence of actions that are performed when the robot detects the gold on the right.
      */
     private val rightAction = actionSequenceOf(
-        timeTurn(400, 0.3),
-        timeDrive(875, 0.45) then wait(100),
-        timeTurn(300, -0.4),
-        timeDrive(650, 0.5),
-        timeTurn(550, -0.5) then wait(100),
-        timeDrive(450, 0.7),
-        timeTurn(100, -0.30),
-        timeDrive(500, 0.7)
+        turnTo(-35.0, 0.3) then wait(100),
+        driveTo(720, 0.4),
+        turnTo(10.0, 0.3) then wait(100),
+        driveTo(1080, 0.4),
+        driveTo(-200, 0.4),
+        turnTo(-110.0, 0.3) then wait(100),
+        driveTo(1800, 0.5)
+
+
     )
+
+    val main = action {
+        // Checkout the potentiometer.
+        val potentiometer = requestFeature(Potentiometer)
+
+        // Subscribe to the angle broadcasting channel.
+        val angleChannel = potentiometer.angle.openSubscription()
+
+        // Check the potentiometer angle and choose which action to run.
+        when (angleChannel.receive()) {
+            in 0.0..90.0 -> perform(leftAction)
+            in 90.0..180.0 -> perform(centerAction)
+            in 180.0..270.0 -> perform(rightAction)
+        }
+
+        // Close the angle channel and unsubscribe from the channel.
+        angleChannel.cancel()
+    }
 
     @Throws(InterruptedException::class)
     override fun runOpMode() {
-        robot(this) {
+
+        val robot = robot(this) {
             install(TankDriveTrain) {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
