@@ -1,20 +1,24 @@
 package org.firstinspires.ftc.teamcode.active.production
 
+import android.content.Context
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.AnalogInput
 import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.isActive
+import org.corningrobotics.enderbots.endercv.CameraViewDisplay
+import org.corningrobotics.enderbots.endercv.OpenCVPipeline
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
+import org.opencv.core.Mat
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -42,6 +46,7 @@ class Potentiometer(
 
     companion object Installer : FeatureInstaller<Configuration, Potentiometer> {
         override fun install(
+            robot: Robot,
             hardwareMap: HardwareMap,
             coroutineContext: CoroutineContext,
             configure: Configuration.() -> Unit
@@ -49,6 +54,58 @@ class Potentiometer(
             val configuration = Configuration().apply(configure)
             val analogInput = hardwareMap.get(AnalogInput::class.java, configuration.name)
             return Potentiometer(analogInput, coroutineContext)
+        }
+    }
+
+}
+
+class GoldPositionDetector(
+    private val appContext: Context,
+    private val cameraViewDisplay: CameraViewDisplay,
+    override val coroutineContext: CoroutineContext
+) : Feature, CoroutineScope {
+
+    enum class Position {
+        LEFT, CENTER, RIGHT
+    }
+
+    private val pipeline = object : OpenCVPipeline(), CoroutineScope {
+
+        private lateinit var job: Job
+
+        override val coroutineContext: CoroutineContext
+            get() = newSingleThreadContext("GoldPositionDetectorPipeline") + job
+
+        override fun onCameraViewStarted(width: Int, height: Int) {
+            job = Job()
+        }
+
+        override fun onCameraViewStopped() {
+            job.cancel()
+        }
+
+        fun CoroutineScope.broadcastPosition() = broadcast<Position> {
+            TODO()
+        }
+
+        override fun processFrame(rgba: Mat?, gray: Mat?): Mat = runBlocking {
+            TODO()
+        }
+
+    }
+
+    val position: BroadcastChannel<Position> = TODO()
+
+    companion object Installer : FeatureInstaller<Nothing, GoldPositionDetector> {
+        override fun install(
+            robot: Robot,
+            hardwareMap: HardwareMap,
+            coroutineContext: CoroutineContext,
+            configure: Nothing.() -> Unit
+        ): GoldPositionDetector {
+            val appContext = hardwareMap.appContext
+            val cameraViewDisplay = CameraViewDisplay.getInstance()
+            return GoldPositionDetector(appContext, cameraViewDisplay, coroutineContext)
         }
     }
 
@@ -102,23 +159,22 @@ class Autonomous : LinearOpMode() {
                 addRightMotor("right motor")
             }
             install(IMULocalizer)
-            install(Potentiometer)
+            install(GoldPositionDetector)
         }.perform {
             // Checkout the potentiometer.
-            val potentiometer = requestFeature(Potentiometer)
+            val positionDetector = requestFeature(GoldPositionDetector)
 
             // Subscribe to the angle broadcasting channel.
-            val angleChannel = potentiometer.angle.openSubscription()
+            val positionChannel = positionDetector.position.openSubscription()
+            val currentPosition = positionChannel.receive()
+            positionChannel.cancel()
 
             // Check the potentiometer angle and choose which action to run.
-            when (angleChannel.receive()) {
-                in 0.0..90.0 -> perform(leftAction)
-                in 90.0..180.0 -> perform(centerAction)
-                in 180.0..270.0 -> perform(rightAction)
+            when (currentPosition) {
+                GoldPositionDetector.Position.LEFT -> perform(leftAction)
+                GoldPositionDetector.Position.CENTER -> perform(centerAction)
+                GoldPositionDetector.Position.RIGHT -> perform(rightAction)
             }
-
-            // Close the angle channel and unsubscribe from the channel.
-            angleChannel.cancel()
         }
     }
 

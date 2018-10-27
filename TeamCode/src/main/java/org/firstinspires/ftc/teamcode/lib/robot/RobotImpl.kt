@@ -13,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-private class RobotImpl(private val linearOpMode: LinearOpMode) : Robot, CoroutineScope {
+private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, CoroutineScope {
 
     private val job: Job = Job()
 
@@ -43,7 +43,7 @@ private class RobotImpl(private val linearOpMode: LinearOpMode) : Robot, Corouti
         configuration: TConfiguration.() -> Unit
     ) {
         val featureInstance =
-            feature.install(linearOpMode.hardwareMap, coroutineContext, configuration)
+            feature.install(this, linearOpMode.hardwareMap, coroutineContext, configuration)
         features[feature] = featureInstance
     }
 

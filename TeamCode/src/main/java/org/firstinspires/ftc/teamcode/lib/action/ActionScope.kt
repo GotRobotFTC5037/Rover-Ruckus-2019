@@ -16,7 +16,7 @@ interface ActionScope : CoroutineScope {
     suspend fun perform(actions: Sequence<Action>)
 }
 
-class ActionScopeImpl(
+open class StandardActionScope(
     private val robot: Robot,
     private val parentContext: CoroutineContext
 ) : ActionScope {
