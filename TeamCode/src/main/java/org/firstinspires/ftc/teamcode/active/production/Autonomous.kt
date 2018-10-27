@@ -128,8 +128,12 @@ class Autonomous : LinearOpMode() {
         }
 
         if (touchSensor.state == true) {
-
+        // Run Crater code.
         }
+        /*
+         Else run main program. -Note: This does not affect the robot AT ALL.
+          Until we make the crater code, the space above will not be used.
+          */
         else {
             robot.perform(main)
         }
