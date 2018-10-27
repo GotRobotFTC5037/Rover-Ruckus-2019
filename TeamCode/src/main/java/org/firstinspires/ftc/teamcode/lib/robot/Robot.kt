@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.lib.robot
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.feature.*
 import kotlin.reflect.KClass
 
 @RobotFeatureMarker
 interface Robot {
+
+    val linearOpMode: LinearOpMode
 
     fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,

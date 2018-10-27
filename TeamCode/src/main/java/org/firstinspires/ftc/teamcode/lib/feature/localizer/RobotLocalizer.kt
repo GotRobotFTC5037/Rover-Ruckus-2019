@@ -15,7 +15,7 @@ data class Position(
  * A [Feature] that provides an the robot with information relating but not limited to to the
  * current position, heading, course, speed or acceleration of the robot.
  */
-interface Localizer : Feature {
+interface RobotLocalizer : Feature {
 
     val isReady: Boolean
 }
@@ -23,7 +23,7 @@ interface Localizer : Feature {
 /**
  * Reports the current heading of the robot.
  */
-interface HeadingLocalizer : Localizer {
+interface RobotHeadingLocalizer : RobotLocalizer {
 
     val heading: BroadcastChannel<Double>
 }
@@ -31,7 +31,7 @@ interface HeadingLocalizer : Localizer {
 /**
  * Reports the position of the robot.
  */
-interface PositionLocalizer : Localizer {
+interface RobotPositionLocalizer : RobotLocalizer {
 
     val position: BroadcastChannel<Position>
 }

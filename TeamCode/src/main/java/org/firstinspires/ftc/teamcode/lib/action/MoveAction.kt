@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.lib.action
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.HeadingLocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.PositionLocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotHeadingLocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.math.abs
 
@@ -41,7 +41,7 @@ fun timeTurn(duration: Long, power: Double): MoveAction = move {
  */
 fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
-    val localizer = requestFeature(HeadingLocalizer::class)
+    val localizer = requestFeature(RobotHeadingLocalizer::class)
 
     val headingChannel = localizer.heading.openSubscription()
 
@@ -66,7 +66,7 @@ fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
  * current location.
  */
 fun turn(deltaHeading: Double, power: Double): MoveAction = move {
-    val localizer = requestFeature(HeadingLocalizer::class)
+    val localizer = requestFeature(RobotHeadingLocalizer::class)
 
     val headingChannel = localizer.heading.openSubscription()
 
@@ -88,7 +88,7 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
  */
 fun driveTo(distance: Long, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
-    val localizer = requestFeature(PositionLocalizer::class)
+    val localizer = requestFeature(RobotPositionLocalizer::class)
 
     val positionChannel = localizer.position.openSubscription()
 

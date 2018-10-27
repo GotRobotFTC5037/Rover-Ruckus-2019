@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,7 +20,7 @@ class IMULocalizer(
     private val imu: BNO055IMU,
     private val pollRate: Long,
     override val coroutineContext: CoroutineContext
-) : HeadingLocalizer, CoroutineScope {
+) : RobotHeadingLocalizer, CoroutineScope {
 
     init {
         imu.initialize(BNO055IMU.Parameters())
@@ -68,6 +69,7 @@ class IMULocalizer(
     companion object Installer : FeatureInstaller<Configuration, IMULocalizer> {
 
         override fun install(
+            robot: Robot,
             hardwareMap: HardwareMap,
             coroutineContext: CoroutineContext,
             configure: Configuration.() -> Unit

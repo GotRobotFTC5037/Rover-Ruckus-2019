@@ -5,13 +5,13 @@ import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 
 abstract class Action {
-    var name: String = "[Unnamed]"
+    open var name: String = "[Unnamed]"
     abstract suspend fun run(robot: Robot, parentContext: CoroutineContext)
 }
 
-class ActionImpl(private val block: suspend ActionScope.() -> Unit) : Action() {
+private class ActionImpl(private val block: suspend ActionScope.() -> Unit) : Action() {
     override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
-        val scope: ActionScope = ActionScopeImpl(robot, parentContext)
+        val scope: ActionScope = StandardActionScope(robot, parentContext)
         scope.block()
     }
 }
