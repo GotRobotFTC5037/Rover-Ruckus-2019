@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.active.production
 
 import com.qualcomm.robotcore.hardware.AnalogInput
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.util.Range
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.isActive
@@ -23,7 +24,9 @@ class Potentiometer(
         broadcast(capacity = Channel.CONFLATED) {
             while (isActive) {
                 ticker.receive()
-                send(analogInput.voltage / analogInput.maxVoltage * 270)
+                val angle =
+                    Range.clip(analogInput.voltage / analogInput.maxVoltage * 270, 0.0, 270.0)
+                send(angle)
             }
         }
 
