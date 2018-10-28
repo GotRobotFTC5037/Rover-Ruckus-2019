@@ -26,7 +26,7 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
                 yield()
             }
         }
-        launch {
+        GlobalScope.launch {
             while (!linearOpMode.isStopRequested) {
                 yield()
             }
