@@ -87,15 +87,30 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
  * Returns an [Action] that drives linearly with the provided [power] to the provided distance.
  */
 fun driveTo(distance: Long, power: Double): MoveAction = move {
+    require(power > 0.0)
+
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotPositionLocalizer::class)
 
     val positionChannel = localizer.position.openSubscription()
+    val initalPosition = positionChannel.receive().linearPosition
+    val targetPosition = initalPosition + distance
 
-    driveTrain.setPower(power, 0.0)
-    while (positionChannel.receive().linearPosition < distance) {
-        yield()
+    when {
+        initalPosition < targetPosition -> {
+            driveTrain.setPower(power, 0.0)
+            while (positionChannel.receive().linearPosition < targetPosition) {
+                yield()
+            }
+        }
+        initalPosition > targetPosition -> {
+            driveTrain.setPower(-power, 0.0)
+            while (positionChannel.receive().linearPosition > targetPosition) {
+                yield()
+            }
+        }
     }
+
     positionChannel.cancel()
     driveTrain.stopAllMotors()
 }
