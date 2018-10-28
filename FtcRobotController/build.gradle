@@ -2,17 +2,15 @@
 // build.gradle in FtcRobotController
 //
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 19
+        minSdkVersion 21
+        targetSdkVersion 26
     }
 
-    compileSdkVersion 23
-    buildToolsVersion '25.0.3'
+    compileSdkVersion 26
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -24,16 +22,6 @@ repositories {
     flatDir {
         dirs '../libs'
     }
-
-    mavenCentral()
-
-    maven {
-        url 'https://dl.bintray.com/kotlin/kotlin-eap'
-    }
 }
 
 apply from: 'build.release.gradle'
-
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}

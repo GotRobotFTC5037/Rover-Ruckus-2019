@@ -73,8 +73,8 @@ fun Mat.addBoundingBoxAndText(
 ) {
     addBoundingBoxAndText(
         this,
-        rect.x.toDouble(),
-        rect.y.toDouble(),
+        rect.x.toDouble() + rect.width / 2,
+        rect.y.toDouble() + rect.width / 2,
         (rect.width + rect.height) / 2.0,
         text, color, borderWidth
     )

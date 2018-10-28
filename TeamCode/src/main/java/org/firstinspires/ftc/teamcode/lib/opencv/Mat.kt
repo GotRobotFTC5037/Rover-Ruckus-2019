@@ -63,3 +63,17 @@ fun Mat.dilated(iterations: Int): Mat {
     )
     return output
 }
+
+fun Mat.eroded(iterations: Int): Mat {
+    val output = Mat()
+    Imgproc.erode(
+        this,
+        output,
+        Mat(),
+        Point(-1.0, -1.0),
+        iterations,
+        Core.BORDER_CONSTANT,
+        Scalar(-1.0)
+    )
+    return output
+}

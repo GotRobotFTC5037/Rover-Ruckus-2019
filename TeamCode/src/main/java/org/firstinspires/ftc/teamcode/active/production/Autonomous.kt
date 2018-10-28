@@ -2,21 +2,12 @@ package org.firstinspires.ftc.teamcode.active.production
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.AnalogInput
-import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.isActive
+import org.corningrobotics.enderbots.endercv.CameraViewDisplay
 import org.firstinspires.ftc.teamcode.lib.action.*
-import org.firstinspires.ftc.teamcode.lib.feature.Feature
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
-import kotlin.coroutines.CoroutineContext
 
 @Autonomous
 class Autonomous : LinearOpMode() {
@@ -82,11 +73,18 @@ class Autonomous : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
-            install(IMULocalizer)
             install(GoldDetector)
-            install(Potentiometer)
-        }.perform {}
-        while (opModeIsActive()) {}
+        }.perform {
+            val goldDetector = requestFeature(GoldDetector)
+            goldDetector.init(hardwareMap.appContext, CameraViewDisplay.getInstance())
+            goldDetector.enable()
+            while (isActive) {
+                telemetry.addData("Position", goldDetector.goldPosition)
+                telemetry.addData("# Gold", goldDetector.nGold)
+                telemetry.addData("# Silver", goldDetector.nSilver)
+                telemetry.update()
+            }
+        }
     }
 
 }

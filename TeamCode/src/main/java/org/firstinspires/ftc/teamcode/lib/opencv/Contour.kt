@@ -55,7 +55,7 @@ fun List<MatOfPoint>.filtered(
         if (solid < solidity.start || solid > solidity.endInclusive) continue
         if (contour.rows() < minVertexCount || contour.rows() > maxVertexCount) continue
         val ratio = bb.width / bb.height.toDouble()
-        if (ratio < minRatio || ratio > maxVertexCount) continue
+        if (ratio < minRatio || ratio > maxRatio) continue
         output.add(contour)
     }
     return output
