@@ -16,15 +16,15 @@ class Autonomous : LinearOpMode() {
      * The sequence of actions that are performed when the robot detects the gold on the left.
      */
     private val leftAction = actionSequenceOf(
-        turnTo(19.0, 0.3) then wait(100),
-        driveTo(1050, 0.4),
-        turnTo(-19.0, 0.3) then wait(100),
-        driveTo(720, 0.4) then wait(1000),
-        driveTo(-130, 0.3),
-        turnTo(-80.0, 0.3) then wait(100),
-        driveTo(710, 0.2),
-        turnTo(-120.0, 0.3) then wait(100),
-        driveTo(360, 0.5)
+        turnTo(19.0, 1.0) then wait(100),
+        driveTo(1050, 0.7),
+        turnTo(-19.0, 1.0) then wait(100),
+        driveTo(720, 0.7) then wait(3000),
+        driveTo(-130, 0.7),
+        turnTo(-80.0, 1.0) then wait(100),
+        driveTo(710, 0.7),
+        turnTo(-120.0, 1.0) then wait(100),
+        driveTo(360, 0.7)
     )
 
     /**
@@ -43,9 +43,9 @@ class Autonomous : LinearOpMode() {
         turnTo(-19.0, 0.3) then wait(100),
         driveTo(1050, 0.4),
         turnTo(19.0, 0.3) then wait(100),
-        driveTo(720, 0.4) then wait(1000),
+        driveTo(720, 0.4) then wait(3000),
         driveTo(-130, 0.4),
-        turnTo(-110.0, 0.3) then wait(100),
+        turnTo(-130.0, 0.4) then wait(100),
         driveTo(1800, 0.5)
     )
 
@@ -67,9 +67,6 @@ class Autonomous : LinearOpMode() {
             val positionChannel = positionDetector.angle.openSubscription()
             val currentPosition = positionChannel.receive()
             positionChannel.cancel()
-
-            telemetry.addLine("Angle: $currentPosition")
-            telemetry.update()
 
             // Check the potentiometer angle and choose which action to run.
             when (currentPosition) {
