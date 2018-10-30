@@ -4,8 +4,11 @@ package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.find
+import kotlinx.coroutines.channels.first
+import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.features.CargoPositionDetector
+import org.firstinspires.ftc.teamcode.active.features.GoldPosition
 import org.firstinspires.ftc.teamcode.active.features.Potentiometer
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
@@ -46,22 +49,30 @@ class Autonomous : LinearOpMode() {
         val potentiometer = requestFeature(Potentiometer)
 
         val positionChannel = potentiometer.angle.openSubscription()
-        val currentPosition = positionChannel.receive()
-        positionChannel.cancel()
-
-        when (currentPosition) {
+        val position = positionChannel.first()
+        when (position) {
             in 0.0..90.0 -> perform(leftAction)
             in 90.0..180.0 -> perform(centerAction)
             in 180.0..270.0 -> perform(rightAction)
         }
+
     }
 
     private val cameraAction = action {
         val detector = requestFeature(CargoPositionDetector).apply { enable() }
 
         val positionChannel = detector.goldPosition.openSubscription()
-        positionChannel.consumeEach {  }
+        val position = withTimeoutOrNull(5000) {
+            positionChannel.find { it != GoldPosition.UNKNOWN }
+        } ?: GoldPosition.UNKNOWN
+        detector.disable()
 
+        when (position) {
+            GoldPosition.LEFT -> perform(leftAction)
+            GoldPosition.CENTER -> perform(centerAction)
+            GoldPosition.RIGHT -> perform(rightAction)
+            GoldPosition.UNKNOWN -> TODO("The action for an unknown gold position is not implemented.")
+        }
     }
 
     @Throws(InterruptedException::class)
@@ -76,7 +87,7 @@ class Autonomous : LinearOpMode() {
             install(CargoPositionDetector)
         }
 
-
+//        robot.perform(cameraAction)
         robot.perform(potentiometerAction)
     }
 
