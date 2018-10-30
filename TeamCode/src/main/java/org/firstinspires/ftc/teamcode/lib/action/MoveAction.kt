@@ -11,6 +11,8 @@ import kotlin.math.abs
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
  * robot.
+ *
+ * TODO: Make [MoveAction] a new implementation of [Action] instead of a typealias.
  */
 typealias MoveAction = Action
 
@@ -86,25 +88,24 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
 /**
  * Returns an [Action] that drives linearly with the provided [power] to the provided distance.
  */
-fun driveTo(distance: Long, power: Double): MoveAction = move {
-    require(power > 0.0)
+fun drive(distance: Long, power: Double): MoveAction = move {
 
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotPositionLocalizer::class)
 
     val positionChannel = localizer.position.openSubscription()
-    val initalPosition = positionChannel.receive().linearPosition
-    val targetPosition = initalPosition + distance
+    val initialPosition = positionChannel.receive().linearPosition
+    val targetPosition = initialPosition + distance
 
     when {
-        initalPosition < targetPosition -> {
-            driveTrain.setPower(power, 0.0)
+        initialPosition < targetPosition -> {
+            driveTrain.setPower(abs(power), 0.0)
             while (positionChannel.receive().linearPosition < targetPosition) {
                 yield()
             }
         }
-        initalPosition > targetPosition -> {
-            driveTrain.setPower(-power, 0.0)
+        initialPosition > targetPosition -> {
+            driveTrain.setPower(-abs(power), 0.0)
             while (positionChannel.receive().linearPosition > targetPosition) {
                 yield()
             }

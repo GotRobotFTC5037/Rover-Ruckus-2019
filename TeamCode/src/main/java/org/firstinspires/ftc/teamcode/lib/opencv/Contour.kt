@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.lib.opencv
 
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
+import kotlin.math.roundToInt
 
 @Suppress("ArrayInDataClass")
 data class ContourFilter(
@@ -81,10 +82,19 @@ fun List<MatOfPoint>.convexHulls(): List<MatOfPoint> {
     return outputContours
 }
 
-fun List<MatOfPoint>.boundingBoxes(): List<Rect> {
-    return this.map { Imgproc.boundingRect(it) }
-}
+fun List<MatOfPoint>.boundingBoxes(): List<Rect> = map { Imgproc.boundingRect(it) }
 
 fun MatOfPoint.boundingBox(): Rect {
     return Imgproc.boundingRect(this)
 }
+
+fun List<Rect>.resized(originalMatSize: Size, targetMatSize: Size): List<Rect> = map {
+    val horizontalMultiplier = (originalMatSize.width / targetMatSize.width).roundToInt()
+    val verticalMultiplier = (originalMatSize.height / targetMatSize.height).roundToInt()
+    it.x *= horizontalMultiplier
+    it.y *= verticalMultiplier
+    it.width *= horizontalMultiplier
+    it.height *= verticalMultiplier
+    it
+}
+

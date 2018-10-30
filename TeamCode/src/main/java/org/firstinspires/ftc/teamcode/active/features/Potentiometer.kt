@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.active.production
+package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.hardware.AnalogInput
-import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.util.Range
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
@@ -40,13 +39,15 @@ class Potentiometer(
     companion object Installer : FeatureInstaller<Configuration, Potentiometer> {
         override fun install(
             robot: Robot,
-            hardwareMap: HardwareMap,
             coroutineContext: CoroutineContext,
             configure: Configuration.() -> Unit
         ): Potentiometer {
             val configuration = Configuration().apply(configure)
-            val analogInput = hardwareMap.get(AnalogInput::class.java, configuration.name)
-            return Potentiometer(analogInput, coroutineContext)
+            val analogInput = robot.hardwareMap.get(AnalogInput::class.java, configuration.name)
+            return Potentiometer(
+                analogInput,
+                coroutineContext
+            )
         }
     }
 

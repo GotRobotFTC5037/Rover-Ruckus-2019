@@ -42,8 +42,7 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
         feature: FeatureInstaller<TConfiguration, TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
-        val featureInstance =
-            feature.install(this, linearOpMode.hardwareMap, coroutineContext, configuration)
+        val featureInstance = feature.install(this, coroutineContext, configuration)
         features[feature] = featureInstance
     }
 
@@ -67,7 +66,7 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
         action.run(this@RobotImpl, coroutineContext)
     }
 
-    override fun waitForActionsToComplete() = runBlocking { activeActions.forEach { it.join() } }
+    override fun awaitActions() = runBlocking { activeActions.forEach { it.join() } }
 
 }
 

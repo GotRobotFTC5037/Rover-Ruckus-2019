@@ -68,7 +68,6 @@ class TankDriveTrain(
     object Localizer : FeatureInstaller<Nothing, PositionLocalizer> {
         override fun install(
             robot: Robot,
-            hardwareMap: HardwareMap,
             coroutineContext: CoroutineContext,
             configure: Nothing.() -> Unit
         ): PositionLocalizer {
@@ -100,11 +99,10 @@ class TankDriveTrain(
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
         override fun install(
             robot: Robot,
-            hardwareMap: HardwareMap,
             coroutineContext: CoroutineContext,
             configure: Configuration.() -> Unit
         ): TankDriveTrain {
-            val configuration = Configuration(hardwareMap).apply(configure)
+            val configuration = Configuration(robot.hardwareMap).apply(configure)
             return TankDriveTrain(configuration.leftMotors, configuration.rightMotors)
         }
     }

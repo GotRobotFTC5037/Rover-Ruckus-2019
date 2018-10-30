@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib.robot
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.feature.*
 import kotlin.reflect.KClass
@@ -9,6 +10,9 @@ import kotlin.reflect.KClass
 interface Robot {
 
     val linearOpMode: LinearOpMode
+
+    val hardwareMap: HardwareMap
+        get() = linearOpMode.hardwareMap
 
     fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,
@@ -25,7 +29,7 @@ interface Robot {
 
     fun perform(action: Action)
 
-    fun waitForActionsToComplete()
+    fun awaitActions()
 
 }
 

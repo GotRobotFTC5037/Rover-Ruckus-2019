@@ -3,14 +3,9 @@ package org.firstinspires.ftc.teamcode.lib.opencv
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 
-fun Mat.resized(width: Int, height: Int): Mat {
+fun Mat.resized(size: Size): Mat {
     val output = Mat()
-    Imgproc.resize(
-        this, output,
-        Size(width.toDouble(), height.toDouble()),
-        0.0, 0.0,
-        Imgproc.INTER_NEAREST
-    )
+    Imgproc.resize(this, output, size,0.0, 0.0, Imgproc.INTER_NEAREST)
     return output
 }
 

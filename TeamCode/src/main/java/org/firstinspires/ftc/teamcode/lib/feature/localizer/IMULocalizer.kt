@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
-import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.isActive
@@ -70,12 +69,11 @@ class IMULocalizer(
 
         override fun install(
             robot: Robot,
-            hardwareMap: HardwareMap,
             coroutineContext: CoroutineContext,
             configure: Configuration.() -> Unit
         ): IMULocalizer {
             val configuration = Configuration().apply(configure)
-            val imu = hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
+            val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
             return IMULocalizer(imu, configuration.pollRate, coroutineContext)
         }
 
