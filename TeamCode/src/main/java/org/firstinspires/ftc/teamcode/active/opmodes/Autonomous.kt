@@ -2,6 +2,7 @@
 
 package org.firstinspires.ftc.teamcode.active.opmodes
 
+import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.channels.find
@@ -12,36 +13,38 @@ import org.firstinspires.ftc.teamcode.active.features.GoldPosition
 import org.firstinspires.ftc.teamcode.active.features.Potentiometer
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
 class Autonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(19.0, 0.3) then wait(100),
+        turnTo(19.0, 1.0) then wait(100),
         drive(1050, 0.4),
-        turnTo(-19.0, 0.3) then wait(100),
+        turnTo(-19.0, 1.0) then wait(100),
         drive(720, 0.4) then wait(1000),
         drive(-130, 0.3),
-        turnTo(-80.0, 0.3) then wait(100),
+        turnTo(-80.0, 1.0) then wait(100),
         drive(710, 0.2),
-        turnTo(-120.0, 0.3) then wait(100),
+        turnTo(-120.0, 1.0) then wait(100),
         drive(360, 0.5)
     )
 
     private val centerAction = actionSequenceOf(
-        drive(1801, 0.4),
-        drive(-200, 0.4) then wait(100),
-        turnTo(-110.0, 0.3) then wait(100)
+        drive(1620,0.55),
+        drive(-130, 0.7) then wait(100),
+        turnTo(-20.0, 1.0) then wait(100),
+        drive(260,0.5) then timeDrive(-100,0.5)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-19.0, 0.3) then wait(100),
+        turnTo(-19.0, 1.0) then wait(100),
         drive(1050, 0.4),
-        turnTo(19.0, 0.3) then wait(100),
+        turnTo(19.0, 1.0) then wait(100),
         drive(720, 0.4) then wait(1000),
         drive(-130, 0.4),
-        turnTo(-110.0, 0.3) then wait(100),
+        turnTo(-110.0, 1.0) then wait(100),
         drive(1800, 0.5)
     )
 
@@ -84,8 +87,11 @@ class Autonomous : LinearOpMode() {
             }
             install(Potentiometer)
             install(TankDriveTrain.Localizer)
-            install(CargoPositionDetector)
+            install(IMULocalizer)
+           install(CargoPositionDetector)
         }
+
+
 
 //        robot.perform(cameraAction)
         robot.perform(potentiometerAction)
