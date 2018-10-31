@@ -6,7 +6,6 @@ import kotlin.coroutines.CoroutineContext
 @DslMarker
 annotation class RobotFeatureMarker
 
-@RobotFeatureMarker
 interface Feature
 
 @RobotFeatureMarker

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.withTimeoutOrNull
+import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
 import org.firstinspires.ftc.teamcode.active.features.Potentiometer
@@ -81,17 +82,17 @@ class Autonomous : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
-            install(Potentiometer)
             install(TankDriveTrain.Localizer)
             install(IMULocalizer)
+            install(Potentiometer)
             install(Vuforia) {
-                key = TODO("Get a vuforia key.")
+                key = RobotConstants.VUFORIA_KEY
             }
-
+            install(CargoDetector)
         }
 
         robot.perform(potentiometerAction)
-        robot.perform(cameraAction)
+//        robot.perform(cameraAction)
     }
 
 }

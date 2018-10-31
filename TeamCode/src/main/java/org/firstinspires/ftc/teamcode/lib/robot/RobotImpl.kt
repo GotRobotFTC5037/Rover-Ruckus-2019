@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
+import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -18,14 +19,9 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
     private val job: Job = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = newSingleThreadContext("robot") + job
+        get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher() + job
 
     init {
-        runBlocking {
-            while (!linearOpMode.isStarted) {
-                yield()
-            }
-        }
         GlobalScope.launch {
             while (!linearOpMode.isStopRequested) {
                 yield()
@@ -35,8 +31,6 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
     }
 
     private val features: MutableMap<FeatureKey<*>, Feature> = mutableMapOf()
-
-    private val activeActions: MutableList<Job> = mutableListOf()
 
     override fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,
@@ -52,21 +46,19 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
         features.any { it.value::class.isSubclassOf(featureClass) }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <F : Feature> get(key: FeatureKey<F>): F? = features[key] as? F
-
+    override fun <F : Feature> get(key: FeatureKey<F>): F =
+        features[key] as? F ?: throw MissingRobotFeatureException()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <F : Feature> get(featureClass: KClass<F>): F? =
+    override fun <F : Feature> get(featureClass: KClass<F>): F =
         features.filter { it.value::class.isSubclassOf(featureClass) }
             .toList()
             .singleOrNull()
-            ?.second as? F
+            ?.second as? F ?: throw MissingRobotFeatureException()
 
     override fun perform(action: Action) = runBlocking {
         action.run(this@RobotImpl, coroutineContext)
     }
-
-    override fun awaitActions() = runBlocking { activeActions.forEach { it.join() } }
 
 }
 
@@ -77,6 +69,9 @@ fun Robot.perform(block: suspend ActionScope.() -> Unit) {
 
 fun robot(linearOpMode: LinearOpMode, configure: Robot.() -> Unit): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
+    while (!linearOpMode.isStarted) {
+        linearOpMode.idle()
+    }
     return RobotImpl(linearOpMode).apply(configure)
 }
 

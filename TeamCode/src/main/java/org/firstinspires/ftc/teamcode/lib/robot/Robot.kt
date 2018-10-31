@@ -23,13 +23,11 @@ interface Robot {
 
     operator fun contains(featureClass: KClass<Feature>): Boolean
 
-    operator fun <F : Feature> get(key: FeatureKey<F>): F?
+    operator fun <F : Feature> get(key: FeatureKey<F>): F
 
-    operator fun <F : Feature> get(featureClass: KClass<F>): F?
+    operator fun <F : Feature> get(featureClass: KClass<F>): F
 
     fun perform(action: Action)
-
-    fun awaitActions()
 
 }
 
