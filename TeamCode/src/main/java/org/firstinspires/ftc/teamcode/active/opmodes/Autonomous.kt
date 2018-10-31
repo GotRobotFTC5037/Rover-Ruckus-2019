@@ -1,17 +1,18 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "EXPERIMENTAL_API_USAGE")
 
 package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import kotlinx.coroutines.channels.find
 import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.withTimeoutOrNull
-import org.firstinspires.ftc.teamcode.active.features.CargoPositionDetector
+import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
 import org.firstinspires.ftc.teamcode.active.features.Potentiometer
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.objectDetection.Vuforia
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
@@ -19,29 +20,30 @@ class Autonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(19.0, 1.0) then wait(100),
-        drive(1050, 0.7),
+        drive(1050, 0.4),
         turnTo(-19.0, 1.0) then wait(100),
-        drive(720, 0.7) then wait(3000),
-        drive(-130, 0.7),
+        drive(720, 0.4) then wait(1000),
+        drive(-130, 0.3),
         turnTo(-80.0, 1.0) then wait(100),
-        drive(710, 0.7),
+        drive(710, 0.2),
         turnTo(-120.0, 1.0) then wait(100),
-        drive(360, 0.7)
+        drive(360, 0.5)
     )
 
     private val centerAction = actionSequenceOf(
-        drive(1801, 0.4),
-        drive(-200, 0.4) then wait(100),
-        turnTo(-110.0, 0.3) then wait(100)
+        drive(1620, 0.55),
+        drive(-130, 0.7) then wait(100),
+        turnTo(-20.0, 1.0) then wait(100),
+        drive(260, 0.5) then timeDrive(-100, 0.5)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-19.0, 0.3) then wait(100),
+        turnTo(-19.0, 1.0) then wait(100),
         drive(1050, 0.4),
-        turnTo(19.0, 0.3) then wait(100),
-        drive(720, 0.4) then wait(3000),
+        turnTo(19.0, 1.0) then wait(100),
+        drive(720, 0.4) then wait(1000),
         drive(-130, 0.4),
-        turnTo(-130.0, 0.4) then wait(100),
+        turnTo(-110.0, 1.0) then wait(100),
         drive(1800, 0.5)
     )
 
@@ -58,19 +60,17 @@ class Autonomous : LinearOpMode() {
     }
 
     private val cameraAction = action {
-        val detector = requestFeature(CargoPositionDetector).apply { enable() }
+        val cargoDetector = requestFeature(CargoDetector)
 
-        val positionChannel = detector.goldPosition.openSubscription()
+        val positionChannel = cargoDetector.goldPosition.openSubscription()
         val position = withTimeoutOrNull(5000) {
-            positionChannel.find { it != GoldPosition.UNKNOWN }
+            positionChannel.first { it != GoldPosition.UNKNOWN }
         } ?: GoldPosition.UNKNOWN
-        detector.disable()
-
         when (position) {
             GoldPosition.LEFT -> perform(leftAction)
             GoldPosition.CENTER -> perform(centerAction)
             GoldPosition.RIGHT -> perform(rightAction)
-            GoldPosition.UNKNOWN -> TODO("The action for an unknown gold position is not implemented.")
+            GoldPosition.UNKNOWN -> TODO("Undefined action for unknown gold position")
         }
     }
 
@@ -83,13 +83,15 @@ class Autonomous : LinearOpMode() {
             }
             install(Potentiometer)
             install(TankDriveTrain.Localizer)
-            install(CargoPositionDetector)
+            install(IMULocalizer)
+            install(Vuforia) {
+                key = TODO("Get a vuforia key.")
+            }
+
         }
 
         robot.perform(potentiometerAction)
-
-        /* Use the following line instead of the line above to use OpenCV to identify the gold */
-//        robot.perform(cameraAction)
+        robot.perform(cameraAction)
     }
 
 }

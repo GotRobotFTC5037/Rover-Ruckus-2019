@@ -21,7 +21,7 @@ fun move(block: suspend ActionScope.() -> Unit): MoveAction = action(block)
 /**
  * Returns an [Action] Drives linearly with the provided [power] for the provided [duration].
  */
-@Deprecated("Usage of time based drives should be avoided")
+@Deprecated("Usage of time based drives should be avoided.")
 fun timeDrive(duration: Long, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     driveTrain.setPower(power, 0.0)
@@ -32,7 +32,7 @@ fun timeDrive(duration: Long, power: Double): MoveAction = move {
 /**
  * Returns an [Action] that turns linearly with the provided [power] for the provided [duration].
  */
-@Deprecated("Usage of time turns drives should be avoided")
+@Deprecated("Usage of time turns drives should be avoided.")
 fun timeTurn(duration: Long, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     driveTrain.setHeadingPower(power)
