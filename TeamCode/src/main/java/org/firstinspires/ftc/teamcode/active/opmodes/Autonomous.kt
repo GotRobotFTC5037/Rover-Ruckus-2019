@@ -18,15 +18,15 @@ import org.firstinspires.ftc.teamcode.lib.robot.robot
 class Autonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(19.0, 0.3) then wait(100),
-        drive(1050, 0.4),
-        turnTo(-19.0, 0.3) then wait(100),
-        drive(720, 0.4) then wait(1000),
-        drive(-130, 0.3),
-        turnTo(-80.0, 0.3) then wait(100),
-        drive(710, 0.2),
-        turnTo(-120.0, 0.3) then wait(100),
-        drive(360, 0.5)
+        turnTo(19.0, 1.0) then wait(100),
+        drive(1050, 0.7),
+        turnTo(-19.0, 1.0) then wait(100),
+        drive(720, 0.7) then wait(3000),
+        drive(-130, 0.7),
+        turnTo(-80.0, 1.0) then wait(100),
+        drive(710, 0.7),
+        turnTo(-120.0, 1.0) then wait(100),
+        drive(360, 0.7)
     )
 
     private val centerAction = actionSequenceOf(
@@ -39,9 +39,9 @@ class Autonomous : LinearOpMode() {
         turnTo(-19.0, 0.3) then wait(100),
         drive(1050, 0.4),
         turnTo(19.0, 0.3) then wait(100),
-        drive(720, 0.4) then wait(1000),
+        drive(720, 0.4) then wait(3000),
         drive(-130, 0.4),
-        turnTo(-110.0, 0.3) then wait(100),
+        turnTo(-130.0, 0.4) then wait(100),
         drive(1800, 0.5)
     )
 
@@ -55,7 +55,6 @@ class Autonomous : LinearOpMode() {
             in 90.0..180.0 -> perform(centerAction)
             in 180.0..270.0 -> perform(rightAction)
         }
-
     }
 
     private val cameraAction = action {
@@ -87,8 +86,10 @@ class Autonomous : LinearOpMode() {
             install(CargoPositionDetector)
         }
 
-//        robot.perform(cameraAction)
         robot.perform(potentiometerAction)
+
+        /* Use the following line instead of the line above to use OpenCV to identify the gold */
+//        robot.perform(cameraAction)
     }
 
 }

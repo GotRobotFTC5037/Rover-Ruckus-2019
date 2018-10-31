@@ -21,6 +21,7 @@ fun move(block: suspend ActionScope.() -> Unit): MoveAction = action(block)
 /**
  * Returns an [Action] Drives linearly with the provided [power] for the provided [duration].
  */
+@Deprecated("Usage of time based drives should be avoided")
 fun timeDrive(duration: Long, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     driveTrain.setPower(power, 0.0)
@@ -31,6 +32,7 @@ fun timeDrive(duration: Long, power: Double): MoveAction = move {
 /**
  * Returns an [Action] that turns linearly with the provided [power] for the provided [duration].
  */
+@Deprecated("Usage of time turns drives should be avoided")
 fun timeTurn(duration: Long, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     driveTrain.setHeadingPower(power)
@@ -86,16 +88,16 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
 }
 
 /**
- * Returns an [Action] that drives linearly with the provided [power] to the provided distance.
+ * Returns an [Action] that drives linearly with the provided [power] to the provided [deltaDistance].
  */
-fun drive(distance: Long, power: Double): MoveAction = move {
+fun drive(deltaDistance: Long, power: Double): MoveAction = move {
 
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotPositionLocalizer::class)
 
     val positionChannel = localizer.position.openSubscription()
     val initialPosition = positionChannel.receive().linearPosition
-    val targetPosition = initialPosition + distance
+    val targetPosition = initialPosition + deltaDistance
 
     when {
         initialPosition < targetPosition -> {
