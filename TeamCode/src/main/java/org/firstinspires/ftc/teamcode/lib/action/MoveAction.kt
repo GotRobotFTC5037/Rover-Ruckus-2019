@@ -109,7 +109,7 @@ fun turnTo(targetHeading: Double): MoveAction = move {
  * Returns an [Action] that turns linearly with the provided [power] to an angle relative to the
  * current location.
  */
-fun turn(deltaHeading: Double, power: Double): MoveAction = move {
+fun turn(deltaHeading: Double): MoveAction = move {
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
     val initialHeading = heading.first()

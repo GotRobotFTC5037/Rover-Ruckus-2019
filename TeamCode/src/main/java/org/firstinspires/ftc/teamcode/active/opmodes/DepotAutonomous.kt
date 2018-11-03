@@ -47,9 +47,9 @@ class DepotAutonomous : LinearOpMode() {
     private val centerAction = actionSequenceOf(
         drive(1900, 0.4),
         drive(-500, 0.4),
-        turn(-90.0, 1.0),
+        turn(-90.0),
         drive(1000, 0.4),
-        turn(-40.0, 1.0),
+        turn(-40.0),
         drive(1500, 0.7)
     )
 
