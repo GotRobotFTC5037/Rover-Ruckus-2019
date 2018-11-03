@@ -3,7 +3,6 @@
 package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorSimple
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.isActive
@@ -12,7 +11,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
-private const val LIFT_DOWN_POSITION = 26_000
+private const val LIFT_DOWN_POSITION = 23_500
 
 class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) : Feature {
 
