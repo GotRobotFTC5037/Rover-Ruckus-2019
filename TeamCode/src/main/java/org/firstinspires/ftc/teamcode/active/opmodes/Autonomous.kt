@@ -9,7 +9,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
-import org.firstinspires.ftc.teamcode.active.features.LanderLatch
+import org.firstinspires.ftc.teamcode.active.features.RobotLift
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.lib.robot.robot
 class Autonomous : LinearOpMode() {
 
     private val lowerRobot = action {
-        //        val landerLatch = requestFeature(LanderLatch)
-//        landerLatch.lowerRobot()
+        val landerLatch = requestFeature(RobotLift)
+        landerLatch.lowerRobot()
     }
 
     private val mainAction = action {
@@ -82,7 +82,7 @@ class Autonomous : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
-            install(LanderLatch) {
+            install(RobotLift) {
                 liftMotorName = "lift"
             }
             install(TankDriveTrain.Localizer)
