@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
+private const val LIFT_DOWN_POSITION = 26_000
+
 class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) : Feature {
 
     val liftPosition: BroadcastChannel<Int> =
@@ -28,14 +30,22 @@ class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) 
         liftMotor.power = power
     }
 
-    suspend fun raiseRobot() {
-        liftPosition.openSubscription().consumeEach {
-
+    suspend fun retract() {
+        val positionChannel = liftPosition.openSubscription()
+        for (position in positionChannel) {
+            while (position < LIFT_DOWN_POSITION) {
+                positionChannel.cancel()
+            }
         }
     }
 
-    suspend fun lowerRobot() {
-
+    suspend fun extend() {
+        val positionChannel = liftPosition.openSubscription()
+        for (position in positionChannel) {
+            while (position > 0) {
+                positionChannel.cancel()
+            }
+        }
     }
 
     class Configuration : FeatureConfiguration {

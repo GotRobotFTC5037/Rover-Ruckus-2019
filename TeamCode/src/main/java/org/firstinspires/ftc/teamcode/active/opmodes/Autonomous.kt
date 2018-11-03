@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.active.opmodes
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.channels.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
@@ -19,9 +20,14 @@ import org.firstinspires.ftc.teamcode.lib.robot.robot
 @Autonomous
 class Autonomous : LinearOpMode() {
 
-    private val lowerRobot = action {
+    private val raiseLift = move {
         val landerLatch = requestFeature(RobotLift)
-        landerLatch.lowerRobot()
+        landerLatch.extend()
+    }.apply { timeoutMillis = 1200 }
+
+    private val lowerLift = move {
+        val landerLatch = requestFeature(RobotLift)
+        launch { landerLatch.retract() }
     }
 
     private val mainAction = action {
@@ -52,25 +58,25 @@ class Autonomous : LinearOpMode() {
     )
 
     private val centerAction = actionSequenceOf(
-            drive(1620, 0.4),
-            drive(-420, 0.4),
-            turn(-90.0, 1.0),
-            drive(420, 0.4),
-            turn(-45.0, 1.0),
-            drive(15/*00*/, 0.7)
+        drive(1620, 0.4),
+        drive(-420, 0.4),
+        turn(-90.0, 1.0),
+        drive(420, 0.4),
+        turn(-45.0, 1.0),
+        drive(15/*00*/, 0.7)
 
     )
 
     private val rightAction = actionSequenceOf(
-            turnTo(-20.0, 1.0) then wait(100),
-            drive(1150, 0.4),
-            turnTo(20.0, 1.0) then wait(100),
-            drive(820, 0.4) then wait(1000),
-            drive(-180, 0.3),
-            turnTo(80.0, 1.0) then wait(100),
-            drive(710, 0.2),
-            turnTo(120.0, 1.0) then wait(100),
-            drive(360, 0.5)
+        turnTo(-20.0, 1.0) then wait(100),
+        drive(1150, 0.4),
+        turnTo(20.0, 1.0) then wait(100),
+        drive(820, 0.4) then wait(1000),
+        drive(-180, 0.3),
+        turnTo(80.0, 1.0) then wait(100),
+        drive(710, 0.2),
+        turnTo(120.0, 1.0) then wait(100),
+        drive(360, 0.5)
     )
 
     class GoldPositionNotDetectedException : RuntimeException("The gold position was not detected.")
@@ -95,7 +101,7 @@ class Autonomous : LinearOpMode() {
                 minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
                 useObjectTracker = true
             }
-        }.perform(lowerRobot then mainAction)
+        }.perform(raiseLift then lowerLift then mainAction)
     }
 
 }
