@@ -23,7 +23,7 @@ class Autonomous : LinearOpMode() {
     private val raiseLift = move {
         val landerLatch = requestFeature(RobotLift)
         landerLatch.extend()
-    }.apply { timeoutMillis = 1200 }
+    }.apply { timeoutMillis = 12000 }
 
     private val lowerLift = move {
         val landerLatch = requestFeature(RobotLift)
