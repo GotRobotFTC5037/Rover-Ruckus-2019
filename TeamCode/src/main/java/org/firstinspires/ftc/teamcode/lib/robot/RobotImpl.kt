@@ -14,7 +14,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, CoroutineScope {
+private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot {
 
     private val job: Job = Job()
 
@@ -36,7 +36,7 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot, Corout
         feature: FeatureInstaller<TConfiguration, TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
-        val featureInstance = feature.install(this, coroutineContext, configuration)
+        val featureInstance = feature.install(this, configuration)
         features[feature] = featureInstance
     }
 
@@ -69,10 +69,11 @@ fun Robot.perform(block: suspend ActionScope.() -> Unit) {
 
 fun robot(linearOpMode: LinearOpMode, configure: Robot.() -> Unit): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
+    val robot = RobotImpl(linearOpMode).apply(configure)
     while (!linearOpMode.isStarted) {
         linearOpMode.idle()
     }
-    return RobotImpl(linearOpMode).apply(configure)
+    return robot
 }
 
 /**

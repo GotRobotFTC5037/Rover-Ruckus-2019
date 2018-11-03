@@ -6,37 +6,17 @@ import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
-import kotlin.coroutines.CoroutineContext
 
-class Vuforia(private val key: String, direction: VuforiaLocalizer.CameraDirection) : Feature {
+class Vuforia(parameters: VuforiaLocalizer.Parameters) : Feature {
 
-    val localizer: VuforiaLocalizer
+    val localizer: VuforiaLocalizer = VuforiaLocalizer(parameters)
 
-    init {
-        val parameters = VuforiaLocalizer.Parameters().apply {
-            vuforiaLicenseKey = key
-            cameraDirection = direction
-        }
-        localizer = VuforiaLocalizer(parameters)
-    }
-
-    class Configuration : FeatureConfiguration {
-        var key: String? = null
-        var cameraDirection: VuforiaLocalizer.CameraDirection =
-            VuforiaLocalizer.CameraDirection.BACK
-        var webcamName: String? = null
-    }
+    class Configuration : VuforiaLocalizer.Parameters(), FeatureConfiguration
 
     companion object Installer : FeatureInstaller<Configuration, Vuforia> {
-        override fun install(
-            robot: Robot,
-            coroutineContext: CoroutineContext,
-            configure: Configuration.() -> Unit
-        ): Vuforia {
-            val options = Vuforia.Configuration().apply(configure)
-            val key = options.key
-                ?: throw IllegalStateException("You must provide a key when using a Vuforia.")
-            return Vuforia(key, options.cameraDirection)
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): Vuforia {
+            val parameters = Vuforia.Configuration().apply(configure)
+            return Vuforia(parameters)
         }
     }
 

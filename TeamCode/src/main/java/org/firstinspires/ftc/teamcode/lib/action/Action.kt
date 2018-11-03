@@ -11,7 +11,7 @@ abstract class Action {
 
 private class ActionImpl(private val block: suspend ActionScope.() -> Unit) : Action() {
     override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
-        val scope: ActionScope = StandardActionScope(robot, parentContext)
+        val scope: ActionScope = StandardActionScope(robot)
         scope.block()
     }
 }

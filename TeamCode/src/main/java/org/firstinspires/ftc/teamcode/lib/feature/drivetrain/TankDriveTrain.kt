@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.Position
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
-import org.firstinspires.ftc.teamcode.lib.robot.MissingRobotFeatureException
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 
@@ -25,7 +24,6 @@ class TankDriveTrain(
     }
 
     override fun setPower(linearPower: Double, lateralPower: Double) {
-        // TODO: Add a message to the exception.
         if (lateralPower != 0.0) throw InvalidDriveTrainOperationException()
         setMotorPowers(linearPower, linearPower)
     }
@@ -44,11 +42,14 @@ class TankDriveTrain(
         setMotorPowers(0.0, 0.0)
     }
 
-    inner class PositionLocalizer(override val coroutineContext: CoroutineContext) : RobotPositionLocalizer, CoroutineScope {
+    inner class PositionLocalizer(override val coroutineContext: CoroutineContext) :
+        RobotPositionLocalizer, CoroutineScope {
 
         override val isReady: Boolean = true
 
-        private fun CoroutineScope.producePosition(ticker: ReceiveChannel<Unit>): BroadcastChannel<Position> =
+        private fun CoroutineScope.producePosition(
+            ticker: ReceiveChannel<Unit>
+        ): BroadcastChannel<Position> =
             broadcast(capacity = Channel.CONFLATED) {
                 while (isActive) {
                     ticker.receive()
@@ -67,13 +68,10 @@ class TankDriveTrain(
 
     object Localizer : FeatureInstaller<Nothing, PositionLocalizer> {
         override fun install(
-            robot: Robot,
-            coroutineContext: CoroutineContext,
-            configure: Nothing.() -> Unit
+            robot: Robot, configure: Nothing.() -> Unit
         ): PositionLocalizer {
             val tankDrive = robot[TankDriveTrain]
-                ?: throw MissingRobotFeatureException("TankDriveTrain.Localizer requires a TankDriveTrain to be installed")
-            return tankDrive.PositionLocalizer(coroutineContext)
+            return tankDrive.PositionLocalizer(robot.coroutineContext)
         }
     }
 
@@ -97,11 +95,7 @@ class TankDriveTrain(
     }
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
-        override fun install(
-            robot: Robot,
-            coroutineContext: CoroutineContext,
-            configure: Configuration.() -> Unit
-        ): TankDriveTrain {
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
             return TankDriveTrain(configuration.leftMotors, configuration.rightMotors)
         }

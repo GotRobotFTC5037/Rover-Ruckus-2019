@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.lib.robot
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
+import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.feature.*
 import kotlin.reflect.KClass
 
 @RobotFeatureMarker
-interface Robot {
+interface Robot : CoroutineScope {
 
     val linearOpMode: LinearOpMode
 

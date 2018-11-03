@@ -9,11 +9,11 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
-import org.firstinspires.ftc.teamcode.active.features.Potentiometer
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.objectDetection.Vuforia
+import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
@@ -48,51 +48,36 @@ class Autonomous : LinearOpMode() {
         drive(1800, 0.5)
     )
 
-    private val potentiometerAction = action {
-        val potentiometer = requestFeature(Potentiometer)
-
-        val positionChannel = potentiometer.angle.openSubscription()
-        val position = positionChannel.first()
-        when (position) {
-            in 0.0..90.0 -> perform(leftAction)
-            in 90.0..180.0 -> perform(centerAction)
-            in 180.0..270.0 -> perform(rightAction)
-        }
-    }
-
-    private val cameraAction = action {
-        val cargoDetector = requestFeature(CargoDetector)
-
-        val positionChannel = cargoDetector.goldPosition.openSubscription()
-        val position = withTimeoutOrNull(5000) {
-            positionChannel.first { it != GoldPosition.UNKNOWN }
-        } ?: GoldPosition.UNKNOWN
-        when (position) {
-            GoldPosition.LEFT -> perform(leftAction)
-            GoldPosition.CENTER -> perform(centerAction)
-            GoldPosition.RIGHT -> perform(rightAction)
-            GoldPosition.UNKNOWN -> TODO("Undefined action for unknown gold position")
-        }
-    }
-
     @Throws(InterruptedException::class)
     override fun runOpMode() {
-        val robot = robot(this) {
+        robot(this) {
             install(TankDriveTrain) {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
             install(TankDriveTrain.Localizer)
             install(IMULocalizer)
-            install(Potentiometer)
             install(Vuforia) {
-                key = RobotConstants.VUFORIA_KEY
+                vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
+                fillCameraMonitorViewParent = true
             }
-            install(CargoDetector)
-        }
+            install(CargoDetector) {
+                minimumConfidence = 0.45
+                useObjectTracker = true
+            }
+        }.perform {
+            val cargoDetector = requestFeature(CargoDetector)
 
-        robot.perform(potentiometerAction)
-//        robot.perform(cameraAction)
+            val position = withTimeoutOrNull(5000) {
+                cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
+            } ?: GoldPosition.UNKNOWN
+            when (position) {
+                GoldPosition.LEFT -> perform(leftAction)
+                GoldPosition.CENTER -> perform(centerAction)
+                GoldPosition.RIGHT -> perform(rightAction)
+                GoldPosition.UNKNOWN -> TODO("Undefined action for unknown gold position")
+            }
+        }
     }
 
 }

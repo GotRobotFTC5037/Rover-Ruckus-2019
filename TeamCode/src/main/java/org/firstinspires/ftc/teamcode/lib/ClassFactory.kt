@@ -13,3 +13,4 @@ fun objectDetector(
 @Suppress("FunctionName")
 fun VuforiaLocalizer(parameters: VuforiaLocalizer.Parameters): VuforiaLocalizer =
     ClassFactory.getInstance().createVuforia(parameters)
+

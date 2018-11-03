@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package org.firstinspires.ftc.teamcode.active
 
 object RobotConstants {

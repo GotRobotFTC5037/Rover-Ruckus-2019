@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.hardware.AnalogInput
@@ -23,8 +25,10 @@ class Potentiometer(
         broadcast(capacity = Channel.CONFLATED) {
             while (isActive) {
                 ticker.receive()
-                val angle =
-                    Range.clip(analogInput.voltage / analogInput.maxVoltage * 270, 0.0, 270.0)
+                val angle = Range.clip(
+                    analogInput.voltage / analogInput.maxVoltage * 270,
+                    0.0, 270.0
+                )
                 send(angle)
             }
         }
@@ -37,17 +41,10 @@ class Potentiometer(
     }
 
     companion object Installer : FeatureInstaller<Configuration, Potentiometer> {
-        override fun install(
-            robot: Robot,
-            coroutineContext: CoroutineContext,
-            configure: Configuration.() -> Unit
-        ): Potentiometer {
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): Potentiometer {
             val configuration = Configuration().apply(configure)
             val analogInput = robot.hardwareMap.get(AnalogInput::class.java, configuration.name)
-            return Potentiometer(
-                analogInput,
-                coroutineContext
-            )
+            return Potentiometer(analogInput, robot.coroutineContext)
         }
     }
 

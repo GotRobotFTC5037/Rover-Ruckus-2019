@@ -29,7 +29,7 @@ fun Robot.performTeleOp(block: suspend TeleOpActionScope.() -> Unit): Unit = per
 class TeleOpActionScope(
     private val robot: Robot,
     parentContext: CoroutineContext
-) : StandardActionScope(robot, parentContext) {
+) : StandardActionScope(robot) {
 
     internal lateinit var controlScheme: ControlScheme
 

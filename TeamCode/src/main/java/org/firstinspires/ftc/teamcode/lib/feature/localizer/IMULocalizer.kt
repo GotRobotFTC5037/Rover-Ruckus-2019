@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
@@ -17,13 +19,9 @@ import kotlin.coroutines.CoroutineContext
  */
 class IMULocalizer(
     private val imu: BNO055IMU,
-    private val pollRate: Long,
+    pollRate: Long,
     override val coroutineContext: CoroutineContext
 ) : RobotHeadingLocalizer, CoroutineScope {
-
-    init {
-        imu.initialize(BNO055IMU.Parameters())
-    }
 
     override val isReady: Boolean
         get() = imu.isGyroCalibrated
@@ -42,10 +40,9 @@ class IMULocalizer(
             }
         }
 
-    override val heading: BroadcastChannel<Double> by lazy {
-        val ticker = ticker(delayMillis = pollRate, mode = TickerMode.FIXED_DELAY)
-        broadcastHeading(ticker)
-    }
+    override val heading: BroadcastChannel<Double> =
+        broadcastHeading(ticker(delayMillis = pollRate, mode = TickerMode.FIXED_DELAY))
+
 
     /**
      * Configures a [IMULocalizer].
@@ -66,17 +63,12 @@ class IMULocalizer(
     }
 
     companion object Installer : FeatureInstaller<Configuration, IMULocalizer> {
-
-        override fun install(
-            robot: Robot,
-            coroutineContext: CoroutineContext,
-            configure: Configuration.() -> Unit
-        ): IMULocalizer {
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): IMULocalizer {
             val configuration = Configuration().apply(configure)
             val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
-            return IMULocalizer(imu, configuration.pollRate, coroutineContext)
+            imu.initialize(BNO055IMU.Parameters())
+            return IMULocalizer(imu, configuration.pollRate, robot.coroutineContext)
         }
-
     }
 
 }
