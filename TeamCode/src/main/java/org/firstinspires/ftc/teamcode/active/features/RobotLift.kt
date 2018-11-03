@@ -33,7 +33,7 @@ class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) 
 
     suspend fun retract() {
         val positionChannel = liftPosition.openSubscription()
-        liftMotor.power = 1.0
+        liftMotor.power = -1.0
         for (position in positionChannel) {
             if (position <= 0) {
                 positionChannel.cancel()
@@ -43,7 +43,7 @@ class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) 
 
     suspend fun extend() {
         val positionChannel = liftPosition.openSubscription()
-        liftMotor.power = -1.0
+        liftMotor.power = 1.0
         for (position in positionChannel) {
             if (position >= LIFT_DOWN_POSITION) {
                 positionChannel.cancel()
@@ -59,7 +59,6 @@ class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) 
         override fun install(robot: Robot, configure: Configuration.() -> Unit): RobotLift {
             val configuration = Configuration().apply(configure)
             val liftMotor = robot.hardwareMap.get(DcMotor::class.java, configuration.liftMotorName)
-            liftMotor.direction = DcMotorSimple.Direction.REVERSE
             liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
             return RobotLift(liftMotor, robot)
