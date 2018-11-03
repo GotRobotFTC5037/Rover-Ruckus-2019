@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
-class Autonomous : LinearOpMode() {
+class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(20.0, 1.0) then wait(100),
@@ -32,7 +32,7 @@ class Autonomous : LinearOpMode() {
     )
 
     private val centerAction = actionSequenceOf(
-            drive(1620, 0.4),
+            drive(1700, 0.4),
             drive(-420, 0.4),
             turn(-90.0, 1.0),
             drive(420, 0.4),
