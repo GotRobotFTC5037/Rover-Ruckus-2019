@@ -1,9 +1,12 @@
+@file:Suppress("unused")
+
 package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.lib.action.performTeleOp
+import org.firstinspires.ftc.teamcode.active.features.RobotLift
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @TeleOp
@@ -16,11 +19,18 @@ class TeleOp : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
-        }.performTeleOp {
+        }.perform {
             val driveTrain = requestFeature(TankDriveTrain)
-            controlScheme {
-                gamepad1.joysticks {
-                    driveTrain.setMotorPowers(leftY, rightY)
+            val lift = requestFeature(RobotLift)
+            while (true) {
+                driveTrain.setMotorPowers(
+                    -gamepad1.left_stick_y.toDouble(),
+                    -gamepad1.right_stick_y.toDouble()
+                )
+                when {
+                    gamepad1.a -> lift.setPower(1.0)
+                    gamepad1.b -> lift.setPower(-1.0)
+                    else -> lift.setPower(0.0)
                 }
             }
         }

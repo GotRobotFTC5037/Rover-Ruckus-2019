@@ -100,7 +100,7 @@ class DepotAutonomous : LinearOpMode() {
                 minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
                 useObjectTracker = true
             }
-        }.perform(raiseLift then lowerLift then mainAction)
+        }.perform(/*raiseLift then lowerLift then*/ mainAction)
     }
 
 }

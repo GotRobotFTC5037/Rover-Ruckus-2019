@@ -67,12 +67,6 @@ private tailrec fun properHeading(heading: Double): Double = when {
     else -> heading
 }
 
-private fun deltaHeading(heading: Double, target: Double) =
-    when (val delta = abs(target - heading)) {
-        in -180.0..180.0 -> delta
-        else -> 360 - delta
-    }
-
 /**
  * Returns an [Action] that turns linearly with the provided [power] to [targetHeading].
  */
@@ -80,15 +74,14 @@ fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
-    val properTargetHeading = properHeading(targetHeading)
 
     val initialHeading = heading.receive()
-    if (deltaHeading(initialHeading, properTargetHeading) < 0) {
-        driveTrain.setHeadingPower(abs(power))
-        yieldWhile { deltaHeading(heading.receive(), properTargetHeading) < 0 }
-    } else if (deltaHeading(initialHeading, properTargetHeading) > 0) {
+    if (initialHeading > targetHeading) {
         driveTrain.setHeadingPower(-abs(power))
-        yieldWhile { deltaHeading(heading.receive(), properTargetHeading) > 0 }
+        yieldWhile { heading.receive() > targetHeading }
+    } else if (initialHeading < targetHeading) {
+        driveTrain.setHeadingPower(abs(power))
+        yieldWhile { heading.receive() < targetHeading }
     }
 
     heading.cancel()

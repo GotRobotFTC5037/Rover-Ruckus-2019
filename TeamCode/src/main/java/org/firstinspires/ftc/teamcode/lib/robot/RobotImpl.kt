@@ -19,7 +19,7 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot {
     private val job: Job = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher() + job
+        get() = Dispatchers.Default + job
 
     init {
         GlobalScope.launch {
