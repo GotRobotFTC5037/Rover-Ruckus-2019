@@ -14,6 +14,6 @@ class EasingTimingFunction(private val outputRange: ClosedFloatingPointRange<Dou
     TimingFunction() {
     override fun valueAt(t: Double): Double =
         outputRange.start + (outputRange.endInclusive - outputRange.start) *
-                if (t < 0.5) 2 * Math.pow(t, 2.0)
-                else -1 + (4 - 2 * t) * t
+                if (t < 0.5) 4 * t
+                else -4 * (t - 1)
 }

@@ -19,6 +19,9 @@ class TeleOp : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
+            install(RobotLift) {
+                liftMotorName = "lift"
+            }
         }.perform {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(RobotLift)

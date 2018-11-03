@@ -64,6 +64,10 @@ fun timeTurn(duration: Long, power: Double): MoveAction = move {
     driveTrain.stopAllMotors()
 }
 
+/**
+ * Takes an angle that is greater than 180 or less than -180 and maps it to an angle that is in that
+ * range.
+ */
 private tailrec fun properHeading(heading: Double): Double = when {
     heading > 180 -> properHeading(heading - 360)
     heading < -180 -> properHeading(heading + 360)
@@ -73,7 +77,7 @@ private tailrec fun properHeading(heading: Double): Double = when {
 /**
  * Returns an [Action] that turns linearly with the provided [power] to [targetHeading].
  */
-fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
+fun turnTo(targetHeading: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
@@ -85,13 +89,15 @@ fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
             if (currentHeading <= targetHeading) break
             val done = currentHeading / (targetHeading - initialHeading)
             driveTrain.setHeadingPower(-abs(timingFunction.valueAt(done)))
+            yield()
         }
     } else if (initialHeading < targetHeading) {
         while (true) {
             val currentHeading = heading.receive()
-            if (currentHeading <= targetHeading) break
+            if (currentHeading >= targetHeading) break
             val done = currentHeading / (targetHeading - initialHeading)
             driveTrain.setHeadingPower(abs(timingFunction.valueAt(done)))
+            yield()
         }
     }
 
@@ -108,7 +114,7 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
     val heading = localizer.heading.openSubscription()
     val initialHeading = heading.first()
     val targetHeading = properHeading(initialHeading + deltaHeading)
-    perform(turnTo(targetHeading, power))
+    perform(turnTo(targetHeading))
 }
 
 /**
@@ -140,10 +146,4 @@ fun drive(deltaDistance: Long, power: Double): MoveAction = move {
 
     positionChannel.cancel()
     driveTrain.stopAllMotors()
-}
-
-suspend inline fun yieldWhile(predicate: () -> Boolean) {
-    while (predicate()) {
-        yield()
-    }
 }
