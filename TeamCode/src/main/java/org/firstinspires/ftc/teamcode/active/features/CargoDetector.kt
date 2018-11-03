@@ -3,12 +3,11 @@
 package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.ticker
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
@@ -58,25 +57,21 @@ class CargoDetectorImpl(
     private val linearOpMode: LinearOpMode
 ) : CargoDetector, CoroutineScope {
 
-    private val job = Job().apply {
-        invokeOnCompletion {
-            objectDetector.shutdown()
-        }
-    }
+    private val job = Job().apply { invokeOnCompletion { objectDetector.shutdown() } }
 
     override val coroutineContext: CoroutineContext
         get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher() + job
 
     override val goldPosition: ReceiveChannel<GoldPosition> =
-        produceGoldPosition(objectDetector)
+        produceGoldPosition(objectDetector, ticker(250))
 
     private fun CoroutineScope.produceGoldPosition(
-        objectDetector: TFObjectDetector
+        objectDetector: TFObjectDetector,
+        ticker: ReceiveChannel<Unit>
     ) = produce(capacity = Channel.CONFLATED) {
-        invokeOnClose {
-            terminate()
-        }
+        invokeOnClose { GlobalScope.launch { terminate() } }
         while (!linearOpMode.isStopRequested) {
+            ticker.receive()
             val recognitions = objectDetector.updatedRecognitions ?: continue
             val gold = recognitions.filter { it.label == GOLD_MINERAL }
             val silver = recognitions.filter { it.label == SILVER_MINERAL }
