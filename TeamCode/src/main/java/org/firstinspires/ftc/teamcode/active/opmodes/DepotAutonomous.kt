@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.objectDetection.Vuforia
+import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
@@ -28,21 +29,6 @@ class DepotAutonomous : LinearOpMode() {
     private val lowerLift = move {
         val landerLatch = requestFeature(RobotLift)
         launch { landerLatch.retract() }
-    }
-
-    private val mainAction = action {
-        val cargoDetector = requestFeature(CargoDetector)
-
-        val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
-            cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
-        } ?: GoldPosition.UNKNOWN
-        when (position) {
-            GoldPosition.LEFT -> perform(leftAction)
-            GoldPosition.CENTER -> perform(centerAction)
-            GoldPosition.RIGHT -> perform(rightAction)
-            // TODO: Figure out a backup plan if the gold position is not detect.
-            GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
-        }
     }
 
     private val leftAction = actionSequenceOf(
@@ -100,7 +86,26 @@ class DepotAutonomous : LinearOpMode() {
                 minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
                 useObjectTracker = true
             }
-        }.perform(/*raiseLift then lowerLift then*/ mainAction)
+        }.perform {
+            val cargoDetector = requestFeature(CargoDetector)
+            val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
+                cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
+            } ?: GoldPosition.UNKNOWN
+            val goldAction = when (position) {
+                GoldPosition.LEFT -> leftAction
+                GoldPosition.CENTER -> centerAction
+                GoldPosition.RIGHT -> rightAction
+                GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
+            }
+            val actions = actionSequenceOf(
+                lowerLift,
+                turn(20.0, 0.5),
+                drive(100, 0.5),
+                turnTo(0.0, 0.5),
+                goldAction
+            )
+            perform(actions)
+        }
     }
 
 }
