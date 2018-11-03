@@ -21,36 +21,33 @@ class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(20.0, 1.0) then wait(100),
-        drive(1150, 0.4),
-        turnTo(-20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
-        drive(-180, 0.3),
-        turnTo(-80.0, 1.0) then wait(100),
-        drive(710, 0.2),
-        turnTo(-120.0, 1.0) then wait(100),
-        drive(360, 0.5)
+        drive(1000, 0.4),
+        turn(135.0, 1.0) then wait(100),
+        drive(1500, 0.7),
+        drive(-1500, 0.7),
+        drive(-500, 1.0)
     )
 
     private val centerAction = actionSequenceOf(
-            drive(1700, 0.4),
-            drive(-420, 0.4),
-            turn(-90.0, 1.0),
-            drive(420, 0.4),
-            turn(-45.0, 1.0),
-            drive(15/*00*/, 0.7)
-
+        drive(1200, 0.4),
+        turn(90.0, 1.0),
+        drive(420, 0.4),
+        turn(45.0, 1.0),
+        drive(1500, 0.7),
+        drive(-1500, 0.7),
+        drive(-500, 1.0)
     )
 
     private val rightAction = actionSequenceOf(
-            turnTo(-20.0, 1.0) then wait(100),
-            drive(1150, 0.4),
-            turnTo(20.0, 1.0) then wait(100),
-            drive(820, 0.4) then wait(1000),
-            drive(-180, 0.3),
-            turnTo(80.0, 1.0) then wait(100),
-            drive(710, 0.2),
-            turnTo(120.0, 1.0) then wait(100),
-            drive(360, 0.5)
+        turnTo(-20.0, 1.0) then wait(100),
+        drive(1000, 0.4),
+        drive(-360, 0.4),
+        turn(110.0, 1.0) then wait(100),
+        drive(720, 0.4),
+        turn(45.0, 1.0),
+        drive(1500, 0.7),
+        drive(-1500, 0.7),
+        drive(-500, 1.0)
     )
 
     class GoldPositionNotDetectedException : RuntimeException("The gold position was not detected.")
