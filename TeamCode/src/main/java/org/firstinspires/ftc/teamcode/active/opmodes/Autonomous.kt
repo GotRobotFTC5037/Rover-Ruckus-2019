@@ -20,11 +20,11 @@ import org.firstinspires.ftc.teamcode.lib.robot.robot
 class Autonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(19.0, 1.0) then wait(100),
-        drive(1050, 0.4),
-        turnTo(-19.0, 1.0) then wait(100),
-        drive(720, 0.4) then wait(1000),
-        drive(-130, 0.3),
+        turnTo(20.0, 1.0) then wait(100),
+        drive(1150, 0.4),
+        turnTo(-20.0, 1.0) then wait(100),
+        drive(820, 0.4) then wait(1000),
+        drive(-180, 0.3),
         turnTo(-80.0, 1.0) then wait(100),
         drive(710, 0.2),
         turnTo(-120.0, 1.0) then wait(100),
@@ -32,20 +32,25 @@ class Autonomous : LinearOpMode() {
     )
 
     private val centerAction = actionSequenceOf(
-        drive(1620, 0.55),
-        drive(-130, 0.7) then wait(100),
-        turnTo(-20.0, 1.0) then wait(100),
-        drive(260, 0.5) then timeDrive(-100, 0.5)
+            drive(1620, 0.4),
+            drive(-420, 0.4),
+            turn(-90.0, 1.0),
+            drive(420, 0.4),
+            turn(-45.0, 1.0),
+            drive(15/*00*/, 0.7)
+
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-19.0, 1.0) then wait(100),
-        drive(1050, 0.4),
-        turnTo(19.0, 1.0) then wait(100),
-        drive(720, 0.4) then wait(1000),
-        drive(-130, 0.4),
-        turnTo(-110.0, 1.0) then wait(100),
-        drive(1800, 0.5)
+            turnTo(-20.0, 1.0) then wait(100),
+            drive(1150, 0.4),
+            turnTo(20.0, 1.0) then wait(100),
+            drive(820, 0.4) then wait(1000),
+            drive(-180, 0.3),
+            turnTo(80.0, 1.0) then wait(100),
+            drive(710, 0.2),
+            turnTo(120.0, 1.0) then wait(100),
+            drive(360, 0.5)
     )
 
     class GoldPositionNotDetectedException : RuntimeException("The gold position was not detected.")

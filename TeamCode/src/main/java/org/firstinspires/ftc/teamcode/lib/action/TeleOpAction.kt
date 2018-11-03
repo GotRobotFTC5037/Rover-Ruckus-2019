@@ -6,12 +6,10 @@ import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 
-private class TeleOpAction(private val block: suspend TeleOpActionScope.() -> Unit) : Action() {
-
-    override var name = "TeleOp"
+private class TeleOpAction(private val block: suspend TeleOpActionScope.() -> Unit) : Action {
 
     override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
-        val scope = TeleOpActionScope(robot, parentContext)
+        val scope = TeleOpActionScope(robot)
         block.invoke(scope)
         with(scope) {
             while (isActive) {
@@ -26,10 +24,7 @@ fun teleOp(block: suspend TeleOpActionScope.() -> Unit): Action = TeleOpAction(b
 
 fun Robot.performTeleOp(block: suspend TeleOpActionScope.() -> Unit): Unit = perform(teleOp(block))
 
-class TeleOpActionScope(
-    private val robot: Robot,
-    parentContext: CoroutineContext
-) : StandardActionScope(robot) {
+class TeleOpActionScope(private val robot: Robot) : AbstractActionScope(robot) {
 
     internal lateinit var controlScheme: ControlScheme
 
@@ -55,10 +50,10 @@ class ControlScheme(private val linearOpMode: LinearOpMode) {
         fun ControlSchemeGamepad.joysticks(block: JoystickPositions.() -> Unit) {
             elements.add {
                 val joystickPositions = JoystickPositions(
-                    -gamepad.left_stick_y.toDouble(),
-                    -gamepad.right_stick_y.toDouble(),
-                    gamepad.left_stick_x.toDouble(),
-                    gamepad.right_stick_x.toDouble()
+                        -gamepad.left_stick_y.toDouble(),
+                        -gamepad.right_stick_y.toDouble(),
+                        gamepad.left_stick_x.toDouble(),
+                        gamepad.right_stick_x.toDouble()
                 )
                 block.invoke(joystickPositions)
             }
@@ -69,10 +64,10 @@ class ControlScheme(private val linearOpMode: LinearOpMode) {
 }
 
 data class JoystickPositions(
-    val leftY: Double,
-    val rightY: Double,
-    val leftX: Double,
-    val rightX: Double
+        val leftY: Double,
+        val rightY: Double,
+        val leftX: Double,
+        val rightX: Double
 )
 
 class ControlSchemeGamepad(val gamepad: Gamepad)

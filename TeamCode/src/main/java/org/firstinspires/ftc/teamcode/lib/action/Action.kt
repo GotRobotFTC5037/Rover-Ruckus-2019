@@ -21,7 +21,7 @@ interface ActionScope : CoroutineScope {
 /**
  * An [ActionScope] that contains the basic functions used in an [Action] block.
  */
-abstract class AbstractionActionScope(private val robot: Robot) : ActionScope {
+abstract class AbstractActionScope(private val robot: Robot) : ActionScope {
 
     override val coroutineContext: CoroutineContext = robot.coroutineContext
 
@@ -41,7 +41,7 @@ abstract class AbstractionActionScope(private val robot: Robot) : ActionScope {
 /**
  * An [ActionScope] that is used in situations where no customization is needed.
  */
-class StandardActionScope(robot: Robot) : AbstractionActionScope(robot)
+class StandardActionScope(robot: Robot) : AbstractActionScope(robot)
 
 /**
  * Describes a block of work for the robot to do.

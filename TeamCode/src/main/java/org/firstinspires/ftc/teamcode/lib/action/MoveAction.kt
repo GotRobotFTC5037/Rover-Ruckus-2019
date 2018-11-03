@@ -16,7 +16,7 @@ import kotlin.math.abs
 /**
  * That [ActionScope] that is used in the scope of a [MoveAction] block.
  */
-class MoveActionScope(robot: Robot) : AbstractionActionScope(robot)
+class MoveActionScope(robot: Robot) : AbstractActionScope(robot)
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
