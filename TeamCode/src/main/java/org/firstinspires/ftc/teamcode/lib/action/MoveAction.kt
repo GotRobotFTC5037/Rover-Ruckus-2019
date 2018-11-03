@@ -1,22 +1,43 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package org.firstinspires.ftc.teamcode.lib.action
 
+import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotHeadingLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
+
+/**
+ * That [ActionScope] that is used in the scope of a [MoveAction] block.
+ */
+class MoveActionScope(robot: Robot) : AbstractionActionScope(robot)
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
  * robot.
- *
- * TODO: Make [MoveAction] a new implementation of [Action] instead of a typealias.
  */
-typealias MoveAction = Action
+class MoveAction(private val block: suspend MoveActionScope.() -> Unit) : Action {
 
-fun move(block: suspend ActionScope.() -> Unit): MoveAction = action(block)
+    var timeoutMillis: Long = Long.MAX_VALUE
+
+    override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
+        withTimeout(timeoutMillis) {
+            val scope = MoveActionScope(robot)
+            block.invoke(scope)
+        }
+    }
+}
+
+/**
+ * Returns a [MoveAction] with the provided [block].
+ */
+fun move(block: suspend MoveActionScope.() -> Unit): MoveAction = MoveAction(block)
 
 /**
  * Returns an [Action] Drives linearly with the provided [power] for the provided [duration].
@@ -40,28 +61,37 @@ fun timeTurn(duration: Long, power: Double): MoveAction = move {
     driveTrain.stopAllMotors()
 }
 
+private tailrec fun properHeading(heading: Double): Double = when {
+    heading > 180 -> properHeading(heading - 360)
+    heading < -180 -> properHeading(heading + 360)
+    else -> heading
+}
+
+private fun deltaHeading(heading: Double, target: Double) =
+    when (val delta = abs(target - heading)) {
+        in -180.0..180.0 -> delta
+        else -> 360 - delta
+    }
+
 /**
  * Returns an [Action] that turns linearly with the provided [power] to [targetHeading].
  */
 fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotHeadingLocalizer::class)
+    val heading = localizer.heading.openSubscription()
+    val properTargetHeading = properHeading(targetHeading)
 
-    val headingChannel = localizer.heading.openSubscription()
-
-    val initialHeading = headingChannel.receive()
-    if (initialHeading > targetHeading) {
-        driveTrain.setHeadingPower(-abs(power))
-        while (targetHeading < headingChannel.receive()) {
-            yield()
-        }
-    } else if (initialHeading < targetHeading) {
+    val initialHeading = heading.receive()
+    if (deltaHeading(initialHeading, properTargetHeading) < 0) {
         driveTrain.setHeadingPower(abs(power))
-        while (targetHeading > headingChannel.receive()) {
-            yield()
-        }
+        yieldWhile { deltaHeading(heading.receive(), properTargetHeading) < 0 }
+    } else if (deltaHeading(initialHeading, properTargetHeading) > 0) {
+        driveTrain.setHeadingPower(-abs(power))
+        yieldWhile { deltaHeading(heading.receive(), properTargetHeading) > 0 }
     }
-    headingChannel.cancel()
+
+    heading.cancel()
     driveTrain.stopAllMotors()
 }
 
@@ -71,27 +101,16 @@ fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
  */
 fun turn(deltaHeading: Double, power: Double): MoveAction = move {
     val localizer = requestFeature(RobotHeadingLocalizer::class)
-
-    val headingChannel = localizer.heading.openSubscription()
-
-    val initialHeading = headingChannel.receive()
-    val rawAbsoluteDesiredHeading = initialHeading + deltaHeading
-
-    tailrec fun calculateProperHeading(heading: Double): Double = when {
-        heading > 180 -> calculateProperHeading(heading - 360)
-        heading < -180 -> calculateProperHeading(heading + 360)
-        else -> heading
-    }
-
-    headingChannel.cancel()
-    perform(turnTo(calculateProperHeading(rawAbsoluteDesiredHeading), power))
+    val heading = localizer.heading.openSubscription()
+    val initialHeading = heading.first()
+    val targetHeading = properHeading(initialHeading + deltaHeading)
+    perform(turnTo(targetHeading, power))
 }
 
 /**
  * Returns an [Action] that drives linearly with the provided [power] to the provided [deltaDistance].
  */
 fun drive(deltaDistance: Long, power: Double): MoveAction = move {
-
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotPositionLocalizer::class)
 
@@ -106,6 +125,7 @@ fun drive(deltaDistance: Long, power: Double): MoveAction = move {
                 yield()
             }
         }
+
         initialPosition > targetPosition -> {
             driveTrain.setPower(-abs(power), 0.0)
             while (positionChannel.receive().linearPosition > targetPosition) {
@@ -116,4 +136,10 @@ fun drive(deltaDistance: Long, power: Double): MoveAction = move {
 
     positionChannel.cancel()
     driveTrain.stopAllMotors()
+}
+
+suspend inline fun yieldWhile(predicate: () -> Boolean) {
+    while (predicate()) {
+        yield()
+    }
 }

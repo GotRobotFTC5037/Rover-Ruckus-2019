@@ -48,6 +48,8 @@ class Autonomous : LinearOpMode() {
         drive(1800, 0.5)
     )
 
+    class GoldPositionNotDetectedException : RuntimeException("The gold position was not detected.")
+
     @Throws(InterruptedException::class)
     override fun runOpMode() {
         robot(this) {
@@ -62,20 +64,21 @@ class Autonomous : LinearOpMode() {
                 fillCameraMonitorViewParent = true
             }
             install(CargoDetector) {
-                minimumConfidence = 0.45
+                minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
                 useObjectTracker = true
             }
         }.perform {
             val cargoDetector = requestFeature(CargoDetector)
 
-            val position = withTimeoutOrNull(5000) {
+            val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
                 cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
             } ?: GoldPosition.UNKNOWN
             when (position) {
                 GoldPosition.LEFT -> perform(leftAction)
                 GoldPosition.CENTER -> perform(centerAction)
                 GoldPosition.RIGHT -> perform(rightAction)
-                GoldPosition.UNKNOWN -> TODO("Undefined action for unknown gold position")
+                // TODO: Figure out a backup plan if the gold position is not detect.
+                GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
             }
         }
     }
