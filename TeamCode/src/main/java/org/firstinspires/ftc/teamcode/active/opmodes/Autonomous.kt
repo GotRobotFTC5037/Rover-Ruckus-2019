@@ -9,15 +9,35 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
+import org.firstinspires.ftc.teamcode.active.features.LanderLatch
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.objectDetection.Vuforia
-import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
 class Autonomous : LinearOpMode() {
+
+    private val lowerRobot = action {
+        //        val landerLatch = requestFeature(LanderLatch)
+//        landerLatch.lowerRobot()
+    }
+
+    private val mainAction = action {
+        val cargoDetector = requestFeature(CargoDetector)
+
+        val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
+            cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
+        } ?: GoldPosition.UNKNOWN
+        when (position) {
+            GoldPosition.LEFT -> perform(leftAction)
+            GoldPosition.CENTER -> perform(centerAction)
+            GoldPosition.RIGHT -> perform(rightAction)
+            // TODO: Figure out a backup plan if the gold position is not detect.
+            GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
+        }
+    }
 
     private val leftAction = actionSequenceOf(
         turnTo(20.0, 1.0) then wait(100),
@@ -62,6 +82,9 @@ class Autonomous : LinearOpMode() {
                 addLeftMotor("left motor")
                 addRightMotor("right motor")
             }
+            install(LanderLatch) {
+                liftMotorName = "lift"
+            }
             install(TankDriveTrain.Localizer)
             install(IMULocalizer)
             install(Vuforia) {
@@ -72,20 +95,7 @@ class Autonomous : LinearOpMode() {
                 minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
                 useObjectTracker = true
             }
-        }.perform {
-            val cargoDetector = requestFeature(CargoDetector)
-
-            val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
-                cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
-            } ?: GoldPosition.UNKNOWN
-            when (position) {
-                GoldPosition.LEFT -> perform(leftAction)
-                GoldPosition.CENTER -> perform(centerAction)
-                GoldPosition.RIGHT -> perform(rightAction)
-                // TODO: Figure out a backup plan if the gold position is not detect.
-                GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
-            }
-        }
+        }.perform(lowerRobot then mainAction)
     }
 
 }
