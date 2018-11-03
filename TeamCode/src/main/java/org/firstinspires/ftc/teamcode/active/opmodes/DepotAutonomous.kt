@@ -97,14 +97,7 @@ class DepotAutonomous : LinearOpMode() {
                 GoldPosition.RIGHT -> rightAction
                 GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
             }
-            val actions = actionSequenceOf(
-                lowerLift,
-                turn(20.0, 0.5),
-                drive(100, 0.5),
-                turnTo(0.0, 0.5),
-                goldAction
-            )
-            perform(actions)
+            perform(goldAction)
         }
     }
 
