@@ -10,12 +10,12 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
-import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.features.RobotLift
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.objectDetection.Vuforia
+import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @Autonomous
@@ -31,52 +31,22 @@ class CraterAutonomous : LinearOpMode() {
         launch { landerLatch.retract() }
     }
 
-    private val mainAction = action {
-        val cargoDetector = requestFeature(CargoDetector)
-
-        val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
-            cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
-        } ?: GoldPosition.UNKNOWN
-        when (position) {
-            GoldPosition.LEFT -> perform(leftAction)
-            GoldPosition.CENTER -> perform(centerAction)
-            GoldPosition.RIGHT -> perform(rightAction)
-            // TODO: Figure out a backup plan if the gold position is not detect.
-            GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
-        }
-    }
-
     private val leftAction = actionSequenceOf(
-        turnTo(20.0, 1.0) then wait(100),
-        drive(1150, 0.4),
         turnTo(-20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
-        drive(-180, 0.3),
-        turnTo(-80.0, 1.0) then wait(100),
-        drive(710, 0.2),
-        turnTo(-120.0, 1.0) then wait(100),
-        drive(360, 0.5)
+        drive(1150, 0.4),
+        turnTo(20.0, 1.0) then wait(100),
+        drive(820, 0.4) then wait(1000)
     )
 
     private val centerAction = actionSequenceOf(
-        drive(1700, 0.4),
-        drive(-420, 0.4),
-        turn(-90.0, 0.4),
-        drive(420, 0.4),
-        turn(-45.0, 0.4),
-        drive(15, 0.7)
+        drive(2000, 0.6)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-20.0, 1.0) then wait(100),
-        drive(1150, 0.4),
         turnTo(20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
-        drive(-180, 0.3),
-        turnTo(80.0, 1.0) then wait(100),
-        drive(710, 0.2),
-        turnTo(120.0, 1.0) then wait(100),
-        drive(360, 0.5)
+        drive(1150, 0.4),
+        turnTo(-20.0, 1.0) then wait(100),
+        drive(820, 0.4) then wait(1000)
     )
 
     class GoldPositionNotDetectedException : RuntimeException("The gold position was not detected.")
@@ -91,9 +61,6 @@ class CraterAutonomous : LinearOpMode() {
             install(RobotLift) {
                 liftMotorName = "lift"
             }
-            install(MarkerDeployer) {
-                servoName = "deployer"
-            }
             install(TankDriveTrain.Localizer)
             install(IMULocalizer)
             install(Vuforia) {
@@ -104,7 +71,19 @@ class CraterAutonomous : LinearOpMode() {
                 minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
                 useObjectTracker = true
             }
-        }.perform(/*raiseLift then lowerLift then*/ mainAction)
+        }.perform {
+            val cargoDetector = requestFeature(CargoDetector)
+            val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
+                cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
+            } ?: GoldPosition.UNKNOWN
+            val goldAction = when (position) {
+                GoldPosition.LEFT -> leftAction
+                GoldPosition.CENTER -> centerAction
+                GoldPosition.RIGHT -> rightAction
+                GoldPosition.UNKNOWN -> throw GoldPositionNotDetectedException()
+            }
+            perform(goldAction)
+        }
     }
 
 }
