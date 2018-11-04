@@ -77,26 +77,20 @@ private tailrec fun properHeading(heading: Double): Double = when {
 /**
  * Returns an [Action] that turns linearly with the provided [power] to [targetHeading].
  */
-fun turnTo(targetHeading: Double): MoveAction = move {
+fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
 
     val initialHeading = heading.receive()
     if (initialHeading > targetHeading) {
-        while (true) {
-            val currentHeading = heading.receive()
-            if (currentHeading <= targetHeading) break
-            val done = currentHeading / (targetHeading - initialHeading)
-            driveTrain.setHeadingPower(-abs(timingFunction.valueAt(done)))
+        driveTrain.setHeadingPower(-abs(power))
+        while (heading.receive() > targetHeading) {
             yield()
         }
     } else if (initialHeading < targetHeading) {
-        while (true) {
-            val currentHeading = heading.receive()
-            if (currentHeading >= targetHeading) break
-            val done = currentHeading / (targetHeading - initialHeading)
-            driveTrain.setHeadingPower(abs(timingFunction.valueAt(done)))
+        driveTrain.setHeadingPower(abs(power))
+        while (heading.receive() < targetHeading) {
             yield()
         }
     }
@@ -109,12 +103,12 @@ fun turnTo(targetHeading: Double): MoveAction = move {
  * Returns an [Action] that turns linearly with the provided [power] to an angle relative to the
  * current location.
  */
-fun turn(deltaHeading: Double): MoveAction = move {
+fun turn(deltaHeading: Double, power: Double): MoveAction = move {
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
     val initialHeading = heading.first()
     val targetHeading = properHeading(initialHeading + deltaHeading)
-    perform(turnTo(targetHeading))
+    perform(turnTo(targetHeading, power))
 }
 
 /**

@@ -46,35 +46,35 @@ class CraterAutonomous : LinearOpMode() {
     }
 
     private val leftAction = actionSequenceOf(
-        turnTo(20.0) then wait(100),
+        turnTo(20.0, 1.0) then wait(100),
         drive(1150, 0.4),
-        turnTo(-20.0) then wait(100),
+        turnTo(-20.0, 1.0) then wait(100),
         drive(820, 0.4) then wait(1000),
         drive(-180, 0.3),
-        turnTo(-80.0) then wait(100),
+        turnTo(-80.0, 1.0) then wait(100),
         drive(710, 0.2),
-        turnTo(-120.0) then wait(100),
+        turnTo(-120.0, 1.0) then wait(100),
         drive(360, 0.5)
     )
 
     private val centerAction = actionSequenceOf(
         drive(1700, 0.4),
         drive(-420, 0.4),
-        turn(-90.0),
+        turn(-90.0, 0.4),
         drive(420, 0.4),
-        turn(-45.0),
-        drive(15/*00*/, 0.7)
+        turn(-45.0, 0.4),
+        drive(15, 0.7)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-20.0) then wait(100),
+        turnTo(-20.0, 1.0) then wait(100),
         drive(1150, 0.4),
-        turnTo(20.0) then wait(100),
+        turnTo(20.0, 1.0) then wait(100),
         drive(820, 0.4) then wait(1000),
         drive(-180, 0.3),
-        turnTo(80.0) then wait(100),
+        turnTo(80.0, 1.0) then wait(100),
         drive(710, 0.2),
-        turnTo(120.0) then wait(100),
+        turnTo(120.0, 1.0) then wait(100),
         drive(360, 0.5)
     )
 
