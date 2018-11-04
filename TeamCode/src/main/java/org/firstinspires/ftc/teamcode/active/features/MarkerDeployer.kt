@@ -17,7 +17,7 @@ class MarkerDeployer(private val servo: Servo) : Feature {
     }
 
     class Configuration : FeatureConfiguration {
-        val servoName = "marker deployer"
+        var servoName = "marker deployer"
     }
 
     companion object Installer : FeatureInstaller<Configuration, MarkerDeployer> {

@@ -10,6 +10,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.GoldPosition
+import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.features.RobotLift
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
@@ -89,6 +90,9 @@ class CraterAutonomous : LinearOpMode() {
             }
             install(RobotLift) {
                 liftMotorName = "lift"
+            }
+            install(MarkerDeployer) {
+                servoName = "deployer"
             }
             install(TankDriveTrain.Localizer)
             install(IMULocalizer)
