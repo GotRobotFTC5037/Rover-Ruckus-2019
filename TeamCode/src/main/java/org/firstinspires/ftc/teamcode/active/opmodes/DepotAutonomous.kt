@@ -32,15 +32,16 @@ class DepotAutonomous : LinearOpMode() {
     }
 
     private val leftAction = actionSequenceOf(
+        drive(290, 0.4),
         turnTo(20.0, 1.0) then wait(100),
-        drive(1150, 0.4),
+        drive(1000, 0.4),
         turnTo(-20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
-        drive(-180, 0.3),
-        turnTo(-80.0, 1.0) then wait(100),
-        drive(710, 0.2),
-        turnTo(-120.0, 1.0) then wait(100),
-        drive(360, 0.5)
+        drive(820, 0.4),
+        drive(-160, 0.3),
+        turnTo(-70.0, 1.0),
+        drive(1440, 0.4),
+        turnTo(-120.0, 1.0),
+        drive(4000, 7.0)
     )
 
     private val centerAction = actionSequenceOf(
@@ -53,15 +54,14 @@ class DepotAutonomous : LinearOpMode() {
     )
 
     private val rightAction = actionSequenceOf(
+        drive(290, 0.4),
         turnTo(-20.0, 1.0) then wait(100),
-        drive(1150, 0.4),
+        drive(1000, 0.4),
         turnTo(20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
+        drive(820, 0.4) then wait(100),
         drive(-180, 0.3),
-        turnTo(80.0, 1.0) then wait(100),
-        drive(710, 0.2),
-        turnTo(120.0, 1.0) then wait(100),
-        drive(360, 0.5)
+        turnTo(-118.0, 1.0) then wait(100),
+        drive(4000, 1.0)
     )
 
     class GoldPositionNotDetectedException : RuntimeException("The gold position was not detected.")

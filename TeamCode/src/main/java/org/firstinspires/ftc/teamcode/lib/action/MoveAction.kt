@@ -16,8 +16,9 @@ import kotlin.math.abs
 /**
  * That [ActionScope] that is used in the scope of a [MoveAction] block.
  */
-class MoveActionScope(robot: Robot, val timingFunction: TimingFunction) :
-    AbstractActionScope(robot)
+class MoveActionScope(private val robot: Robot, val timingFunction: TimingFunction) : AbstractActionScope(robot) {
+    val telemetry get() = robot.linearOpMode.telemetry
+}
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
@@ -78,6 +79,7 @@ private tailrec fun properHeading(heading: Double): Double = when {
  * Returns an [Action] that turns linearly with the provided [power] to [targetHeading].
  */
 fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
+    telemetry.log().add("Turn to $targetHeading at $power power")
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
@@ -115,6 +117,8 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
  * Returns an [Action] that drives linearly with the provided [power] to the provided [deltaDistance].
  */
 fun drive(deltaDistance: Long, power: Double): MoveAction = move {
+    telemetry.log().add("Driving $deltaDistance at $power power")
+
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotPositionLocalizer::class)
 

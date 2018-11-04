@@ -70,6 +70,7 @@ fun Robot.perform(block: suspend ActionScope.() -> Unit) {
 fun robot(linearOpMode: LinearOpMode, configure: Robot.() -> Unit): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
     val robot = RobotImpl(linearOpMode).apply(configure)
+    linearOpMode.telemetry.log().add("Waiting for start...")
     while (!linearOpMode.isStarted) {
         linearOpMode.idle()
     }
