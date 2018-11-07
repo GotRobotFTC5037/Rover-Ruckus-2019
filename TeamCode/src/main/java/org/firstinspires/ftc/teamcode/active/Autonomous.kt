@@ -62,6 +62,8 @@ class DepotAutonomous : LinearOpMode() {
 
     private val centerAction = actionSequenceOf(
         drive(1900, 0.4),
+        drive(-650, 0.4),
+        turnTo(-90.0, 1.0),
         deliverMarkerAction,
         drive(-500, 0.4),
         turn(-90.0, 0.4),
@@ -104,7 +106,14 @@ class CraterAutonomous : LinearOpMode() {
     )
 
     private val centerAction = actionSequenceOf(
-        drive(2000, 0.6)
+        drive(420, 0.6),
+        drive(-180,0.3),
+        turnTo(90.0,1.0),
+        drive(720,0.4),
+        turnTo(110.0,1.0),
+        drive(540,0.4) then wait(2000),
+        drive(-2000,0.7)
+
     )
 
     private val rightAction = actionSequenceOf(
