@@ -19,6 +19,15 @@ private val lowerLiftAction = move {
     launch { landerLatch.retract() }
 }
 
+private val deliverMarkerAction = action {
+    //    val markerDeployer = requestFeature(MarkerDeployer)
+//    markerDeployer.deploy()
+//    launch {
+//        delay(1000)
+//        markerDeployer.retract()
+//    }
+}
+
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
     val cargoDetector = requestFeature(CargoDetector)
     val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
@@ -42,7 +51,8 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(20.0, 1.0) then wait(100),
         drive(1150, 0.4),
         turnTo(-20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
+        drive(820, 0.4),
+        deliverMarkerAction,
         drive(-180, 0.3),
         turnTo(-80.0, 1.0) then wait(100),
         drive(710, 0.2),
@@ -52,6 +62,7 @@ class DepotAutonomous : LinearOpMode() {
 
     private val centerAction = actionSequenceOf(
         drive(1900, 0.4),
+        deliverMarkerAction,
         drive(-500, 0.4),
         turn(-90.0, 0.4),
         drive(1000, 0.4),
@@ -63,7 +74,8 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(-20.0, 1.0) then wait(100),
         drive(1150, 0.4),
         turnTo(20.0, 1.0) then wait(100),
-        drive(820, 0.4) then wait(1000),
+        drive(820, 0.4),
+        deliverMarkerAction,
         drive(-180, 0.3),
         turnTo(80.0, 1.0) then wait(100),
         drive(710, 0.2),

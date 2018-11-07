@@ -14,6 +14,9 @@ fun roverRuckusRobot(linearOpMode: LinearOpMode) = robot(linearOpMode) {
     install(RobotLift) {
         liftMotorName = "lift motor"
     }
+    install(MarkerDeployer) {
+        servoName = "marker deployer servo"
+    }
     install(TankDriveTrain.Localizer) {
         ticksPerRevolution = 360
         wheelDiameter = ticksPerRevolution / Math.PI

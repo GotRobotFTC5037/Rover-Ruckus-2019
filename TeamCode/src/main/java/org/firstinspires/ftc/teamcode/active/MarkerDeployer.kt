@@ -8,12 +8,12 @@ import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
 class MarkerDeployer(private val servo: Servo) : Feature {
 
-    fun retract() {
-        servo.position = 0.0
+    fun deploy() {
+        servo.position = TODO()
     }
 
-    fun deploy() {
-        servo.position = 0.0
+    fun retract() {
+        servo.position = TODO()
     }
 
     class Configuration : FeatureConfiguration {
@@ -22,8 +22,7 @@ class MarkerDeployer(private val servo: Servo) : Feature {
 
     companion object Installer : FeatureInstaller<Configuration, MarkerDeployer> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): MarkerDeployer {
-            val configuration = Configuration()
-                .apply(configure)
+            val configuration = Configuration().apply(configure)
             val servo = robot.hardwareMap.get(Servo::class.java, configuration.servoName)
             return MarkerDeployer(servo)
         }
