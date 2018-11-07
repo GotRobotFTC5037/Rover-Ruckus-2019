@@ -100,12 +100,14 @@ class TankDriveTrain(
         fun addLeftMotor(name: String, direction: MotorDirection = MotorDirection.REVERSE) {
             val motor = hardwareMap.get(DcMotor::class.java, name)
             motor.direction = direction
+//            motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             leftMotors.add(motor)
         }
 
         fun addRightMotor(name: String, direction: MotorDirection = MotorDirection.FORWARD) {
             val motor = hardwareMap.get(DcMotor::class.java, name)
             motor.direction = direction
+//            motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             rightMotors.add(motor)
         }
 

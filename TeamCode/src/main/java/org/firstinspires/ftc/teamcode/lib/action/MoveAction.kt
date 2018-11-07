@@ -16,6 +16,9 @@ import kotlin.math.abs
 /**
  * That [ActionScope] that is used in the scope of a [MoveAction] block.
  */
+class MoveActionScope(private val robot: Robot, val timingFunction: TimingFunction) : AbstractActionScope(robot) {
+    val telemetry get() = robot.linearOpMode.telemetry
+}
 class MoveActionScope(robot: Robot) : AbstractActionScope(robot)
 
 /**
@@ -26,9 +29,11 @@ class MoveAction(private val block: suspend MoveActionScope.() -> Unit) : Action
 
     var timeoutMillis: Long = Long.MAX_VALUE
 
+    var timingFunction: TimingFunction = EasingTimingFunction(0.2..1.0)
+
     override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
         withTimeout(timeoutMillis) {
-            val scope = MoveActionScope(robot)
+            val scope = MoveActionScope(robot, timingFunction)
             block.invoke(scope)
         }
     }
@@ -75,6 +80,7 @@ private tailrec fun properHeading(heading: Double): Double = when {
  * Returns an [Action] that turns linearly with the provided [power] to [targetHeading].
  */
 fun turnTo(targetHeading: Double, power: Double): MoveAction = move {
+    telemetry.log().add("Turn to $targetHeading at $power power")
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotHeadingLocalizer::class)
     val heading = localizer.heading.openSubscription()
@@ -112,6 +118,8 @@ fun turn(deltaHeading: Double, power: Double): MoveAction = move {
  * Returns an [Action] that drives linearly with the provided [power] to the provided [deltaDistance].
  */
 fun drive(deltaDistance: Long, power: Double): MoveAction = move {
+    telemetry.log().add("Driving $deltaDistance at $power power")
+
     val driveTrain = requestFeature(DriveTrain::class)
     val localizer = requestFeature(RobotPositionLocalizer::class)
 
