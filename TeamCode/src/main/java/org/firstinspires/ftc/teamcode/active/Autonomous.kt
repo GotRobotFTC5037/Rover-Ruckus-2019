@@ -5,27 +5,35 @@ package org.firstinspires.ftc.teamcode.active
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.channels.first
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.lib.action.*
 
-private val raiseLiftAction = move {
+private val raiseLift = action {
     val landerLatch = requestFeature(RobotLift)
     landerLatch.extend()
-}.apply { timeoutMillis = 12000 }
+}.apply {
+    timeoutMillis = 12000
+    disabled = true
+}
 
-private val lowerLiftAction = move {
+private val lowerLift = action {
     val landerLatch = requestFeature(RobotLift)
     launch { landerLatch.retract() }
+}.apply {
+    disabled = true
 }
 
 private val deliverMarkerAction = action {
-    //    val markerDeployer = requestFeature(MarkerDeployer)
-//    markerDeployer.deploy()
-//    launch {
-//        delay(1000)
-//        markerDeployer.retract()
-//    }
+    val markerDeployer = requestFeature(MarkerDeployer)
+    markerDeployer.deploy()
+    launch {
+        delay(1000)
+        markerDeployer.retract()
+    }
+}.apply {
+    disabled = true
 }
 
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
@@ -48,7 +56,7 @@ class GoldPositionNotDetectedException : RuntimeException("The gold position was
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        drive(90,0.4),
+        drive(90, 0.4),
         turnTo(20.0, 1.0) then wait(100),
         drive(1150, 0.4),
         turnTo(-20.0, 1.0) then wait(100),
@@ -72,7 +80,7 @@ class DepotAutonomous : LinearOpMode() {
     )
 
     private val rightAction = actionSequenceOf(
-       drive(90,0.4),
+        drive(90, 0.4),
         turnTo(-20.0, 1.0) then wait(100),
         drive(1150, 0.4),
         turnTo(20.0, 1.0) then wait(100),
@@ -88,7 +96,11 @@ class DepotAutonomous : LinearOpMode() {
     @Throws(InterruptedException::class)
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
-            mainAction(leftAction, centerAction, rightAction)
+            actionSequenceOf(
+                raiseLift,
+                lowerLift,
+                mainAction(leftAction, centerAction, rightAction)
+            )
         )
     }
 
@@ -99,48 +111,50 @@ class DepotAutonomous : LinearOpMode() {
 class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        drive(5,0.4),
+        drive(5, 0.4),
         turnTo(25.0, 1.0),
         drive(750, 0.4),
-        drive(-100,0.4),
+        drive(-100, 0.4),
         turnTo(75.0, 1.0),
         drive(820, 0.4),
-        turnTo(110.0,1.0),
-        drive(800,0.5),
+        turnTo(110.0, 1.0),
+        drive(800, 0.5),
         deliverMarkerAction,
-        drive(-1500,0.7)
-
+        drive(-1500, 0.7)
     )
 
     private val centerAction = actionSequenceOf(
         drive(550, 0.6).apply { timeoutMillis = 1000 },
-        drive(-80,0.3),
-        turnTo(72.5,1.0),
-        drive(900,0.4),
-        turnTo(115.0,1.0),
-        drive(600,0.4),
+        drive(-80, 0.3),
+        turnTo(72.5, 1.0),
+        drive(900, 0.4),
+        turnTo(115.0, 1.0),
+        drive(600, 0.4),
         deliverMarkerAction,
-        drive(-2000,0.7)
-
+        drive(-2000, 0.7)
     )
 
     private val rightAction = actionSequenceOf(
-        drive(5,0.4),
-        turnTo(-25.0,1.0),
-        drive(750,0.4),
-        drive(-100,0.4),
-        turnTo(75.0,1.0),
-        drive(1000,0.4),
-        turnTo(110.0,1.0),
-        drive(1800,0.5),
+        drive(5, 0.4),
+        turnTo(-25.0, 1.0),
+        drive(750, 0.4),
+        drive(-100, 0.4),
+        turnTo(75.0, 1.0),
+        drive(1000, 0.4),
+        turnTo(110.0, 1.0),
+        drive(1800, 0.5),
         deliverMarkerAction,
-        drive(-1500,0.7)
+        drive(-1500, 0.7)
     )
 
     @Throws(InterruptedException::class)
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
-            mainAction(leftAction, centerAction, rightAction)
+            actionSequenceOf(
+                raiseLift,
+                lowerLift,
+                mainAction(leftAction, centerAction, rightAction)
+            )
         )
     }
 
