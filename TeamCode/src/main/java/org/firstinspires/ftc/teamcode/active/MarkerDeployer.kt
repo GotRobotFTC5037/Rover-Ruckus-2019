@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.active.features
+package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
@@ -22,7 +22,8 @@ class MarkerDeployer(private val servo: Servo) : Feature {
 
     companion object Installer : FeatureInstaller<Configuration, MarkerDeployer> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): MarkerDeployer {
-            val configuration = Configuration().apply(configure)
+            val configuration = Configuration()
+                .apply(configure)
             val servo = robot.hardwareMap.get(Servo::class.java, configuration.servoName)
             return MarkerDeployer(servo)
         }

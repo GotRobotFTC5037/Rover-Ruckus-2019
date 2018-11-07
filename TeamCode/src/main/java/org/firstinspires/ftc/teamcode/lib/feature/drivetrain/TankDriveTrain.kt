@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
 
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -42,10 +44,15 @@ class TankDriveTrain(
         setMotorPowers(0.0, 0.0)
     }
 
-    inner class PositionLocalizer(override val coroutineContext: CoroutineContext) :
-        RobotPositionLocalizer, CoroutineScope {
+    inner class PositionLocalizer(
+        override val coroutineContext: CoroutineContext,
+        wheelDiameter: Double,
+        private val ticksPerRevolution: Int
+    ) : RobotPositionLocalizer, CoroutineScope {
 
         override val isReady: Boolean = true
+
+        private val wheelCircumference = wheelDiameter * Math.PI
 
         private fun CoroutineScope.producePosition(
             ticker: ReceiveChannel<Unit>
@@ -54,8 +61,8 @@ class TankDriveTrain(
                 while (isActive) {
                     ticker.receive()
                     val motors = this@TankDriveTrain.motors
-                    val linearPosition =
-                        motors.sumBy { it.currentPosition } / motors.count().toDouble()
+                    val encoderTicks = motors.sumBy { it.currentPosition } / motors.count()
+                    val linearPosition = (encoderTicks / ticksPerRevolution) * wheelCircumference
                     val position = Position(linearPosition, 0.0)
                     send(position)
                 }
@@ -66,12 +73,22 @@ class TankDriveTrain(
 
     }
 
-    object Localizer : FeatureInstaller<Nothing, PositionLocalizer> {
+    class PositionLocalizerConfiguration : FeatureConfiguration {
+        var ticksPerRevolution = 360
+        var wheelDiameter = ticksPerRevolution / Math.PI
+    }
+
+    object Localizer : FeatureInstaller<PositionLocalizerConfiguration, PositionLocalizer> {
         override fun install(
-            robot: Robot, configure: Nothing.() -> Unit
+            robot: Robot, configure: PositionLocalizerConfiguration.() -> Unit
         ): PositionLocalizer {
+            val configuration = PositionLocalizerConfiguration().apply(configure)
             val tankDrive = robot[TankDriveTrain]
-            return tankDrive.PositionLocalizer(robot.coroutineContext)
+            return tankDrive.PositionLocalizer(
+                robot.coroutineContext,
+                configuration.wheelDiameter,
+                configuration.ticksPerRevolution
+            )
         }
     }
 

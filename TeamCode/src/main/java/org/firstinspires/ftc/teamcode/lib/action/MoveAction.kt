@@ -16,8 +16,7 @@ import kotlin.math.abs
 /**
  * That [ActionScope] that is used in the scope of a [MoveAction] block.
  */
-class MoveActionScope(robot: Robot, val timingFunction: TimingFunction) :
-    AbstractActionScope(robot)
+class MoveActionScope(robot: Robot) : AbstractActionScope(robot)
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
@@ -27,11 +26,9 @@ class MoveAction(private val block: suspend MoveActionScope.() -> Unit) : Action
 
     var timeoutMillis: Long = Long.MAX_VALUE
 
-    var timingFunction: TimingFunction = EasingTimingFunction(0.2..1.0)
-
     override suspend fun run(robot: Robot, parentContext: CoroutineContext) {
         withTimeout(timeoutMillis) {
-            val scope = MoveActionScope(robot, timingFunction)
+            val scope = MoveActionScope(robot)
             block.invoke(scope)
         }
     }
