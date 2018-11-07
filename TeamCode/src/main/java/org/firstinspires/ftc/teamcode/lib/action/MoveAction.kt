@@ -19,7 +19,6 @@ import kotlin.math.abs
 class MoveActionScope(private val robot: Robot, val timingFunction: TimingFunction) : AbstractActionScope(robot) {
     val telemetry get() = robot.linearOpMode.telemetry
 }
-class MoveActionScope(robot: Robot) : AbstractActionScope(robot)
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
