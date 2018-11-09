@@ -57,7 +57,7 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot {
             ?.second as? F ?: throw MissingRobotFeatureException()
 
     override fun perform(action: Action) = runBlocking {
-        action.run(this@RobotImpl, coroutineContext)
+        action.run(this@RobotImpl)
     }
 
 }

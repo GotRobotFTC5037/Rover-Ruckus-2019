@@ -124,8 +124,8 @@ class CraterAutonomous : LinearOpMode() {
     )
 
     private val centerAction = actionSequenceOf(
-        drive(550, 0.6).apply { timeoutMillis = 1000 },
-        drive(-80, 0.3),
+        drive(580, 0.6).apply { timeoutMillis = 1000 },
+        drive(-60, 0.3),
         turnTo(72.5, 1.0),
         drive(900, 0.4),
         turnTo(115.0, 1.0),
