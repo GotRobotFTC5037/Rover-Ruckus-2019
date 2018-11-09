@@ -2,7 +2,6 @@
 
 package org.firstinspires.ftc.teamcode.active
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -33,7 +32,7 @@ interface CargoDetector : Feature {
 
     class Configuration : TFObjectDetector.Parameters(), FeatureConfiguration
 
-    fun terminate()
+    suspend fun terminate()
 
     companion object Installer : FeatureInstaller<Configuration, CargoDetector> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): CargoDetector {
@@ -47,17 +46,18 @@ interface CargoDetector : Feature {
                 loadModelFromAsset(TFOD_MODEL_ASSET, GOLD_MINERAL, SILVER_MINERAL)
                 activate()
             }
-            return CargoDetectorImpl(objectDetector, robot.linearOpMode)
+            return CargoDetectorImpl(objectDetector)
         }
     }
 }
 
 class CargoDetectorImpl(
-    private val objectDetector: TFObjectDetector,
-    private val linearOpMode: LinearOpMode
+    private val objectDetector: TFObjectDetector
 ) : CargoDetector, CoroutineScope {
 
-    private val job = Job().apply { invokeOnCompletion { objectDetector.shutdown() } }
+    private val job = Job().apply {
+        invokeOnCompletion { objectDetector.shutdown() }
+    }
 
     override val coroutineContext: CoroutineContext
         get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher() + job
@@ -70,7 +70,7 @@ class CargoDetectorImpl(
         ticker: ReceiveChannel<Unit>
     ) = produce(capacity = Channel.CONFLATED) {
         invokeOnClose { GlobalScope.launch { terminate() } }
-        while (!linearOpMode.isStopRequested) {
+        while (isActive) {
             ticker.receive()
             val recognitions = objectDetector.updatedRecognitions ?: continue
             val gold = recognitions.filter { it.label == GOLD_MINERAL }
@@ -88,9 +88,8 @@ class CargoDetectorImpl(
         }
     }
 
-    override fun terminate() {
-        job.cancel()
-        objectDetector.shutdown()
+    override suspend fun terminate() {
+        job.cancelAndJoin()
     }
 
 }

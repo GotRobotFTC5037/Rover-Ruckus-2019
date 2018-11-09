@@ -9,21 +9,33 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.lib.action.*
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
 
-private val raiseLift = action {
+private val extendLift = action {
     val landerLatch = requestFeature(RobotLift)
-    landerLatch.extend()
-}.apply {
-    timeoutMillis = 12000
+    val driveTrain = requestFeature(DriveTrain::class)
+    val positionChannel = landerLatch.liftPosition.openSubscription()
+    val extendingJob = launch { landerLatch.extend() }
+    for (position in positionChannel) {
+        if (position >= LIFT_DOWN_POSITION - 2000) {
+            driveTrain.setPower(0.3, 0.0)
+            positionChannel.cancel()
+        }
+    }
+    extendingJob.join()
+    driveTrain.stopAllMotors()
 }
 
-private val lowerLift = action {
+private val retractLift = action {
     val landerLatch = requestFeature(RobotLift)
-    launch { landerLatch.retract() }
+    robot.launch {
+        landerLatch.retract()
+    }
 }
 
 private val deliverMarkerAction = action {
     val markerDeployer = requestFeature(MarkerDeployer)
+    delay(1000)
     markerDeployer.deploy()
     robot.launch {
         delay(1000)
@@ -66,9 +78,9 @@ class DepotAutonomous : LinearOpMode() {
 
     private val centerAction = actionSequenceOf(
         drive(1900, 0.4),
+        deliverMarkerAction,
         drive(-85, 0.4),
         turnTo(-90.0, 1.0),
-        deliverMarkerAction,
         drive(720, 0.4),
         turnTo(-110.0, 1.0),
         drive(1500, 0.7)
@@ -92,7 +104,7 @@ class DepotAutonomous : LinearOpMode() {
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
             actionSequenceOf(
-                raiseLift, lowerLift, mainAction(leftAction, centerAction, rightAction)
+                extendLift, retractLift, mainAction(leftAction, centerAction, rightAction)
             )
         )
     }
@@ -144,7 +156,7 @@ class CraterAutonomous : LinearOpMode() {
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
             actionSequenceOf(
-                raiseLift, lowerLift, mainAction(leftAction, centerAction, rightAction)
+                extendLift, retractLift, mainAction(leftAction, centerAction, rightAction)
             )
         )
     }

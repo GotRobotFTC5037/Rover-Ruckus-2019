@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
@@ -20,15 +19,6 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot {
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + job
-
-    init {
-        GlobalScope.launch {
-            while (!linearOpMode.isStopRequested) {
-                yield()
-            }
-            job.cancel()
-        }
-    }
 
     private val features: MutableMap<FeatureKey<*>, Feature> = mutableMapOf()
 
@@ -69,11 +59,20 @@ fun Robot.perform(block: suspend ActionScope.() -> Unit) {
 
 fun robot(linearOpMode: LinearOpMode, configure: Robot.() -> Unit): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
+
+    linearOpMode.telemetry.log().add("Setting up robot...")
     val robot = RobotImpl(linearOpMode).apply(configure)
+
     linearOpMode.telemetry.log().add("Waiting for start...")
-    while (!linearOpMode.isStarted) {
-        linearOpMode.idle()
+    linearOpMode.waitForStart()
+
+    robot.launch {
+        while(!linearOpMode.isStopRequested) {
+            yield()
+        }
+        robot.coroutineContext[Job]!!.cancel()
     }
+
     return robot
 }
 

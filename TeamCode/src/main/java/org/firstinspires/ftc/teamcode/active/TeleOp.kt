@@ -4,9 +4,9 @@ package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.robot.perform
-import org.firstinspires.ftc.teamcode.lib.robot.robot
 
 @TeleOp
 class TeleOp : LinearOpMode() {
@@ -16,7 +16,7 @@ class TeleOp : LinearOpMode() {
         roverRuckusRobot(this).perform {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(RobotLift)
-            while (true) {
+            while (isActive) {
                 driveTrain.setMotorPowers(
                     -gamepad1.left_stick_y.toDouble(),
                     -gamepad1.right_stick_y.toDouble()

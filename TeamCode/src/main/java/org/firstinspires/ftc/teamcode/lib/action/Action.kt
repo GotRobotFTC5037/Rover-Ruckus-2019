@@ -23,7 +23,7 @@ interface ActionScope : CoroutineScope {
 /**
  * An [ActionScope] that contains the basic functions used in an [Action] block.
  */
-abstract class AbstractActionScope(override val robot: Robot) : ActionScope {
+abstract class AbstractActionScope(final override val robot: Robot) : ActionScope {
 
     override val coroutineContext: CoroutineContext = robot.coroutineContext
 
@@ -31,9 +31,7 @@ abstract class AbstractActionScope(override val robot: Robot) : ActionScope {
 
     override fun <F : Feature> requestFeature(featureClass: KClass<F>): F = robot[featureClass]
 
-    override suspend fun perform(action: Action) {
-        action.run(robot)
-    }
+    override suspend fun perform(action: Action): Unit = action.run(robot)
 
     override suspend fun perform(actions: Sequence<Action>): Unit =
         actions.forEach { action -> action.run(robot) }
