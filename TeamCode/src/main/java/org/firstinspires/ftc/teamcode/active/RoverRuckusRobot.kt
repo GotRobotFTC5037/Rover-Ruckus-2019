@@ -15,7 +15,7 @@ fun roverRuckusRobot(linearOpMode: LinearOpMode) = robot(linearOpMode) {
         liftMotorName = "lift motor"
     }
     install(MarkerDeployer) {
-        servoName = "marker deployer servo"
+        servoName = "marker"
     }
     install(TankDriveTrain.Localizer) {
         ticksPerRevolution = 360

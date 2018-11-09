@@ -13,15 +13,7 @@ class TeleOp : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     override fun runOpMode() {
-        robot(this) {
-            install(TankDriveTrain) {
-                addLeftMotor("left motor")
-                addRightMotor("right motor")
-            }
-            install(RobotLift) {
-                liftMotorName = "lift"
-            }
-        }.perform {
+        roverRuckusRobot(this).perform {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(RobotLift)
             while (true) {
