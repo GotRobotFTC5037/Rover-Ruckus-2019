@@ -15,25 +15,20 @@ private val raiseLift = action {
     landerLatch.extend()
 }.apply {
     timeoutMillis = 12000
-    disabled = true
 }
 
 private val lowerLift = action {
     val landerLatch = requestFeature(RobotLift)
     launch { landerLatch.retract() }
-}.apply {
-    disabled = true
 }
 
 private val deliverMarkerAction = action {
     val markerDeployer = requestFeature(MarkerDeployer)
     markerDeployer.deploy()
-    launch {
+    robot.launch {
         delay(1000)
         markerDeployer.retract()
     }
-}.apply {
-    disabled = true
 }
 
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
@@ -97,9 +92,7 @@ class DepotAutonomous : LinearOpMode() {
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
             actionSequenceOf(
-                raiseLift,
-                lowerLift,
-                mainAction(leftAction, centerAction, rightAction)
+                raiseLift, lowerLift, mainAction(leftAction, centerAction, rightAction)
             )
         )
     }
@@ -124,7 +117,7 @@ class CraterAutonomous : LinearOpMode() {
     )
 
     private val centerAction = actionSequenceOf(
-        drive(580, 0.6).apply { timeoutMillis = 1000 },
+        drive(580, 0.6),
         drive(-60, 0.3),
         turnTo(72.5, 1.0),
         drive(900, 0.4),
@@ -151,9 +144,7 @@ class CraterAutonomous : LinearOpMode() {
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
             actionSequenceOf(
-                raiseLift,
-                lowerLift,
-                mainAction(leftAction, centerAction, rightAction)
+                raiseLift, lowerLift, mainAction(leftAction, centerAction, rightAction)
             )
         )
     }

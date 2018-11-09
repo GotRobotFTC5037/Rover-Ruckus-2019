@@ -13,6 +13,7 @@ import kotlin.reflect.KClass
  * The scope that an [Action]'s block is run in.
  */
 interface ActionScope : CoroutineScope {
+    val robot: Robot
     fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F
     fun <F : Feature> requestFeature(featureClass: KClass<F>): F
     suspend fun perform(action: Action)
@@ -22,7 +23,7 @@ interface ActionScope : CoroutineScope {
 /**
  * An [ActionScope] that contains the basic functions used in an [Action] block.
  */
-abstract class AbstractActionScope(private val robot: Robot) : ActionScope {
+abstract class AbstractActionScope(override val robot: Robot) : ActionScope {
 
     override val coroutineContext: CoroutineContext = robot.coroutineContext
 

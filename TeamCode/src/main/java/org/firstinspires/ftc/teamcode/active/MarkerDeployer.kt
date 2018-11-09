@@ -9,11 +9,11 @@ import org.firstinspires.ftc.teamcode.lib.robot.Robot
 class MarkerDeployer(private val servo: Servo) : Feature {
 
     fun deploy() {
-        servo.position = TODO()
+        servo.position = 1.0
     }
 
     fun retract() {
-        servo.position = TODO()
+        servo.position = 0.0
     }
 
     class Configuration : FeatureConfiguration {
