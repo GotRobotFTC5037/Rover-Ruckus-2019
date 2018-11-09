@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
-private const val LIFT_DOWN_POSITION = 23_500
+private const val LIFT_DOWN_POSITION = -24_600
 
 class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) : Feature {
 
@@ -42,7 +42,7 @@ class RobotLift(private val liftMotor: DcMotor, coroutineScope: CoroutineScope) 
 
     suspend fun extend() {
         val positionChannel = liftPosition.openSubscription()
-        liftMotor.power = 1.0
+        liftMotor.power = -1.0
         for (position in positionChannel) {
             if (position >= LIFT_DOWN_POSITION) {
                 positionChannel.cancel()
