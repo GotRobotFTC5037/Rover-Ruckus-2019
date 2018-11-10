@@ -17,6 +17,9 @@ class TeleOp : LinearOpMode() {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(RobotLift)
             while (isActive) {
+                telemetry.addData("Button", lift.liftButton.isPressed)
+                telemetry.update()
+
                 driveTrain.setMotorPowers(
                     -gamepad1.left_stick_y.toDouble(),
                     -gamepad1.right_stick_y.toDouble()

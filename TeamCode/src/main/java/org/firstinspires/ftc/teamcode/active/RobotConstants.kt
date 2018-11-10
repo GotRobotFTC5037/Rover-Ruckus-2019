@@ -13,6 +13,6 @@ object RobotConstants {
 
     const val CARGO_DETECTION_MIN_CONFIDENCE = 0.45
 
-    const val CARGO_DETECTION_TIMEOUT: Long = 10000
+    const val CARGO_DETECTION_TIMEOUT: Long = 2500
 
 }
