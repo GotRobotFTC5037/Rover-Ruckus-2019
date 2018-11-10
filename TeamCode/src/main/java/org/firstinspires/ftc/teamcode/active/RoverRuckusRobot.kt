@@ -17,19 +17,21 @@ fun roverRuckusRobot(linearOpMode: LinearOpMode) = robot(linearOpMode) {
     install(MarkerDeployer) {
         servoName = "marker"
     }
-    install(TankDriveTrain.Localizer) {
-        ticksPerRevolution = 360
-        wheelDiameter = ticksPerRevolution / Math.PI
-    }
-    install(IMULocalizer) {
-        imuName = "imu"
-    }
-    install(Vuforia) {
-        vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
-        fillCameraMonitorViewParent = true
-    }
-    install(CargoDetector) {
-        minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
-        useObjectTracker = true
+    if (linearOpMode is DepotAutonomous || linearOpMode is CraterAutonomous) {
+        install(TankDriveTrain.Localizer) {
+            ticksPerRevolution = 360
+            wheelDiameter = ticksPerRevolution / Math.PI
+        }
+        install(IMULocalizer) {
+            imuName = "imu"
+        }
+        install(Vuforia) {
+            vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
+            fillCameraMonitorViewParent = true
+        }
+        install(CargoDetector) {
+            minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
+            useObjectTracker = true
+        }
     }
 }
