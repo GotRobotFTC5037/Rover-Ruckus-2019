@@ -60,44 +60,33 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
     perform(extendLift then retractLift then goldAction)
 }
 
-object AutoConstants {
-    const val mainStreetDistance = 3750L
-}
 
 @Autonomous
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(18.0, 1.0) then wait(100),
-        drive(1000, 0.4),
+        turnTo(20.0, 1.0) then wait(100),
+        drive(1500, 0.4),
         turnTo(-25.0, 1.0) then wait(100),
-        drive(970, 0.4),
+        drive(1050, 0.4),
         deliverMarkerAction
-//        drive(-150, 0.4),
-//        turnTo(-80.0, 1.0) then wait(100),
-//        drive(775, 0.4),
-//        turnTo(-125.0, 1.0) then wait(100),
-//        drive(AutoConstants.mainStreetDistance, 1.0)
     )
 
     private val centerAction = actionSequenceOf(
         turnTo(0.0,0.80),
-        drive(1900, 0.4),
-        deliverMarkerAction
-//        drive(-75, 0.4),
-//        turnTo(-120.0, 1.0),
-//        drive(AutoConstants.mainStreetDistance, 1.0)
+        drive(1850, 0.4),
+        deliverMarkerAction,
+        drive(-480,0.4),
+        turnTo(-15.0,0.8)
+
     )
 
     private val rightAction = actionSequenceOf(
         turnTo(-20.0, 1.0) then wait(100),
-        drive(1150, 0.4),
-        turnTo(19.0, 1.0) then wait(100),
-        drive(850, 0.4),
+        drive(1500, 0.4),
+        turnTo(17.0, 1.0) then wait(100),
+        drive(950, 0.4),
         deliverMarkerAction
-//        drive(-180, 0.4),
-//        turnTo(-125.0, 1.0) then wait(100),
-//        drive(AutoConstants.mainStreetDistance, 1.0)
     )
 
     @Throws(InterruptedException::class)
@@ -115,37 +104,24 @@ class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(20.0, 1.0) then wait(100),
-        drive(750, 0.4)
-//        drive(-100, 0.4),
-//        turnTo(90.0, 1.0) then wait(100),
-//        drive(820, 0.4),
-//        turnTo(125.0, 1.0) then wait(100),
-//        drive(1000, 0.5),
-//        deliverMarkerAction
-//        drive(-AutoConstants.mainStreetDistance, 0.7)
+        drive(750, 0.4),
+        drive(-100, 0.4)
+
+
     )
 
     private val centerAction = actionSequenceOf(
-        drive(600, 0.5)
-//        drive(-60, 0.4),
-//        turnTo(90.0, 1.0) then wait(100),
-//        drive(880, 0.4),
-//        turnTo(120.0, 1.0) then wait(100),
-//        drive(1000, 0.4),
-//        deliverMarkerAction
-//        drive(-AutoConstants.mainStreetDistance, 0.7)
+        drive(600, 0.5),
+        drive(-60, 0.4),
+        turnTo(90.0, 1.0) then wait(100)
+
     )
 
     private val rightAction = actionSequenceOf(
         turnTo(-20.0, 1.0) then wait(100),
-        drive(750, 0.4)
-//        drive(-100, 0.4),
-//        turnTo(90.0, 1.0) then wait(100),
-//        drive(1000, 0.4),
-//        turnTo(125.0, 1.0) then wait(100),
-//        drive(1000, 0.5),
-//        deliverMarkerAction
-//        drive(-AutoConstants.mainStreetDistance, 0.7)
+        drive(750, 0.4),
+        drive(-100, 0.4)
+
     )
 
     @Throws(InterruptedException::class)
