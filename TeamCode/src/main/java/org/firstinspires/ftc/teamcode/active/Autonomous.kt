@@ -8,8 +8,11 @@ import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 
 private val extendLift = action {
@@ -65,28 +68,34 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(20.0, 1.0) then wait(100),
-        drive(1500, 0.4),
+        turnTo(15.0, 1.0) then wait(100),
+        drive(1400, 0.4),
         turnTo(-25.0, 1.0) then wait(100),
         drive(1050, 0.4),
-        deliverMarkerAction
+        deliverMarkerAction,
+        
     )
 
     private val centerAction = actionSequenceOf(
         turnTo(0.0,0.80),
         drive(1850, 0.4),
         deliverMarkerAction,
-        drive(-480,0.4),
-        turnTo(-15.0,0.8)
+        drive(-300,0.4),
+        turnTo(-45.0,0.8)
 
     )
 
     private val rightAction = actionSequenceOf(
         turnTo(-20.0, 1.0) then wait(100),
         drive(1500, 0.4),
-        turnTo(17.0, 1.0) then wait(100),
+        turnTo(15.0, 1.0) then wait(100),
         drive(950, 0.4),
-        deliverMarkerAction
+        deliverMarkerAction,
+        drive(-1000,0.4),
+        turnTo(180.0,1.0),
+        drive(1250, 4.0),
+        turnTo(45.0,1.0),
+        drive(1000, 0.8)
     )
 
     @Throws(InterruptedException::class)
@@ -142,3 +151,13 @@ class RetractLift : LinearOpMode() {
         }
     }
 }
+/*@Autonomous
+class GyroEye : LinearOpMode() {
+    override fun runOpMode() {
+        IMULocalizer
+        //var telemetry: Telemetry = TelemetryImpl(this)
+        val telemetry = robot.linearOpMode.telemetry
+        telemetry.addData("Lift Position", position)
+    }
+
+}*/
