@@ -24,8 +24,8 @@ private val extendLift = action {
         val telemetry = robot.linearOpMode.telemetry
         telemetry.addData("Lift Position", position)
 
-        if (position >= LIFT_DOWN_POSITION - 3000) {
-            driveTrain.setPower(0.3, 0.0)
+        if (position >= LIFT_DOWN_POSITION - 2000) {
+            driveTrain.setPower(0.35, 0.0)
             positionChannel.cancel()
         }
     }
@@ -36,6 +36,7 @@ private val extendLift = action {
 private val retractLift = action {
     val landerLatch = requestFeature(RobotLift)
     robot.launch {
+        delay(2500)
         landerLatch.retract()
     }
 }
@@ -68,29 +69,33 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(15.0, 1.0) then wait(100),
-        drive(1400, 0.4),
-        turnTo(-25.0, 1.0) then wait(100),
-        drive(1150, 0.4),
-        deliverMarkerAction
-        
+        turnTo(23.0, 0.8) then wait(100),
+        drive(2500, 0.4),
+        turnTo(-25.0, 0.8) then wait(100),
+        drive(1500, 0.4),
+        turnTo(0.0, 1.0),
+        deliverMarkerAction,
+        turnTo(-45.0, 0.8),
+        drive(-4570, 0.6)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(0.0,0.80),
-        drive(1850, 0.4),
+        turnTo(0.0, 0.6),
+        drive(3500, 0.4),
         deliverMarkerAction,
-        drive(-300,0.4),
-        turnTo(-45.0,1.0)
+        drive(-2825, 0.4),
+        turnTo(85.0, 0.8)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-20.0, 1.0) then wait(100),
-        drive(1500, 0.4),
-        turnTo(15.0, 1.0) then wait(100),
-        drive(950, 0.4),
+        turnTo(-23.0, 0.8) then wait(100),
+        drive(3000, 0.4),
+        turnTo(18.0, 0.8) then wait(100),
+        drive(1250, 0.4),
         deliverMarkerAction,
-        drive(-1000,0.4)
+        drive(-2250, 0.4),
+        turnTo(87.0, 0.6),
+        drive(-4000, 0.6)
     )
 
     @Throws(InterruptedException::class)
@@ -131,7 +136,7 @@ class CraterAutonomous : LinearOpMode() {
     @Throws(InterruptedException::class)
     override fun runOpMode() {
         roverRuckusRobot(this).perform(
-         mainAction(leftAction, centerAction, rightAction)
+            mainAction(leftAction, centerAction, rightAction)
         )
     }
 
