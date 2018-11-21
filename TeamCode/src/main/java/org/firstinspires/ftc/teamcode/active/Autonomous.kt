@@ -71,10 +71,9 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(15.0, 1.0) then wait(100),
         drive(1400, 0.4),
         turnTo(-25.0, 1.0) then wait(100),
-        drive(1050, 0.4),
-        deliverMarkerAction,
-        drive(-1050, 0.4),
-        turnTo(335.0, 1.0),
+        drive(1150, 0.4),
+        deliverMarkerAction
+        
     )
 
     private val centerAction = actionSequenceOf(
@@ -82,7 +81,7 @@ class DepotAutonomous : LinearOpMode() {
         drive(1850, 0.4),
         deliverMarkerAction,
         drive(-300,0.4),
-        turnTo(-45.0,1.0),
+        turnTo(-45.0,1.0)
     )
 
     private val rightAction = actionSequenceOf(
@@ -91,7 +90,7 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(15.0, 1.0) then wait(100),
         drive(950, 0.4),
         deliverMarkerAction,
-        drive(-1000,0.4),
+        drive(-1000,0.4)
     )
 
     @Throws(InterruptedException::class)
