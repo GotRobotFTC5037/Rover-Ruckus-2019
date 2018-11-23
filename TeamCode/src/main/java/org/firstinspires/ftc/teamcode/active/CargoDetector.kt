@@ -2,16 +2,19 @@
 
 package org.firstinspires.ftc.teamcode.active
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.channels.ticker
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
-import org.firstinspires.ftc.teamcode.lib.feature.objectDetection.Vuforia
+import org.firstinspires.ftc.teamcode.lib.feature.Vuforia
 import org.firstinspires.ftc.teamcode.lib.objectDetector
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import java.util.concurrent.Executors
@@ -32,7 +35,7 @@ interface CargoDetector : Feature {
 
     class Configuration : TFObjectDetector.Parameters(), FeatureConfiguration
 
-    suspend fun terminate()
+    fun shutdown()
 
     companion object Installer : FeatureInstaller<Configuration, CargoDetector> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): CargoDetector {
@@ -44,32 +47,28 @@ interface CargoDetector : Feature {
             val vuforia = robot[Vuforia]
             val objectDetector = objectDetector(parameters, vuforia.localizer).apply {
                 loadModelFromAsset(TFOD_MODEL_ASSET, GOLD_MINERAL, SILVER_MINERAL)
-                activate()
             }
-            return CargoDetectorImpl(objectDetector)
+            return CargoDetectorImpl(objectDetector, robot.coroutineContext)
         }
     }
 }
 
 class CargoDetectorImpl(
-    private val objectDetector: TFObjectDetector
+    private val objectDetector: TFObjectDetector,
+    override val coroutineContext: CoroutineContext
 ) : CargoDetector, CoroutineScope {
 
-    private val job = Job().apply {
-        invokeOnCompletion { objectDetector.shutdown() }
-    }
-
-    override val coroutineContext: CoroutineContext
-        get() = Executors.newSingleThreadExecutor().asCoroutineDispatcher() + job
-
     override val goldPosition: ReceiveChannel<GoldPosition> =
-        produceGoldPosition(objectDetector, ticker(250))
+        produceGoldPosition(objectDetector, ticker(100))
 
     private fun CoroutineScope.produceGoldPosition(
         objectDetector: TFObjectDetector,
         ticker: ReceiveChannel<Unit>
     ) = produce(capacity = Channel.CONFLATED) {
-        invokeOnClose { GlobalScope.launch { terminate() } }
+        objectDetector.activate()
+        invokeOnClose {
+            shutdown()
+        }
         while (isActive) {
             ticker.receive()
             val recognitions = objectDetector.updatedRecognitions ?: continue
@@ -88,8 +87,10 @@ class CargoDetectorImpl(
         }
     }
 
-    override suspend fun terminate() {
-        job.cancelAndJoin()
+    override fun shutdown() {
+        launch(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
+            objectDetector.shutdown()
+        }
     }
 
 }

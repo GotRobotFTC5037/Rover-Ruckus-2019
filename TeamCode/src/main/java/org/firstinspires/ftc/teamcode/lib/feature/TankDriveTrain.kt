@@ -1,16 +1,12 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE")
 
-package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
+package org.firstinspires.ftc.teamcode.lib.feature
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.isActive
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.Position
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 
@@ -63,7 +59,8 @@ class TankDriveTrain(
                     val motors = this@TankDriveTrain.motors
                     val encoderTicks = motors.sumBy { it.currentPosition } / motors.count()
                     val linearPosition = (encoderTicks / ticksPerRevolution) * wheelCircumference
-                    val position = Position(linearPosition, 0.0)
+                    val position =
+                        Position(linearPosition, 0.0)
                     send(position)
                 }
             }
@@ -82,7 +79,8 @@ class TankDriveTrain(
         override fun install(
             robot: Robot, configure: PositionLocalizerConfiguration.() -> Unit
         ): PositionLocalizer {
-            val configuration = PositionLocalizerConfiguration().apply(configure)
+            val configuration = PositionLocalizerConfiguration()
+                .apply(configure)
             val tankDrive = robot[TankDriveTrain]
             return tankDrive.PositionLocalizer(
                 robot.coroutineContext,
@@ -115,8 +113,13 @@ class TankDriveTrain(
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
-            val configuration = Configuration(robot.hardwareMap).apply(configure)
-            return TankDriveTrain(configuration.leftMotors, configuration.rightMotors)
+            val configuration = Configuration(
+                robot.hardwareMap
+            ).apply(configure)
+            return TankDriveTrain(
+                configuration.leftMotors,
+                configuration.rightMotors
+            )
         }
     }
 

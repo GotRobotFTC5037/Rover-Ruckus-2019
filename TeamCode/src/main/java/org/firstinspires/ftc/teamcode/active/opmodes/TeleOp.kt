@@ -1,20 +1,22 @@
 @file:Suppress("unused")
 
-package org.firstinspires.ftc.teamcode.active
+package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.active.RobotLift
+import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
+import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 
 @TeleOp
 class TeleOp : LinearOpMode() {
 
     @Throws(InterruptedException::class)
-    override fun runOpMode() {
-        roverRuckusRobot(this).perform {
+    override fun runOpMode() = runBlocking {
+        roverRuckusRobot(this@TeleOp).perform {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(RobotLift)
 

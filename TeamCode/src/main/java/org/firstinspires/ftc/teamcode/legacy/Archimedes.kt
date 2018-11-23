@@ -1,3 +1,5 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package org.firstinspires.ftc.teamcode.legacy
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -57,7 +59,7 @@ class Archimedes(
         }
     }
 
-    private fun CoroutineScope.tickerChannel() = ticker(50, mode = TickerMode.FIXED_DELAY)
+    private fun tickerChannel() = ticker(50, mode = TickerMode.FIXED_DELAY)
 
     private fun CoroutineScope.ballLauncherSpeed(ticker: ReceiveChannel<Unit>) = produce {
         while (isActive) {

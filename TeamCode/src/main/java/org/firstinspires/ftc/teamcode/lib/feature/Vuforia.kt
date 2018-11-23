@@ -1,10 +1,7 @@
-package org.firstinspires.ftc.teamcode.lib.feature.objectDetection
+package org.firstinspires.ftc.teamcode.lib.feature
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer
 import org.firstinspires.ftc.teamcode.lib.VuforiaLocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.Feature
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
 class Vuforia(parameters: VuforiaLocalizer.Parameters) : Feature {
@@ -15,7 +12,7 @@ class Vuforia(parameters: VuforiaLocalizer.Parameters) : Feature {
 
     companion object Installer : FeatureInstaller<Configuration, Vuforia> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): Vuforia {
-            val parameters = Vuforia.Configuration().apply(configure)
+            val parameters = Configuration().apply(configure)
             return Vuforia(parameters)
         }
     }

@@ -1,19 +1,17 @@
 @file:Suppress("unused", "EXPERIMENTAL_API_USAGE")
 
-package org.firstinspires.ftc.teamcode.active
+package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl
+import org.firstinspires.ftc.teamcode.active.*
 import org.firstinspires.ftc.teamcode.lib.action.*
-import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.robot.perform
+import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
 
 private val extendLift = action {
     val landerLatch = requestFeature(RobotLift)
@@ -52,7 +50,7 @@ private val deliverMarkerAction = action {
 
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
     val cargoDetector = requestFeature(CargoDetector)
-    val position = withTimeoutOrNull(RobotConstants.CARGO_DETECTION_TIMEOUT) {
+    val position = withTimeoutOrNull(2500) {
         cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
     } ?: GoldPosition.UNKNOWN
     val goldAction = when (position) {
@@ -99,8 +97,8 @@ class DepotAutonomous : LinearOpMode() {
     )
 
     @Throws(InterruptedException::class)
-    override fun runOpMode() {
-        roverRuckusRobot(this).perform(
+    override fun runOpMode() = runBlocking {
+        roverRuckusRobot(this@DepotAutonomous).perform(
             mainAction(leftAction, centerAction, rightAction)
         )
     }
@@ -115,49 +113,27 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(20.0, 1.0) then wait(100),
         drive(750, 0.4),
         drive(-100, 0.4)
-
-
     )
 
     private val centerAction = actionSequenceOf(
         drive(600, 0.5),
         drive(-60, 0.4),
         turnTo(90.0, 1.0) then wait(100)
-
     )
 
     private val rightAction = actionSequenceOf(
         turnTo(-20.0, 1.0) then wait(100),
         drive(750, 0.4),
         drive(-100, 0.4)
-
     )
 
     @Throws(InterruptedException::class)
-    override fun runOpMode() {
-        roverRuckusRobot(this).perform(
+    override fun runOpMode() = runBlocking {
+        roverRuckusRobot(this@CraterAutonomous).perform(
             mainAction(leftAction, centerAction, rightAction)
         )
     }
 
 }
 
-@Autonomous
-class RetractLift : LinearOpMode() {
-    override fun runOpMode() {
-        roverRuckusRobot(this).perform {
-            val lift = requestFeature(RobotLift)
-            lift.retract()
-        }
-    }
-}
-/*@Autonomous
-class GyroEye : LinearOpMode() {
-    override fun runOpMode() {
-        IMULocalizer
-        //var telemetry: Telemetry = TelemetryImpl(this)
-        val telemetry = robot.linearOpMode.telemetry
-        telemetry.addData("Lift Position", position)
-    }
 
-}*/

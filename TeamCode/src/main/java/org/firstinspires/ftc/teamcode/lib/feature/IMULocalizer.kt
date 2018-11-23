@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE")
 
-package org.firstinspires.ftc.teamcode.lib.feature.localizer
+package org.firstinspires.ftc.teamcode.lib.feature
 
 import com.qualcomm.hardware.bosch.BNO055IMU
 import kotlinx.coroutines.CoroutineScope
@@ -9,8 +9,6 @@ import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 
@@ -64,10 +62,15 @@ class IMULocalizer(
 
     companion object Installer : FeatureInstaller<Configuration, IMULocalizer> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): IMULocalizer {
-            val configuration = Configuration().apply(configure)
+            val configuration = Configuration()
+                .apply(configure)
             val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
             imu.initialize(BNO055IMU.Parameters())
-            return IMULocalizer(imu, configuration.pollRate, robot.coroutineContext)
+            return IMULocalizer(
+                imu,
+                configuration.pollRate,
+                robot.coroutineContext
+            )
         }
     }
 

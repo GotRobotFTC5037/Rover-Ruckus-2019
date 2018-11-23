@@ -28,7 +28,9 @@ interface Robot : CoroutineScope {
 
     operator fun <F : Feature> get(featureClass: KClass<F>): F
 
-    fun perform(action: Action)
+    suspend fun perform(action: Action)
+
+    fun performBlocking(action: Action)
 
 }
 

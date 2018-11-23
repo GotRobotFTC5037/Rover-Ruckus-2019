@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
+package org.firstinspires.ftc.teamcode.lib.feature
 
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import org.firstinspires.ftc.teamcode.lib.feature.Feature
 
 typealias MotorDirection = DcMotorSimple.Direction
 

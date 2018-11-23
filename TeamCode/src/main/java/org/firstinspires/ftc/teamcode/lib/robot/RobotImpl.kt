@@ -46,13 +46,17 @@ private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot {
             .singleOrNull()
             ?.second as? F ?: throw MissingRobotFeatureException()
 
-    override fun perform(action: Action) = runBlocking {
+    override suspend fun perform(action: Action) {
+        action.run(this)
+    }
+
+    override fun performBlocking(action: Action) = runBlocking {
         action.run(this@RobotImpl)
     }
 
 }
 
-fun Robot.perform(block: suspend ActionScope.() -> Unit) {
+suspend fun Robot.perform(block: suspend ActionScope.() -> Unit) {
     val action = action(block)
     perform(action)
 }
