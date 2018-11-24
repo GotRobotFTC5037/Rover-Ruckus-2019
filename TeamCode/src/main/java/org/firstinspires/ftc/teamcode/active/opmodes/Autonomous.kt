@@ -17,7 +17,7 @@ private val extendLift = action {
         telemetry.log().add("Extending lift")
         landerLatch.extend()
     }
-    while (landerLatch.liftPosition < LIFT_DOWN_POSITION - 2000) {
+    while (landerLatch.liftPosition < LIFT_DOWN_POSITION - 1950) {
         yield()
     }
     driveTrain.setPower(0.35, 0.0)
@@ -101,18 +101,22 @@ class DepotAutonomous : LinearOpMode() {
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-26.5, 0.65) then wait(100),
-        drive(3000, 0.6),
+        turnTo(-27.0, 0.65) then wait(100),
+        drive(3000, 0.7),
         turnTo(18.0, 0.65) then wait(100),
-        drive(1250, 0.6),
+        drive(1250, 0.7),
         deliverMarkerAction,
-        drive(-2600, 0.6),
-        turnTo(87.0, 0.65) then wait(100),
-        drive(4000, 0.6),
-        turnTo(45.0, 0.65) then wait(100),
-        drive(800, 0.6),
-        turnTo(115.0, 0.65) then wait(100),
-        drive(1550, 0.6)
+        drive(-360, 0.85),
+        turnTo(90.0,0.65),
+        drive(1200,0.5),
+        turnTo(115.0,0.65),
+        drive(5150,0.5)
+        //turnTo(87.0, 0.65) then wait(100),
+        //drive(4000, 0.8),
+        //turnTo(45.0, 0.65) then wait(100),
+        //drive(800, 0.7),
+        //turnTo(115.0, 0.65) then wait(100),
+        //drive(1550, 0.75)
     )
 
     @Throws(InterruptedException::class)
