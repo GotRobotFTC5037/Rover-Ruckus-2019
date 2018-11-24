@@ -4,11 +4,8 @@ package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.TouchSensor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
@@ -18,20 +15,10 @@ const val LIFT_DOWN_POSITION = 26_000
 
 class RobotLift(
     private val liftMotor: DcMotor,
-    val liftButton: TouchSensor,
-    coroutineScope: CoroutineScope
+    private val liftButton: TouchSensor
 ) : Feature {
 
-    val liftPosition: BroadcastChannel<Int> =
-        coroutineScope.broadcastLiftPosition(ticker(10, mode = TickerMode.FIXED_DELAY))
-
-    private fun CoroutineScope.broadcastLiftPosition(ticker: ReceiveChannel<Unit>) =
-        broadcast(capacity = Channel.CONFLATED) {
-            while (isActive) {
-                ticker.receive()
-                send(liftMotor.currentPosition)
-            }
-        }
+    val liftPosition: Int get() = liftMotor.currentPosition
 
     fun setPower(power: Double) {
         if (power < 0.0 && !liftButton.isPressed) {
@@ -42,25 +29,19 @@ class RobotLift(
     }
 
     suspend fun retract() {
-        val positionChannel = liftPosition.openSubscription()
         liftMotor.power = -1.0
-        for (position in positionChannel) {
-            if (liftButton.isPressed) {
-                liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                positionChannel.cancel()
-            }
+        while (!liftButton.isPressed) {
+            yield()
         }
+        liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         liftMotor.power = 0.0
     }
 
     suspend fun extend() {
-        val positionChannel = liftPosition.openSubscription()
         liftMotor.power = 1.0
-        for (position in positionChannel) {
-            if (position >= LIFT_DOWN_POSITION) {
-                positionChannel.cancel()
-            }
+        while (liftPosition < LIFT_DOWN_POSITION) {
+            yield()
         }
         liftMotor.power = 0.0
     }
@@ -81,7 +62,7 @@ class RobotLift(
 
             val liftButton = robot.hardwareMap.get(TouchSensor::class.java, config.liftButton)
 
-            return RobotLift(liftMotor, liftButton, robot)
+            return RobotLift(liftMotor, liftButton)
         }
     }
 }

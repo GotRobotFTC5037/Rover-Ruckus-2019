@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.lib.action
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
@@ -14,6 +15,7 @@ import kotlin.reflect.KClass
  */
 interface ActionScope : CoroutineScope {
     val robot: Robot
+    val telemetry: Telemetry get() = robot.linearOpMode.telemetry
     fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F
     fun <F : Feature> requestFeature(featureClass: KClass<F>): F
     suspend fun perform(action: Action)

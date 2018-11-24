@@ -4,11 +4,8 @@ package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.teamcode.active.*
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
@@ -16,17 +13,14 @@ import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
 private val extendLift = action {
     val landerLatch = requestFeature(RobotLift)
     val driveTrain = requestFeature(DriveTrain::class)
-    val positionChannel = landerLatch.liftPosition.openSubscription()
-    val extendingJob = launch { landerLatch.extend() }
-    for (position in positionChannel) {
-        val telemetry = robot.linearOpMode.telemetry
-        telemetry.addData("Lift Position", position)
-
-        if (position >= LIFT_DOWN_POSITION - 2000) {
-            driveTrain.setPower(0.35, 0.0)
-            positionChannel.cancel()
-        }
+    val extendingJob = launch {
+        telemetry.log().add("Extending lift")
+        landerLatch.extend()
     }
+    while (landerLatch.liftPosition < LIFT_DOWN_POSITION - 2000) {
+        yield()
+    }
+    driveTrain.setPower(0.35, 0.0)
     extendingJob.join()
     driveTrain.stopAllMotors()
 }
@@ -34,7 +28,7 @@ private val extendLift = action {
 private val retractLift = action {
     val landerLatch = requestFeature(RobotLift)
     robot.launch {
-        delay(2500)
+        delay(1000)
         landerLatch.retract()
     }
 }
@@ -49,15 +43,31 @@ private val deliverMarkerAction = action {
 }
 
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
+    val telemetry = robot.linearOpMode.telemetry
     val cargoDetector = requestFeature(CargoDetector)
     val position = withTimeoutOrNull(2500) {
         cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
     } ?: GoldPosition.UNKNOWN
     val goldAction = when (position) {
-        GoldPosition.LEFT -> leftAction
-        GoldPosition.CENTER -> centerAction
-        GoldPosition.RIGHT -> rightAction
-        GoldPosition.UNKNOWN -> centerAction
+        GoldPosition.LEFT -> {
+            telemetry.log().add("Detected left position.")
+            leftAction
+        }
+
+        GoldPosition.CENTER -> {
+            telemetry.log().add("Detected center position.")
+            centerAction
+        }
+
+        GoldPosition.RIGHT -> {
+            telemetry.log().add("Detected right position.")
+            rightAction
+        }
+
+        GoldPosition.UNKNOWN -> {
+            telemetry.log().add("Failed to detect position.")
+            centerAction
+        }
     }
     perform(extendLift then retractLift then goldAction)
 }
@@ -67,40 +77,48 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(23.0, 0.8) then wait(100),
+        turnTo(23.0, 0.65) then wait(100),
         drive(2500, 0.4),
-        turnTo(-25.0, 0.8) then wait(100),
+        turnTo(-25.0, 0.65) then wait(100),
         drive(1500, 0.4),
-        turnTo(0.0, 1.0),
+        turnTo(0.0, 0.65) then wait(100),
         deliverMarkerAction,
-        turnTo(-45.0, 0.8),
-        drive(-4570, 0.6)
+        turnTo(-45.0, 0.65) then wait(100),
+        drive(-4650, 0.6)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(0.0, 0.6),
+        turnTo(0.0, 0.6) then wait(100),
         drive(3500, 0.4),
         deliverMarkerAction,
-        drive(-2825, 0.4),
-        turnTo(85.0, 0.8)
+        drive(-2675, 0.4),
+        turnTo(85.0, 0.65) then wait(100),
+        drive(1600, 0.50),
+        turnTo(45.0, 0.55) then wait(100),
+        drive(925, 0.5),
+        turnTo(115.0,0.6) then wait(100),
+        drive(1550,0.5)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-23.0, 0.8) then wait(100),
-        drive(3000, 0.4),
-        turnTo(18.0, 0.8) then wait(100),
-        drive(1250, 0.4),
+        turnTo(-26.5, 0.65) then wait(100),
+        drive(3000, 0.6),
+        turnTo(18.0, 0.65) then wait(100),
+        drive(1250, 0.6),
         deliverMarkerAction,
-        drive(-2250, 0.4),
-        turnTo(87.0, 0.6),
-        drive(-4000, 0.6)
+        drive(-2600, 0.6),
+        turnTo(87.0, 0.65) then wait(100),
+        drive(4000, 0.6),
+        turnTo(45.0, 0.65) then wait(100),
+        drive(800, 0.6),
+        turnTo(115.0, 0.65) then wait(100),
+        drive(1550, 0.6)
     )
 
     @Throws(InterruptedException::class)
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@DepotAutonomous).perform(
-            mainAction(leftAction, centerAction, rightAction)
-        )
+        roverRuckusRobot(this@DepotAutonomous)
+            .perform(mainAction(leftAction, centerAction, rightAction))
     }
 
 }
@@ -129,9 +147,8 @@ class CraterAutonomous : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@CraterAutonomous).perform(
-            mainAction(leftAction, centerAction, rightAction)
-        )
+        roverRuckusRobot(this@CraterAutonomous)
+            .perform(mainAction(leftAction, centerAction, rightAction))
     }
 
 }

@@ -7,9 +7,8 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.channels.ticker
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
@@ -59,31 +58,34 @@ class CargoDetectorImpl(
 ) : CargoDetector, CoroutineScope {
 
     override val goldPosition: ReceiveChannel<GoldPosition> =
-        produceGoldPosition(objectDetector, ticker(100))
+        produceGoldPosition(objectDetector)
 
     private fun CoroutineScope.produceGoldPosition(
-        objectDetector: TFObjectDetector,
-        ticker: ReceiveChannel<Unit>
+        objectDetector: TFObjectDetector
     ) = produce(capacity = Channel.CONFLATED) {
         objectDetector.activate()
         invokeOnClose {
             shutdown()
         }
-        while (isActive) {
-            ticker.receive()
-            val recognitions = objectDetector.updatedRecognitions ?: continue
-            val gold = recognitions.filter { it.label == GOLD_MINERAL }
-            val silver = recognitions.filter { it.label == SILVER_MINERAL }
-            val position = if (gold.count() == 1 && silver.count() == 2) {
-                when {
-                    silver.none { it.left > gold.first().left } -> GoldPosition.RIGHT
-                    silver.none { it.right < gold.first().right } -> GoldPosition.LEFT
-                    else -> GoldPosition.CENTER
+        while (true) {
+            val recognitions = objectDetector.updatedRecognitions
+            if (recognitions != null) {
+                val gold = recognitions.filter { it.label == GOLD_MINERAL }
+                val silver = recognitions.filter { it.label == SILVER_MINERAL }
+                val position = if (gold.count() == 1 && silver.count() == 2) {
+                    when {
+                        silver.none { it.left > gold.first().left } -> GoldPosition.RIGHT
+                        silver.none { it.right < gold.first().right } -> GoldPosition.LEFT
+                        else -> GoldPosition.CENTER
+                    }
+                } else {
+                    GoldPosition.UNKNOWN
                 }
+                send(position)
+                yield()
             } else {
-                GoldPosition.UNKNOWN
+                yield()
             }
-            send(position)
         }
     }
 

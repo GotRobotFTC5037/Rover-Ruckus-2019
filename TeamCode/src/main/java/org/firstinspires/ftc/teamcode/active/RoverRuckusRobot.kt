@@ -22,7 +22,7 @@ object RobotConstants {
 
 }
 
-fun roverRuckusRobot(linearOpMode: LinearOpMode) = robot(linearOpMode) {
+suspend fun roverRuckusRobot(linearOpMode: LinearOpMode) = robot(linearOpMode) {
     install(TankDriveTrain) {
         addLeftMotor("left motor", MotorDirection.FORWARD)
         addRightMotor("right motor", MotorDirection.REVERSE)
