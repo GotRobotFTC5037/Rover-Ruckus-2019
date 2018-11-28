@@ -106,13 +106,11 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(28.0, 0.65),
         drive(1600, 0.5),
         deliverMarkerAction,
-        drive(-3400,0.6),
-        turnTo(85.0,0.65),
-        drive(4500,0.75)
-        //turnTo(45.0,0.65),
-        //drive(900,0.5),
-        //turnTo(115.0,0.65),
-        //drive(1150,0.75)
+        drive(-3600, 0.6),
+        turnTo(82.5, 0.65),
+        drive(5500, 0.90),
+        turnTo(90.0, 0.65),
+        drive(2500, 0.8)
     )
 
     @Throws(InterruptedException::class)
