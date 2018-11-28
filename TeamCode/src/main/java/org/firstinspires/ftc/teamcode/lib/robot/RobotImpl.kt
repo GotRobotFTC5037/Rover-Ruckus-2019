@@ -13,7 +13,10 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-private class RobotImpl(override val linearOpMode: LinearOpMode) : Robot {
+private class RobotImpl(
+    override val linearOpMode: LinearOpMode,
+    override val opmodeScope: CoroutineScope
+) : Robot {
 
     private val job: Job = Job()
 
@@ -61,11 +64,11 @@ suspend fun Robot.perform(block: suspend ActionScope.() -> Unit) {
     perform(action)
 }
 
-suspend fun robot(linearOpMode: LinearOpMode, configure: Robot.() -> Unit): Robot {
+suspend fun robot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope, configure: Robot.() -> Unit): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
 
     linearOpMode.telemetry.log().add("Setting up robot...")
-    val robot = RobotImpl(linearOpMode).apply(configure)
+    val robot = RobotImpl(linearOpMode, coroutineScope).apply(configure)
 
     linearOpMode.telemetry.log().add("Waiting for start...")
     linearOpMode.delayUntilStart()

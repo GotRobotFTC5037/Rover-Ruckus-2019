@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.lib.robot.perform
 @Autonomous
 class RetractLift : LinearOpMode() {
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@RetractLift).perform {
+        roverRuckusRobot(this@RetractLift, this).perform {
             val lift = requestFeature(RobotLift)
             lift.retract()
         }

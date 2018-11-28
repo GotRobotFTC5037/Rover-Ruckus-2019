@@ -16,7 +16,7 @@ class TeleOp : LinearOpMode() {
 
     @Throws(InterruptedException::class)
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@TeleOp).perform {
+        roverRuckusRobot(this@TeleOp, this).perform {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(RobotLift)
 

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.teamcode.active.opmodes.CraterAutonomous
 import org.firstinspires.ftc.teamcode.active.opmodes.DepotAutonomous
 import org.firstinspires.ftc.teamcode.lib.feature.IMULocalizer
@@ -22,7 +23,7 @@ object RobotConstants {
 
 }
 
-suspend fun roverRuckusRobot(linearOpMode: LinearOpMode) = robot(linearOpMode) {
+suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope) = robot(linearOpMode, coroutineScope) {
     install(TankDriveTrain) {
         addLeftMotor("left motor", MotorDirection.FORWARD)
         addRightMotor("right motor", MotorDirection.REVERSE)

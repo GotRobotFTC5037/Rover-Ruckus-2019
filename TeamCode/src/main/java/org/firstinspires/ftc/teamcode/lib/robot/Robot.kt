@@ -15,6 +15,8 @@ interface Robot : CoroutineScope {
     val hardwareMap: HardwareMap
         get() = linearOpMode.hardwareMap
 
+    val opmodeScope: CoroutineScope
+
     fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,
         configuration: TConfiguration.() -> Unit = {}
