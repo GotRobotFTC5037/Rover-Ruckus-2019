@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
-const val LIFT_DOWN_POSITION = 26_300
+const val LIFT_DOWN_POSITION = 26_500
 
 class RobotLift(
     private val liftMotor: DcMotor,
