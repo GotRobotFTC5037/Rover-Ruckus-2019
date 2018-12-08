@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
+import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 
 const val LIFT_DOWN_POSITION = 26_500
 

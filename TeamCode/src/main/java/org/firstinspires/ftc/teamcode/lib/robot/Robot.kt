@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.teamcode.lib.action.Action
+import org.firstinspires.ftc.teamcode.lib.action.ActionPipeline
 import org.firstinspires.ftc.teamcode.lib.feature.*
 import kotlin.reflect.KClass
 
@@ -12,13 +13,18 @@ interface Robot : CoroutineScope {
 
     val linearOpMode: LinearOpMode
 
-    val hardwareMap: HardwareMap
-        get() = linearOpMode.hardwareMap
+    val actionPipeline: ActionPipeline
 
     val opmodeScope: CoroutineScope
 
     fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,
+        configuration: TConfiguration.() -> Unit = {}
+    )
+
+    fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
+        feature: FeatureInstaller<TConfiguration, TFeature>,
+        key: FeatureKey<TFeature>,
         configuration: TConfiguration.() -> Unit = {}
     )
 
@@ -35,5 +41,7 @@ interface Robot : CoroutineScope {
     fun performBlocking(action: Action)
 
 }
+
+val Robot.hardwareMap: HardwareMap get() = this.linearOpMode.hardwareMap
 
 class MissingRobotFeatureException(message: String? = null) : RuntimeException(message)

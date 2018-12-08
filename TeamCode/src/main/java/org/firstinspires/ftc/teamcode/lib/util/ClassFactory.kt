@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib
+package org.firstinspires.ftc.teamcode.lib.util
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer

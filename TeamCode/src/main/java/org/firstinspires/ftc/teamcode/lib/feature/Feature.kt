@@ -12,6 +12,10 @@ interface FeatureConfiguration
 
 interface FeatureKey<out F : Feature>
 
+fun <F : Feature> featureKey() = object : FeatureKey<F> {}
+
 interface FeatureInstaller<C : FeatureConfiguration, F : Feature> : FeatureKey<F> {
     fun install(robot: Robot, configure: C.() -> Unit): F
 }
+
+class InvalidFeatureConfigurationException(message: String): RuntimeException(message)

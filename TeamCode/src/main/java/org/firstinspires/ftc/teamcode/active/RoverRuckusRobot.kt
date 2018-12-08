@@ -2,13 +2,12 @@ package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.CoroutineScope
-import org.firstinspires.ftc.teamcode.active.opmodes.CraterAutonomous
-import org.firstinspires.ftc.teamcode.active.opmodes.DepotAutonomous
-import org.firstinspires.ftc.teamcode.lib.feature.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.MotorDirection
-import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.Vuforia
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
+import org.firstinspires.ftc.teamcode.lib.feature.*
+import org.firstinspires.ftc.teamcode.lib.robot.isAutonomous
 import org.firstinspires.ftc.teamcode.lib.robot.robot
+import org.firstinspires.ftc.teamcode.lib.util.ConstantPowerManager
 
 object RobotConstants {
 
@@ -20,35 +19,40 @@ object RobotConstants {
             "BtuNm+aXd67bMKHPu4AJ9HmC7b4hj57Jx7xB3IF+pXq8T0NkjVLzc89W1Xf+"
 
     const val CARGO_DETECTION_MIN_CONFIDENCE = 0.45
-
 }
 
-suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope) = robot(linearOpMode, coroutineScope) {
-    install(TankDriveTrain) {
-        addLeftMotor("left motor", MotorDirection.FORWARD)
-        addRightMotor("right motor", MotorDirection.REVERSE)
-    }
-    install(RobotLift) {
-        liftMotorName = "lift motor"
-    }
-    install(MarkerDeployer) {
-        servoName = "marker"
-    }
-    if (linearOpMode is DepotAutonomous || linearOpMode is CraterAutonomous) {
-        install(TankDriveTrain.Localizer) {
-            ticksPerRevolution = 360
-            wheelDiameter = ticksPerRevolution / Math.PI
+suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope) =
+    robot(linearOpMode, coroutineScope) {
+        install(TankDriveTrain) {
+            addLeftMotor("left motor", MotorDirection.FORWARD)
+            addRightMotor("right motor", MotorDirection.REVERSE)
         }
-        install(IMULocalizer) {
-            imuName = "imu"
+        install(RobotLift) {
+            liftMotorName = "lift motor"
         }
-        install(Vuforia) {
-            vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
-            fillCameraMonitorViewParent = true
+        install(MarkerDeployer) {
+            servoName = "marker"
         }
-        install(CargoDetector) {
-            minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
-            useObjectTracker = true
+        if (linearOpMode.isAutonomous()) {
+            install(TankDriveTrain.Localizer) {
+                wheelDiameter = 10.16
+            }
+            install(IMULocalizer) {
+                imuName = "imu"
+            }
+            install(Vuforia) {
+                vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
+                fillCameraMonitorViewParent = true
+                cameraName = linearOpMode.hardwareMap.get(WebcamName::class.java, "webcam")
+            }
+            install(CargoDetector) {
+                minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
+                useObjectTracker = true
+            }
+            install(MoveActionDefaults) {
+                defaultPowerManager(MoveActionType.DRIVE, ConstantPowerManager(0.75))
+                defaultPowerManager(MoveActionType.TURN, ConstantPowerManager(0.75))
+            }
         }
     }
-}
+

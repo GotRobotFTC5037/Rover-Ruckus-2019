@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.lib.robot
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
 import org.firstinspires.ftc.teamcode.lib.action.Action
+import org.firstinspires.ftc.teamcode.lib.action.ActionPipeline
 import org.firstinspires.ftc.teamcode.lib.action.ActionScope
 import org.firstinspires.ftc.teamcode.lib.action.action
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
@@ -13,6 +14,9 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
+/**
+ *
+ */
 private class RobotImpl(
     override val linearOpMode: LinearOpMode,
     override val opmodeScope: CoroutineScope
@@ -25,6 +29,14 @@ private class RobotImpl(
 
     private val features: MutableMap<FeatureKey<*>, Feature> = mutableMapOf()
 
+    /**
+     * The pipeline that actions go though before they are performed.
+     */
+    override val actionPipeline: ActionPipeline = ActionPipeline()
+
+    /**
+     * Installs a feature onto the robot.
+     */
     override fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,
         configuration: TConfiguration.() -> Unit
@@ -33,8 +45,23 @@ private class RobotImpl(
         features[feature] = featureInstance
     }
 
+    override fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
+        feature: FeatureInstaller<TConfiguration, TFeature>,
+        key: FeatureKey<TFeature>,
+        configuration: TConfiguration.() -> Unit
+    ) {
+        val featureInstance = feature.install(this, configuration)
+        features[key] = featureInstance
+    }
+
+    /**
+     * Checks if a feature with the provided [key] is installed on the robot.
+     */
     override fun contains(key: FeatureKey<*>): Boolean = key in features
 
+    /**
+     * Checks if any feature of the Feature class are installed on the robot.
+     */
     override fun contains(featureClass: KClass<Feature>): Boolean =
         features.any { it.value::class.isSubclassOf(featureClass) }
 
@@ -49,12 +76,14 @@ private class RobotImpl(
             .singleOrNull()
             ?.second as? F ?: throw MissingRobotFeatureException()
 
-    override suspend fun perform(action: Action) {
-        action.run(this)
+    override suspend fun perform(action: Action) = coroutineScope {
+        linearOpMode.telemetry.log().add("Robot: Performing Action")
+        actionPipeline.execute(action, this@RobotImpl)
+        action.run(this@RobotImpl)
     }
 
     override fun performBlocking(action: Action) = runBlocking {
-        action.run(this@RobotImpl)
+        perform(action)
     }
 
 }
@@ -70,7 +99,7 @@ suspend fun robot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope, co
     linearOpMode.telemetry.log().add("Setting up robot...")
     val robot = RobotImpl(linearOpMode, coroutineScope).apply(configure)
 
-    linearOpMode.telemetry.log().add("Waiting for start...")
+    linearOpMode.telemetry.log().add("Waiting for onActionStart...")
     linearOpMode.delayUntilStart()
 
     robot.launch {
@@ -81,12 +110,6 @@ suspend fun robot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope, co
     }
 
     return robot
-}
-
-suspend fun LinearOpMode.delayUntilStart() {
-    while (!isStarted) {
-        yield()
-    }
 }
 
 /**

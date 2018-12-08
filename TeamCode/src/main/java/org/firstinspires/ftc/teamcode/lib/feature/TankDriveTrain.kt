@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package org.firstinspires.ftc.teamcode.lib.feature
 
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -8,23 +6,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.isActive
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
+import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 import kotlin.coroutines.CoroutineContext
 
 class TankDriveTrain(
     private val leftMotors: List<DcMotor>,
-    private val rightMotors: List<DcMotor>
-) : DriveTrain {
+    private val rightMotors: List<DcMotor>,
+    override val coroutineContext: CoroutineContext
+) : DriveTrain, CoroutineScope {
 
     private val motors get() = leftMotors + rightMotors
-
-    override fun setHeadingPower(power: Double) {
-        setMotorPowers(-power, power)
-    }
-
-    override fun setPower(linearPower: Double, lateralPower: Double) {
-        if (lateralPower != 0.0) throw InvalidDriveTrainOperationException()
-        setMotorPowers(linearPower, linearPower)
-    }
 
     fun setMotorPowers(leftPower: Double, rightPower: Double) {
         fun setMotorPowers(power: Double, motors: List<DcMotor>) {
@@ -36,56 +27,20 @@ class TankDriveTrain(
         setMotorPowers(rightPower, rightMotors)
     }
 
-    override fun stopAllMotors() {
+    override fun stop() {
         setMotorPowers(0.0, 0.0)
     }
 
-    inner class PositionLocalizer(
-        override val coroutineContext: CoroutineContext,
-        wheelDiameter: Double,
-        private val ticksPerRevolution: Int
-    ) : RobotPositionLocalizer, CoroutineScope {
+    companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
 
-        override val isReady: Boolean = true
-
-        private val wheelCircumference = wheelDiameter * Math.PI
-
-        private fun CoroutineScope.producePosition(
-            ticker: ReceiveChannel<Unit>
-        ): BroadcastChannel<Position> =
-            broadcast(capacity = Channel.CONFLATED) {
-                while (isActive) {
-                    ticker.receive()
-                    val motors = this@TankDriveTrain.motors
-                    val encoderTicks = motors.sumBy { it.currentPosition } / motors.count()
-                    val linearPosition = (encoderTicks / ticksPerRevolution) * wheelCircumference
-                    val position =
-                        Position(linearPosition, 0.0)
-                    send(position)
-                }
-            }
-
-        override val position: BroadcastChannel<Position> =
-            producePosition(ticker(10, mode = TickerMode.FIXED_DELAY))
-
-    }
-
-    class PositionLocalizerConfiguration : FeatureConfiguration {
-        var ticksPerRevolution = 360
-        var wheelDiameter = ticksPerRevolution / Math.PI
-    }
-
-    object Localizer : FeatureInstaller<PositionLocalizerConfiguration, PositionLocalizer> {
-        override fun install(
-            robot: Robot, configure: PositionLocalizerConfiguration.() -> Unit
-        ): PositionLocalizer {
-            val configuration = PositionLocalizerConfiguration()
-                .apply(configure)
-            val tankDrive = robot[TankDriveTrain]
-            return tankDrive.PositionLocalizer(
-                robot.coroutineContext,
-                configuration.wheelDiameter,
-                configuration.ticksPerRevolution
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
+            val configuration = Configuration(
+                robot.hardwareMap
+            ).apply(configure)
+            return TankDriveTrain(
+                configuration.leftMotors,
+                configuration.rightMotors,
+                robot.coroutineContext
             )
         }
     }
@@ -98,29 +53,71 @@ class TankDriveTrain(
         fun addLeftMotor(name: String, direction: MotorDirection = MotorDirection.REVERSE) {
             val motor = hardwareMap.get(DcMotor::class.java, name)
             motor.direction = direction
-//            motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             leftMotors.add(motor)
         }
 
         fun addRightMotor(name: String, direction: MotorDirection = MotorDirection.FORWARD) {
             val motor = hardwareMap.get(DcMotor::class.java, name)
             motor.direction = direction
-//            motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             rightMotors.add(motor)
         }
 
     }
 
-    companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
-        override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
-            val configuration = Configuration(
-                robot.hardwareMap
-            ).apply(configure)
-            return TankDriveTrain(
-                configuration.leftMotors,
-                configuration.rightMotors
+    /**
+     * The [PositionLocalizer] for localizing a [TankDriveTrain].
+     */
+    object Localizer : FeatureInstaller<PositionLocalizerConfiguration, PositionLocalizer> {
+        override fun install(
+            robot: Robot, configure: PositionLocalizerConfiguration.() -> Unit
+        ): PositionLocalizer {
+            val configuration = PositionLocalizerConfiguration().apply(configure)
+            val tankDrive = robot[TankDriveTrain]
+            return tankDrive.PositionLocalizer(
+                robot.coroutineContext,
+                configuration.wheelDiameter,
+                configuration.gearRatio
             )
         }
+    }
+
+    class PositionLocalizerConfiguration : FeatureConfiguration {
+        var wheelDiameter = 1.0
+        var gearRatio = 1.0
+    }
+
+    inner class PositionLocalizer(
+        override val coroutineContext: CoroutineContext,
+        wheelDiameter: Double,
+        private val gearRatio: Double
+    ) : RobotPositionLocalizer, CoroutineScope {
+
+        override val isReady: Boolean = true
+
+        private val wheelCircumference = wheelDiameter * Math.PI
+
+        private val ticksPerRevolution = motors.first().motorType.ticksPerRev
+
+        private fun DcMotor.currentDistance() =
+            currentPosition * wheelCircumference * gearRatio / ticksPerRevolution
+
+        private fun List<DcMotor>.averageDistance(): Double =
+            sumByDouble { it.currentDistance() } / count()
+
+        private fun CoroutineScope.producePosition(
+            ticker: ReceiveChannel<Unit>
+        ): BroadcastChannel<Position> =
+            broadcast(capacity = Channel.CONFLATED) {
+                while (isActive) {
+                    ticker.receive()
+                    val position = Position(motors.averageDistance(), 0.0)
+                    send(position)
+                }
+            }
+
+        override val position: BroadcastChannel<Position> =
+            producePosition(ticker(10, mode = TickerMode.FIXED_DELAY))
+
     }
 
 }

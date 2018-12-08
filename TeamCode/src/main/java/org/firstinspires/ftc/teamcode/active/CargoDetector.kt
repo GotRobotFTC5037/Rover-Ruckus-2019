@@ -2,20 +2,18 @@
 
 package org.firstinspires.ftc.teamcode.active
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.Vuforia
-import org.firstinspires.ftc.teamcode.lib.objectDetector
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
+import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
+import org.firstinspires.ftc.teamcode.lib.util.objectDetector
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
@@ -90,7 +88,7 @@ class CargoDetectorImpl(
     }
 
     override fun shutdown() {
-        launch(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
+        GlobalScope.launch(Executors.newSingleThreadExecutor().asCoroutineDispatcher()) {
             objectDetector.shutdown()
         }
     }

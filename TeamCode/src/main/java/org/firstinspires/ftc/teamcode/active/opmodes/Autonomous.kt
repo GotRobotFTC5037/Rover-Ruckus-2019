@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.first
 import org.firstinspires.ftc.teamcode.active.*
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
 
 private val extendLift = action {
     val landerLatch = requestFeature(RobotLift)
@@ -20,9 +21,12 @@ private val extendLift = action {
     while (landerLatch.liftPosition < LIFT_DOWN_POSITION - 2000) {
         yield()
     }
-    driveTrain.setPower(0.35, 0.0)
+    when (driveTrain) {
+        is TankDriveTrain -> driveTrain.setMotorPowers(0.35, 0.35)
+        else -> TODO()
+    }
     extendingJob.join()
-    driveTrain.stopAllMotors()
+    driveTrain.stop()
 }
 
 private val retractLift = action {
@@ -33,7 +37,7 @@ private val retractLift = action {
     }
 }
 
-private val deliverMarkerAction = action {
+private val deliverMarker = action {
     val markerDeployer = requestFeature(MarkerDeployer)
     delay(1000)
     markerDeployer.deploy()
@@ -53,17 +57,14 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             telemetry.log().add("Detected left position.")
             leftAction
         }
-
         GoldPosition.CENTER -> {
             telemetry.log().add("Detected center position.")
             centerAction
         }
-
         GoldPosition.RIGHT -> {
             telemetry.log().add("Detected right position.")
             rightAction
         }
-
         GoldPosition.UNKNOWN -> {
             telemetry.log().add("Failed to detect position.")
             centerAction
@@ -77,40 +78,40 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(23.0, 0.65) then wait(100),
-        drive(2500, 0.4),
-        turnTo(-25.0, 0.65) then wait(100),
-        drive(1500, 0.4),
-        turnTo(0.0, 0.65) then wait(100),
-        deliverMarkerAction,
-        turnTo(-45.0, 0.65) then wait(100),
-        drive(-6000, 0.62)
+        turnTo(23.0),
+        drive(2500.0),
+        turnTo(-25.0),
+        drive(1500.0),
+        turnTo(0.0),
+        deliverMarker,
+        turnTo(-45.0),
+        drive(-6000.0)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(0.0, 0.6) then wait(100),
-        drive(3500, 0.4),
-        deliverMarkerAction,
-        drive(-2675, 0.4),
-        turnTo(85.0, 0.65) then wait(100),
-        drive(1600, 0.50),
-        turnTo(45.0, 0.55) then wait(100),
-        drive(925, 0.5),
-        turnTo(115.0, 0.6) then wait(100),
-        drive(1550, 0.5)
+        turnTo(0.0),
+        drive(99.0),
+        deliverMarker,
+        drive(-75.0),
+        turnTo(85.0),
+        drive(45.0),
+        turnTo(45.0),
+        drive(26.0),
+        turnTo(115.0),
+        drive(43.0)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-35.0, 0.65),
-        drive(2500, 0.5),
-        turnTo(28.0, 0.65),
-        drive(1600, 0.5),
-        deliverMarkerAction,
-        drive(-3600, 0.6),
-        turnTo(82.5, 0.65),
-        drive(5500, 0.90),
-        turnTo(90.0, 0.65),
-        drive(2500, 0.8)
+        turnTo(-35.0),
+        drive(2500.0),
+        turnTo(28.0),
+        drive(1600.0),
+        deliverMarker,
+        drive(-3600.0),
+        turnTo(82.5),
+        drive(5500.0),
+        turnTo(90.0),
+        drive(2500.0)
     )
 
     @Throws(InterruptedException::class)
@@ -126,30 +127,21 @@ class DepotAutonomous : LinearOpMode() {
 class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(20.0, 1.0) then wait(100),
-        drive(950, 0.4),
-        drive(-100, 0.4),
-        turnTo(82.5, 0.65)
+        turnTo(20.0),
+        drive(750.0),
+        drive(-100.0)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(0.0, 0.65),
-        drive(1050, 0.5),
-        drive(-350, 0.4),
-        turnTo(82.5, 0.65) then wait(100),
-        drive(2600,0.4),
-        turnTo(90.0,0.65),
-        drive(450,0.4),
-        turnTo(120.0, 0.65),
-        drive(2600,0.4),
-        deliverMarkerAction,
-        drive(-7000,0.4)
+        drive(600.0),
+        drive(-60.0),
+        turnTo(90.0)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-20.0, 1.0) then wait(100),
-        drive(750, 0.4),
-        drive(-100, 0.4)
+        turnTo(-20.0),
+        drive(750.0),
+        drive(-100.0)
     )
 
     @Throws(InterruptedException::class)
@@ -159,5 +151,3 @@ class CraterAutonomous : LinearOpMode() {
     }
 
 }
-
-

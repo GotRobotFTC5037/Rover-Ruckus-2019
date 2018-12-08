@@ -19,25 +19,16 @@ interface ActionScope : CoroutineScope {
     fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F
     fun <F : Feature> requestFeature(featureClass: KClass<F>): F
     suspend fun perform(action: Action)
-    suspend fun perform(actions: Sequence<Action>)
 }
 
 /**
  * An [ActionScope] that contains the basic functions used in an [Action] block.
  */
 abstract class AbstractActionScope(final override val robot: Robot) : ActionScope {
-
     override val coroutineContext: CoroutineContext = robot.coroutineContext
-
     override fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F = robot[featureKey]
-
     override fun <F : Feature> requestFeature(featureClass: KClass<F>): F = robot[featureClass]
-
-    override suspend fun perform(action: Action): Unit = action.run(robot)
-
-    override suspend fun perform(actions: Sequence<Action>): Unit =
-        actions.forEach { action -> action.run(robot) }
-
+    override suspend fun perform(action: Action): Unit = robot.perform(action)
 }
 
 /**
@@ -66,7 +57,6 @@ abstract class AbstractAction : Action {
  * An [Action] that used in situations where no configuration is needed.
  */
 private class StandardAction(private val block: suspend ActionScope.() -> Unit) : AbstractAction() {
-
     override suspend fun run(robot: Robot) {
         if (!disabled) {
             withTimeout(timeoutMillis) {
@@ -75,7 +65,6 @@ private class StandardAction(private val block: suspend ActionScope.() -> Unit) 
             }
         }
     }
-
 }
 
 /**
