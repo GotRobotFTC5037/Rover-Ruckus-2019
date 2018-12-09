@@ -17,8 +17,7 @@ class RangeSensor(
 
     companion object Installer : FeatureInstaller<Configuration, RangeSensor> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): RangeSensor {
-            val configuration = Configuration()
-                .apply(configure)
+            val configuration = Configuration().apply(configure)
             val sensorName = configuration.sensorName
             val sensor = robot.hardwareMap.get(DistanceSensor::class.java, sensorName)
             return RangeSensor(sensor)
