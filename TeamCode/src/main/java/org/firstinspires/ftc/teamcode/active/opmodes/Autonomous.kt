@@ -70,7 +70,7 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             centerAction
         }
     }
-    perform(extendLift then retractLift then goldAction)
+    perform(/*extendLift then retractLift then*/ goldAction)
 }
 
 

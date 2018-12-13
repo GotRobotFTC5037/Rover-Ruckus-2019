@@ -33,13 +33,17 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
         install(MarkerDeployer) {
             servoName = "marker"
         }
+        install(TankDriveTrain.Localizer) {
+            wheelDiameter = 10.16
+        }
+        install(IMULocalizer) {
+            imuName = "imu"
+        }
+        install(Intake) {
+            intakeLift = "intake lift"
+            intake = "intake"
+        }
         if (linearOpMode.isAutonomous()) {
-            install(TankDriveTrain.Localizer) {
-                wheelDiameter = 10.16
-            }
-            install(IMULocalizer) {
-                imuName = "imu"
-            }
             install(Vuforia) {
                 vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
                 fillCameraMonitorViewParent = true
