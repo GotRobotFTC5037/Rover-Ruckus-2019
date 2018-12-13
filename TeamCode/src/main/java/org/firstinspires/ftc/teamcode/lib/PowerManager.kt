@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode.lib.util
+package org.firstinspires.ftc.teamcode.lib
+
+import org.firstinspires.ftc.teamcode.lib.util.clip
 
 interface PowerManagerScope {
     fun setRange(initialValue: Double, targetValue: Double)
@@ -20,7 +22,8 @@ object NothingPowerManager : PowerManager {
     }
 }
 
-class ConstantPowerManager(private val power: Double) : PowerManager {
+class ConstantPowerManager(private val power: Double) :
+    PowerManager {
     override fun calculatePower(
         initialValue: Double,
         targetValue: Double,

@@ -5,9 +5,9 @@ import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
 import org.firstinspires.ftc.teamcode.lib.feature.*
-import org.firstinspires.ftc.teamcode.lib.robot.isAutonomous
+import org.firstinspires.ftc.teamcode.lib.util.isAutonomous
 import org.firstinspires.ftc.teamcode.lib.robot.robot
-import org.firstinspires.ftc.teamcode.lib.util.ConstantPowerManager
+import org.firstinspires.ftc.teamcode.lib.ConstantPowerManager
 
 object RobotConstants {
 
@@ -54,8 +54,12 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
                 useObjectTracker = true
             }
             install(MoveActionDefaults) {
-                defaultPowerManager(MoveActionType.DRIVE, ConstantPowerManager(0.75))
-                defaultPowerManager(MoveActionType.TURN, ConstantPowerManager(0.75))
+                defaultPowerManager(MoveActionType.DRIVE,
+                    ConstantPowerManager(0.75)
+                )
+                defaultPowerManager(MoveActionType.TURN,
+                    ConstantPowerManager(0.75)
+                )
             }
         }
     }

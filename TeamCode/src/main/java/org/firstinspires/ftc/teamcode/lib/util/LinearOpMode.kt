@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib.robot
+package org.firstinspires.ftc.teamcode.lib.util
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -11,6 +11,12 @@ fun LinearOpMode.isTeleOp() = this::class.annotations.any { it is TeleOp }
 
 suspend fun LinearOpMode.delayUntilStart() {
     while (!isStarted) {
+        yield()
+    }
+}
+
+suspend fun LinearOpMode.delayUntilStop() {
+    while (!isStopRequested) {
         yield()
     }
 }

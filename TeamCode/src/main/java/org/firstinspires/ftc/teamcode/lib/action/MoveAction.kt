@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
 import kotlinx.coroutines.withTimeout
+import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
+import org.firstinspires.ftc.teamcode.lib.PowerManager
+import org.firstinspires.ftc.teamcode.lib.PowerManagerScope
 import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.RobotHeadingLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
-import org.firstinspires.ftc.teamcode.lib.util.NothingPowerManager
-import org.firstinspires.ftc.teamcode.lib.util.PowerManager
-import org.firstinspires.ftc.teamcode.lib.util.PowerManagerScope
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the

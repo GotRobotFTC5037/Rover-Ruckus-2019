@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.lib.action.MoveAction
 import org.firstinspires.ftc.teamcode.lib.action.MoveActionKeys
 import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
-import org.firstinspires.ftc.teamcode.lib.util.PowerManager
+import org.firstinspires.ftc.teamcode.lib.PowerManager
 
 class MoveActionDefaults(
     private val powerManagers: Map<MoveActionType, PowerManager>
