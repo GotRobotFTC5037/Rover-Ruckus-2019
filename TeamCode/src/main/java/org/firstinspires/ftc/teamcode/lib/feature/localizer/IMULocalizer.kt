@@ -1,14 +1,15 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
-package org.firstinspires.ftc.teamcode.lib.feature
+package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.broadcast
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
+import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
+import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 import kotlin.coroutines.CoroutineContext
@@ -18,60 +19,38 @@ import kotlin.coroutines.CoroutineContext
  */
 class IMULocalizer(
     private val imu: BNO055IMU,
-    pollRate: Long,
+    private val pollRate: Long,
     override val coroutineContext: CoroutineContext
 ) : RobotHeadingLocalizer, CoroutineScope {
 
-    override val isReady: Boolean
-        get() = imu.isGyroCalibrated
-
-    private fun CoroutineScope.broadcastHeading(ticker: ReceiveChannel<Unit>) =
+    private fun CoroutineScope.broadcastHeading() =
         broadcast(capacity = Channel.CONFLATED) {
-            while (isActive) {
-                ticker.receive()
+            while (true) {
                 val orientation = imu.getAngularOrientation(
                     AxesReference.INTRINSIC,
-                    AxesOrder.ZYX,
+                    AxesOrder.YZX,
                     AngleUnit.DEGREES
                 )
                 val heading = orientation.firstAngle.toDouble()
                 send(heading)
+                yield()
             }
         }
 
-    override val heading: BroadcastChannel<Double> =
-        broadcastHeading(ticker(delayMillis = pollRate, mode = TickerMode.FIXED_DELAY))
+    fun newHeadingChannel() = broadcastHeading().openSubscription()
 
-
-    /**
-     * Configures a [IMULocalizer].
-     */
     class Configuration : FeatureConfiguration {
-
-        /**
-         * The name of the imu as used in the configuration file.
-         */
         var imuName: String = "imu"
-
-        /**
-         * The rate at which [IMULocalizer.heading] will produce headings in milliseconds.
-         * [BNO055IMU] has a maximum poll rate of 100Hz so it is recommended that this value stay
-         * greater than or equal to 10.
-         */
         var pollRate: Long = 10
     }
 
-    companion object Installer : FeatureInstaller<Configuration, IMULocalizer> {
+    companion object Installer :
+        FeatureInstaller<Configuration, IMULocalizer> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): IMULocalizer {
-            val configuration = Configuration()
-                .apply(configure)
+            val configuration = Configuration().apply(configure)
             val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
             imu.initialize(BNO055IMU.Parameters())
-            return IMULocalizer(
-                imu,
-                configuration.pollRate,
-                robot.coroutineContext
-            )
+            return IMULocalizer(imu, configuration.pollRate, robot.coroutineContext)
         }
     }
 

@@ -1,13 +1,20 @@
-package org.firstinspires.ftc.teamcode.lib.feature
+package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.yield
+import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
+import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
+import org.firstinspires.ftc.teamcode.lib.util.sameOrNull
 import kotlin.coroutines.CoroutineContext
+
+typealias TankDriveTrainLocalizer = TankDriveTrain.LocalizerInstaller
 
 class TankDriveTrain(
     private val leftMotors: List<DcMotor>,
@@ -32,7 +39,6 @@ class TankDriveTrain(
     }
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
-
         override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
             val configuration = Configuration(
                 robot.hardwareMap
@@ -67,36 +73,44 @@ class TankDriveTrain(
     /**
      * The [PositionLocalizer] for localizing a [TankDriveTrain].
      */
-    object Localizer : FeatureInstaller<PositionLocalizerConfiguration, PositionLocalizer> {
+    object LocalizerInstaller : FeatureInstaller<LocalizerConfiguration, PositionLocalizer> {
         override fun install(
-            robot: Robot, configure: PositionLocalizerConfiguration.() -> Unit
+            robot: Robot,
+            configure: LocalizerConfiguration.() -> Unit
         ): PositionLocalizer {
-            val configuration = PositionLocalizerConfiguration().apply(configure)
+            val configuration = LocalizerConfiguration().apply(configure)
             val tankDrive = robot[TankDriveTrain]
+            val ticksPerRev =
+                tankDrive.motors.map { it.motorType.ticksPerRev }.sameOrNull() ?: TODO()
             return tankDrive.PositionLocalizer(
-                robot.coroutineContext,
                 configuration.wheelDiameter,
-                configuration.gearRatio
+                configuration.gearRatio,
+                ticksPerRev,
+                robot.coroutineContext
             )
         }
     }
 
-    class PositionLocalizerConfiguration : FeatureConfiguration {
+    class LocalizerConfiguration : FeatureConfiguration {
         var wheelDiameter = 1.0
         var gearRatio = 1.0
     }
 
+    data class LocalizerUpdate(
+        val leftPosition: Double,
+        val rightPosition: Double
+    ) {
+        val average: Double get() = (leftPosition + rightPosition) / 2
+    }
+
     inner class PositionLocalizer(
-        override val coroutineContext: CoroutineContext,
         wheelDiameter: Double,
-        private val gearRatio: Double
+        private val gearRatio: Double,
+        private val ticksPerRevolution: Double,
+        override val coroutineContext: CoroutineContext
     ) : RobotPositionLocalizer, CoroutineScope {
 
-        override val isReady: Boolean = true
-
         private val wheelCircumference = wheelDiameter * Math.PI
-
-        private val ticksPerRevolution = motors.first().motorType.ticksPerRev
 
         private fun DcMotor.currentDistance() =
             currentPosition * wheelCircumference * gearRatio / ticksPerRevolution
@@ -104,19 +118,23 @@ class TankDriveTrain(
         private fun List<DcMotor>.averageDistance(): Double =
             sumByDouble { it.currentDistance() } / count()
 
-        private fun CoroutineScope.producePosition(
-            ticker: ReceiveChannel<Unit>
-        ): BroadcastChannel<Position> =
-            broadcast(capacity = Channel.CONFLATED) {
-                while (isActive) {
-                    ticker.receive()
-                    val position = Position(motors.averageDistance(), 0.0)
-                    send(position)
-                }
+        @Suppress("EXPERIMENTAL_API_USAGE")
+        fun CoroutineScope.producePosition() = produce(capacity = Channel.CONFLATED) {
+            val initialUpdate = LocalizerUpdate(
+                leftMotors.averageDistance(),
+                rightMotors.averageDistance()
+            )
+            while (true) {
+                val update = LocalizerUpdate(
+                    leftMotors.averageDistance() - initialUpdate.leftPosition,
+                    rightMotors.averageDistance() - initialUpdate.rightPosition
+                )
+                send(update)
+                yield()
             }
+        }
 
-        override val position: BroadcastChannel<Position> =
-            producePosition(ticker(10, mode = TickerMode.FIXED_DELAY))
+        fun newPositionChannel() = producePosition()
 
     }
 

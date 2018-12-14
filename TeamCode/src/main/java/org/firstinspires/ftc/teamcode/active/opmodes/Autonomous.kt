@@ -8,8 +8,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
 import org.firstinspires.ftc.teamcode.active.*
 import org.firstinspires.ftc.teamcode.lib.action.*
-import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 
 private val extendLift = action {
     val landerLatch = requestFeature(RobotLift)

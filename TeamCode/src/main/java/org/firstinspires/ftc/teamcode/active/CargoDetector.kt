@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
-import org.firstinspires.ftc.teamcode.lib.feature.Vuforia
+import org.firstinspires.ftc.teamcode.lib.feature.vision.Vuforia
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 import org.firstinspires.ftc.teamcode.lib.util.objectDetector

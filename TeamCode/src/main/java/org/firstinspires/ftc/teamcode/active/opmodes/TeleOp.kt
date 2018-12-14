@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.active.Intake
 import org.firstinspires.ftc.teamcode.active.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.RobotLift
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
-import org.firstinspires.ftc.teamcode.lib.feature.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 
 
@@ -26,7 +26,7 @@ class TeleOp : LinearOpMode() {
             val lift = requestFeature(RobotLift)
             val deployer = requestFeature(MarkerDeployer)
             val imuLocalizer = requestFeature(IMULocalizer)
-            val tankDriveLocalizer = requestFeature(TankDriveTrain.Localizer)
+            val tankDriveLocalizer = requestFeature(TankDriveTrain.LocalizerInstaller)
             val intake = requestFeature(Intake)
 
             var reversed = false

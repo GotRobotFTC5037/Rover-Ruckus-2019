@@ -3,11 +3,15 @@ package org.firstinspires.ftc.teamcode.active
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
-import org.firstinspires.ftc.teamcode.lib.feature.*
-import org.firstinspires.ftc.teamcode.lib.util.isAutonomous
-import org.firstinspires.ftc.teamcode.lib.robot.robot
 import org.firstinspires.ftc.teamcode.lib.ConstantPowerManager
+import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
+import org.firstinspires.ftc.teamcode.lib.feature.MoveActionDefaults
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.MotorDirection
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.vision.Vuforia
+import org.firstinspires.ftc.teamcode.lib.robot.robot
+import org.firstinspires.ftc.teamcode.lib.util.isAutonomous
 
 object RobotConstants {
 
@@ -33,7 +37,7 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
         install(MarkerDeployer) {
             servoName = "marker"
         }
-        install(TankDriveTrain.Localizer) {
+        install(TankDriveTrain.LocalizerInstaller) {
             wheelDiameter = 10.16
         }
         install(IMULocalizer) {

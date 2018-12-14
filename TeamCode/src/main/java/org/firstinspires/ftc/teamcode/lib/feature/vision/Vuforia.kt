@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode.lib.feature
+package org.firstinspires.ftc.teamcode.lib.feature.vision
 
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.Feature
+import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
+import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.util.VuforiaLocalizer
 

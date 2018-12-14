@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.lib
 import com.qualcomm.robotcore.hardware.Gamepad
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.action.ActionScope
 import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
 import kotlin.coroutines.CoroutineContext
@@ -50,10 +52,20 @@ class ControlScheme(
     val driver: RobotGamepad = RobotGamepad(gamepad1)
     val gunner: RobotGamepad = RobotGamepad(gamepad2)
 
+    suspend inline fun loop(crossinline block: suspend () -> Unit) {
+        launch {
+            while (true) {
+                block.invoke()
+                yield()
+            }
+        }
+    }
+
 }
 
 suspend inline fun ActionScope.driverControl(crossinline block: suspend ControlScheme.() -> Unit) {
-    val controlScheme = TODO()
+    val opMode = robot.linearOpMode
+    val controlScheme = ControlScheme(opMode.gamepad1, opMode.gamepad2)
     block.invoke(controlScheme)
     robot.linearOpMode.delayUntilStop()
 }

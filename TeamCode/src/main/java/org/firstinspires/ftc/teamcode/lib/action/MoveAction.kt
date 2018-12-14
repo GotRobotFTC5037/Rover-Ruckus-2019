@@ -1,14 +1,17 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
 import org.firstinspires.ftc.teamcode.lib.PowerManager
 import org.firstinspires.ftc.teamcode.lib.PowerManagerScope
-import org.firstinspires.ftc.teamcode.lib.feature.DriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.RobotHeadingLocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.RobotPositionLocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrainLocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
+import kotlin.math.abs
 
 /**
  * Provides an action block for a [Robot] to run and provided context specifically for moving the
@@ -76,6 +79,7 @@ class MoveActionAttributes {
 
 }
 
+@Suppress("unused")
 class MoveActionKey<T>
 
 object MoveActionKeys {
@@ -94,7 +98,7 @@ fun move(block: suspend MoveActionScope.() -> Unit): MoveAction = MoveAction(blo
 
 @Deprecated("Usage of time based drives should be avoided.")
 fun timeDrive(duration: Long): MoveAction = move {
-   TODO()
+    TODO()
 }.apply {
     attributes[MoveActionKeys.Duration] = duration
     attributes[MoveActionKeys.Type] = MoveActionType.DRIVE
@@ -109,37 +113,44 @@ fun timeTurn(duration: Long): MoveAction = move {
 }
 
 fun drive(deltaDistance: Double): MoveAction = move {
-    val driveTrain = requestFeature(DriveTrain::class)
-    val localizer = requestFeature(RobotPositionLocalizer::class)
+    when (val driveTrain = requestFeature(DriveTrain::class)) {
+        is TankDriveTrain -> {
+            val localizer = requestFeature(TankDriveTrainLocalizer)
+            val positionChannel = localizer.newPositionChannel()
 
-    val positionChannel = localizer.position.openSubscription()
-    val initialPosition = positionChannel.receive().linearPosition
-    val targetPosition = initialPosition + deltaDistance
+            val driveTrainJob = launch {
+                if (deltaDistance > 0) {
+                    while (true) {
+                        driveTrain.setMotorPowers(power(), power())
+                        yield()
+                    }
+                } else if (deltaDistance < 0) {
+                    while (true) {
+                        driveTrain.setMotorPowers(-power(), -power())
+                        yield()
+                    }
+                }
+            }.apply {
+                invokeOnCompletion {
+                    driveTrain.stop()
+                }
+            }
 
-    when (driveTrain) {
-        is TankDriveTrain -> when {
-            deltaDistance > 0 -> while (true) {
-                val position = positionChannel.receive().linearPosition
-                if (position >= targetPosition) break
-                notifyProgress(position)
-                driveTrain.setMotorPowers(power(), power())
+            for (update in positionChannel) {
+                if (abs(update.average) > abs(deltaDistance)) {
+                    positionChannel.cancel()
+                }
+                yield()
             }
-            deltaDistance < 0 -> while (true) {
-                val position = positionChannel.receive().linearPosition
-                if (position <= targetPosition) break
-                notifyProgress(position)
-                driveTrain.setMotorPowers(-power(), -power())
-            }
+
+            driveTrainJob.cancel()
         }
+
         else -> TODO()
     }
-
-    positionChannel.cancel()
-    driveTrain.stop()
 }.apply {
     attributes[MoveActionKeys.Distance] = deltaDistance
     attributes[MoveActionKeys.Type] = MoveActionType.DRIVE
-
 }
 
 fun turnTo(targetHeading: Double): MoveAction = move {
@@ -150,35 +161,55 @@ fun turnTo(targetHeading: Double): MoveAction = move {
         else -> heading
     }
 
-    val driveTrain = requestFeature(DriveTrain::class)
-    val localizer = requestFeature(RobotHeadingLocalizer::class)
+    when (val driveTrain = requestFeature(DriveTrain::class)) {
+        is TankDriveTrain -> {
+            val localizer = requestFeature(IMULocalizer)
+            val headingChannel = localizer.newHeadingChannel()
 
-    val headingChannel = localizer.heading.openSubscription()
-    val initialHeading = headingChannel.receive()
-    val adjustedTargetHeading = properHeading(targetHeading)
+            val adjustedTargetHeading = properHeading(targetHeading)
+            val initialHeading = properHeading(headingChannel.receive())
 
-    when (driveTrain) {
-        is TankDriveTrain -> when {
-            initialHeading > adjustedTargetHeading -> while (true) {
-                val heading = headingChannel.receive()
-                if (heading <= adjustedTargetHeading) break
-                notifyProgress(heading)
-                driveTrain.setMotorPowers(power(), -power())
+            val driveTrainJob = launch {
+                if (adjustedTargetHeading < initialHeading) {
+                    while (true) {
+                        driveTrain.setMotorPowers(power(), -power())
+                        yield()
+                    }
+                } else if (adjustedTargetHeading > initialHeading) {
+                    while (true) {
+                        driveTrain.setMotorPowers(-power(), power())
+                        yield()
+                    }
+                }
+            }.apply {
+                invokeOnCompletion {
+                    driveTrain.stop()
+                }
             }
-            initialHeading < adjustedTargetHeading -> while (true) {
-                val heading = headingChannel.receive()
-                if (heading >= adjustedTargetHeading) break
-                notifyProgress(heading)
-                driveTrain.setMotorPowers(-power(), power())
+
+            if (adjustedTargetHeading > initialHeading) {
+                for (heading in headingChannel) {
+                    if (adjustedTargetHeading < heading) {
+                        headingChannel.cancel()
+                    }
+                    yield()
+                }
+            } else if (adjustedTargetHeading < initialHeading) {
+                for (heading in headingChannel) {
+                    if (adjustedTargetHeading > initialHeading) {
+                        headingChannel.cancel()
+                    }
+                    yield()
+                }
             }
+
+            driveTrainJob.cancel()
         }
+
         else -> TODO()
     }
 
-    headingChannel.cancel()
-    driveTrain.stop()
 }.apply {
     attributes[MoveActionKeys.TargetHeading] = targetHeading
     attributes[MoveActionKeys.Type] = MoveActionType.TURN
-
 }
