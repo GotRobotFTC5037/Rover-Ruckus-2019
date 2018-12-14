@@ -95,6 +95,14 @@ class TeleOp : LinearOpMode() {
                     yield()
                 }
             }
+            launch {
+                while (true) {
+                    if (gamepad2.a) {
+
+
+                    }
+                }
+            }
 
             while (!isStopRequested) {
                 yield()
