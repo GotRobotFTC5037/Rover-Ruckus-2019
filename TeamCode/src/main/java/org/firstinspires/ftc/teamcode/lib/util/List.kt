@@ -8,10 +8,4 @@ fun <T> List<T>.sameOrNull(block: (first: T, current: T) -> Boolean): T? {
     return first
 }
 
-fun <T> List<T>.sameOrNull(): T? {
-    val first = this.first()
-    for (element in this) {
-        if (element == first) return null
-    }
-    return first
-}
+fun <T> List<T>.sameOrNull(): T? = sameOrNull { first, current -> first == current }

@@ -28,7 +28,7 @@ class IMULocalizer(
             while (true) {
                 val orientation = imu.getAngularOrientation(
                     AxesReference.INTRINSIC,
-                    AxesOrder.YZX,
+                    AxesOrder.YXY,
                     AngleUnit.DEGREES
                 )
                 val heading = orientation.firstAngle.toDouble()

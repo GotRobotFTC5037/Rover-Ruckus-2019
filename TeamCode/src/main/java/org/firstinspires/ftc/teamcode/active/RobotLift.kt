@@ -1,5 +1,3 @@
-@file:Suppress("EXPERIMENTAL_API_USAGE")
-
 package org.firstinspires.ftc.teamcode.active
 
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -12,7 +10,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 
-const val LIFT_DOWN_POSITION = 26_500
+const val LIFT_DOWN_POSITION = 29_500
 
 class RobotLift(
     private val liftMotor: DcMotor,
@@ -30,7 +28,7 @@ class RobotLift(
     }
 
     suspend fun retract() {
-        liftMotor.power = 1.0
+        liftMotor.power = -1.0
         while (!liftButton.isPressed) {
             yield()
         }
@@ -40,7 +38,7 @@ class RobotLift(
     }
 
     suspend fun extend() {
-        liftMotor.power = -1.0
+        liftMotor.power = 1.0
         while (liftPosition < LIFT_DOWN_POSITION) {
             yield()
         }
@@ -57,7 +55,7 @@ class RobotLift(
             val config = Configuration().apply(configure)
 
             val liftMotor = robot.hardwareMap.get(DcMotor::class.java, config.liftMotorName)
-            liftMotor.direction = DcMotorSimple.Direction.REVERSE
+            liftMotor.direction = DcMotorSimple.Direction.FORWARD
             liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
