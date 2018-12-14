@@ -128,20 +128,20 @@ class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(20.0),
-        drive(750.0),
-        drive(-100.0)
+        drive(20.0),
+        drive(-5.0)
     )
 
     private val centerAction = actionSequenceOf(
-        drive(600.0),
-        drive(-60.0),
+        drive(20.0),
+        drive(-5.0),
         turnTo(90.0)
     )
 
     private val rightAction = actionSequenceOf(
         turnTo(-20.0),
-        drive(750.0),
-        drive(-100.0)
+        drive(20.0),
+        drive(-5.0)
     )
 
     @Throws(InterruptedException::class)
