@@ -30,7 +30,7 @@ class RobotLift(
     }
 
     suspend fun retract() {
-        liftMotor.power = -1.0
+        liftMotor.power = 1.0
         while (!liftButton.isPressed) {
             yield()
         }
@@ -40,7 +40,7 @@ class RobotLift(
     }
 
     suspend fun extend() {
-        liftMotor.power = 1.0
+        liftMotor.power = -1.0
         while (liftPosition < LIFT_DOWN_POSITION) {
             yield()
         }
