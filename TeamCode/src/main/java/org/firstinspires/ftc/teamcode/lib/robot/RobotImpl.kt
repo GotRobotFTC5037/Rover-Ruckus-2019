@@ -78,7 +78,6 @@ private class RobotImpl(
             ?.second as? F ?: throw MissingRobotFeatureException()
 
     override suspend fun perform(action: Action) = coroutineScope {
-        linearOpMode.telemetry.log().add("Robot: Performing Action")
         actionPipeline.execute(action, this@RobotImpl)
         action.run(this@RobotImpl)
     }
@@ -100,7 +99,7 @@ suspend fun robot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope, co
     linearOpMode.telemetry.log().add("Setting up robot...")
     val robot = RobotImpl(linearOpMode, coroutineScope).apply(configure)
 
-    linearOpMode.telemetry.log().add("Waiting for onActionStart...")
+    linearOpMode.telemetry.log().add("Waiting for start...")
     linearOpMode.delayUntilStart()
 
     robot.launch {

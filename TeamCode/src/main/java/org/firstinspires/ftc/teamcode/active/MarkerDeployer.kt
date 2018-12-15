@@ -10,11 +10,11 @@ import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 class MarkerDeployer(private val servo: Servo) : Feature {
 
     fun deploy() {
-        servo.position = 0.0
+        servo.position = 1.0
     }
 
     fun retract() {
-        servo.position = 1.0
+        servo.position = 0.0
     }
 
     class Configuration : FeatureConfiguration {

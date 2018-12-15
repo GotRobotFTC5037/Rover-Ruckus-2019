@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.active.Intake
 import org.firstinspires.ftc.teamcode.active.MarkerDeployer
-import org.firstinspires.ftc.teamcode.active.RobotLift
+import org.firstinspires.ftc.teamcode.active.Lift
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.action.action
 import org.firstinspires.ftc.teamcode.lib.driverControl
@@ -15,7 +15,7 @@ class ExperimantalTeleOp : LinearOpMode() {
 
     private val teleOp = action {
         val driveTrain = requestFeature(TankDriveTrain)
-        val lift = requestFeature(RobotLift)
+        val lift = requestFeature(Lift)
         val deployer = requestFeature(MarkerDeployer)
         val intake = requestFeature(Intake)
 

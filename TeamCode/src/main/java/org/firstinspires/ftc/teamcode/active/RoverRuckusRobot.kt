@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.active
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.teamcode.lib.ConstantPowerManager
 import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
 import org.firstinspires.ftc.teamcode.lib.feature.MoveActionDefaults
@@ -31,23 +32,24 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
             addLeftMotor("left motor", MotorDirection.FORWARD)
             addRightMotor("right motor", MotorDirection.REVERSE)
         }
-        install(RobotLift) {
+        install(Lift) {
             liftMotorName = "lift motor"
         }
         install(MarkerDeployer) {
             servoName = "marker"
         }
-        install(TankDriveTrain.LocalizerInstaller) {
-            wheelDiameter = 10.16
-        }
-        install(IMULocalizer) {
-            imuName = "imu"
-        }
         install(Intake) {
             intakeLift = "intake lift"
             intake = "intake"
         }
+        install(IMULocalizer) {
+            imuName = "imu"
+            order = AxesOrder.ZYX
+        }
         if (linearOpMode.isAutonomous()) {
+            install(TankDriveTrain.LocalizerInstaller) {
+                wheelDiameter = 10.16
+            }
             install(Vuforia) {
                 vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
                 fillCameraMonitorViewParent = true
@@ -58,10 +60,12 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
                 useObjectTracker = true
             }
             install(MoveActionDefaults) {
-                defaultPowerManager(MoveActionType.DRIVE,
+                defaultPowerManager(
+                    MoveActionType.DRIVE,
                     ConstantPowerManager(0.75)
                 )
-                defaultPowerManager(MoveActionType.TURN,
+                defaultPowerManager(
+                    MoveActionType.TURN,
                     ConstantPowerManager(0.75)
                 )
             }

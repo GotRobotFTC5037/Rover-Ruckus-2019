@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 
-const val LIFT_DOWN_POSITION = 29_500
+const val LIFT_DOWN_POSITION = 27_000
 
-class RobotLift(
+class Lift(
     private val liftMotor: DcMotor,
     private val liftButton: TouchSensor
 ) : Feature {
@@ -50,8 +50,8 @@ class RobotLift(
         var liftButton: String = "lift button"
     }
 
-    companion object Installer : FeatureInstaller<Configuration, RobotLift> {
-        override fun install(robot: Robot, configure: Configuration.() -> Unit): RobotLift {
+    companion object Installer : FeatureInstaller<Configuration, Lift> {
+        override fun install(robot: Robot, configure: Configuration.() -> Unit): Lift {
             val config = Configuration().apply(configure)
 
             val liftMotor = robot.hardwareMap.get(DcMotor::class.java, config.liftMotorName)
@@ -61,7 +61,7 @@ class RobotLift(
 
             val liftButton = robot.hardwareMap.get(TouchSensor::class.java, config.liftButton)
 
-            return RobotLift(liftMotor, liftButton)
+            return Lift(liftMotor, liftButton)
         }
     }
 }

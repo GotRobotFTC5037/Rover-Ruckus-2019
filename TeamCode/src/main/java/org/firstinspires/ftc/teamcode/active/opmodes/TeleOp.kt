@@ -8,11 +8,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.active.Intake
+import org.firstinspires.ftc.teamcode.active.Lift
 import org.firstinspires.ftc.teamcode.active.MarkerDeployer
-import org.firstinspires.ftc.teamcode.active.RobotLift
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 
 
@@ -23,13 +23,20 @@ class TeleOp : LinearOpMode() {
     override fun runOpMode() = runBlocking {
         roverRuckusRobot(this@TeleOp, this).perform {
             val driveTrain = requestFeature(TankDriveTrain)
-            val lift = requestFeature(RobotLift)
+            val lift = requestFeature(Lift)
             val deployer = requestFeature(MarkerDeployer)
-            val imuLocalizer = requestFeature(IMULocalizer)
-            val tankDriveLocalizer = requestFeature(TankDriveTrain.LocalizerInstaller)
             val intake = requestFeature(Intake)
+            val imu = requestFeature(IMULocalizer)
 
             var reversed = false
+
+            launch {
+                while(true) {
+                    telemetry.addData("Position", lift.liftPosition)
+                    telemetry.update()
+                    yield()
+                }
+            }
 
             launch {
                 while (true) {
@@ -95,10 +102,23 @@ class TeleOp : LinearOpMode() {
                     yield()
                 }
             }
+
+            launch {
+                val orientation = imu.newOrientationChannel()
+                while (true) {
+                    val update = orientation.receive()
+                    telemetry.addLine()
+                        .addData("X", update.heading)
+                        .addData("Y", update.pitch)
+                        .addData("Z", update.roll)
+                    telemetry.update()
+                    yield()
+                }
+            }
+
             launch {
                 while (true) {
                     if (gamepad2.a) {
-
 
                     }
                 }

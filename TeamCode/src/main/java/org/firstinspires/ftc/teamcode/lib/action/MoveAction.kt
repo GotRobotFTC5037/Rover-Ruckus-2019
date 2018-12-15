@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
+import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
@@ -172,12 +173,12 @@ fun turnTo(targetHeading: Double): MoveAction = move {
             val driveTrainJob = launch {
                 if (adjustedTargetHeading < initialHeading) {
                     while (true) {
-                        driveTrain.setMotorPowers(power(), -power())
+                        driveTrain.setMotorPowers(-power(), power())
                         yield()
                     }
                 } else if (adjustedTargetHeading > initialHeading) {
                     while (true) {
-                        driveTrain.setMotorPowers(-power(), power())
+                        driveTrain.setMotorPowers(power(), -power())
                         yield()
                     }
                 }
@@ -188,22 +189,25 @@ fun turnTo(targetHeading: Double): MoveAction = move {
             }
 
             if (adjustedTargetHeading > initialHeading) {
-                for (heading in headingChannel) {
-                    if (adjustedTargetHeading < heading) {
-                        headingChannel.cancel()
-                    }
-                    yield()
+                headingChannel.first {
+                    telemetry.addLine()
+                        .addData("Target", adjustedTargetHeading)
+                        .addData("Heading", it)
+                    telemetry.update()
+                    adjustedTargetHeading <= it
                 }
             } else if (adjustedTargetHeading < initialHeading) {
-                for (heading in headingChannel) {
-                    if (adjustedTargetHeading > initialHeading) {
-                        headingChannel.cancel()
-                    }
-                    yield()
+                headingChannel.first {
+                    telemetry.addLine()
+                        .addData("Target", adjustedTargetHeading)
+                        .addData("Heading", it)
+                    telemetry.update()
+                    adjustedTargetHeading >= it
                 }
             }
 
             driveTrainJob.cancel()
+            driveTrain.stop()
         }
 
         else -> TODO()
