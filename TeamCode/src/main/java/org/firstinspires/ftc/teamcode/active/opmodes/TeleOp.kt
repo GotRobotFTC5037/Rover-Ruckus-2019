@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
@@ -12,8 +13,8 @@ import org.firstinspires.ftc.teamcode.active.Lift
 import org.firstinspires.ftc.teamcode.active.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.perform
+import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
 
 
 @TeleOp
@@ -26,17 +27,8 @@ class TeleOp : LinearOpMode() {
             val lift = requestFeature(Lift)
             val deployer = requestFeature(MarkerDeployer)
             val intake = requestFeature(Intake)
-            val imu = requestFeature(IMULocalizer)
 
             var reversed = false
-
-            launch {
-                while(true) {
-                    telemetry.addData("Position", lift.liftPosition)
-                    telemetry.update()
-                    yield()
-                }
-            }
 
             launch {
                 while (true) {
@@ -54,13 +46,13 @@ class TeleOp : LinearOpMode() {
                 while (true) {
                     if (!reversed) {
                         driveTrain.setMotorPowers(
-                            -gamepad1.left_stick_y.toDouble(),
-                            -gamepad1.right_stick_y.toDouble()
+                            -gamepad1.right_stick_y.toDouble(),
+                            -gamepad1.left_stick_y.toDouble()
                         )
                     } else {
                         driveTrain.setMotorPowers(
-                            gamepad1.right_stick_y.toDouble(),
-                            gamepad1.left_stick_y.toDouble()
+                            gamepad1.left_stick_y.toDouble(),
+                            gamepad1.right_stick_y.toDouble()
                         )
                     }
                     yield()
@@ -94,8 +86,8 @@ class TeleOp : LinearOpMode() {
             launch {
                 while (true) {
                     val power = when {
-                        gamepad2.right_trigger > 0.5 -> (0.5)
-                        gamepad2.left_trigger > 0.5 -> (-0.5)
+                        gamepad2.right_trigger > 0.5 -> 1.0
+                        gamepad2.left_trigger > 0.5 -> -0.5
                         else -> 0.0
                     }
                     intake.setLiftPower(power)
@@ -104,30 +96,19 @@ class TeleOp : LinearOpMode() {
             }
 
             launch {
-                val orientation = imu.newOrientationChannel()
                 while (true) {
-                    val update = orientation.receive()
-                    telemetry.addLine()
-                        .addData("X", update.heading)
-                        .addData("Y", update.pitch)
-                        .addData("Z", update.roll)
-                    telemetry.update()
+                    val power = when {
+                        gamepad2.a -> 0.60
+                        gamepad2.b -> -0.40
+                        else -> 0.0
+                    }
+                    intake.setIntakePower(power)
                     yield()
                 }
             }
 
-            launch {
-                while (true) {
-                    if (gamepad2.a) {
-
-                    }
-                }
-            }
-
-            while (!isStopRequested) {
-                yield()
-            }
-
+            delayUntilStop()
+            coroutineContext.cancelChildren()
         }
     }
 }

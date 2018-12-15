@@ -80,27 +80,27 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(23.0),
-        drive(70.0),
+        turnTo(35.0),
+        drive(60.0),
         turnTo(-25.0),
-        drive(75.0),
+        drive(60.0),
         turnTo(0.0),
         deliverMarker,
-        turnTo(-45.0),
-        drive(-125.0)
+        turnTo(-40.0),
+        drive(-180.0)
     )
 
     private val centerAction = actionSequenceOf(
         turnTo(0.0),
-        drive(90.0),
+        drive(80.0),
         deliverMarker,
         drive(-75.0),
         turnTo(85.0),
         drive(45.0),
         turnTo(45.0),
-        drive(25.0),
-        turnTo(115.0),
-        drive(45.0)
+        drive(15.0),
+        turnTo(125.0),
+        drive(70.0)
     )
 
     private val rightAction = actionSequenceOf(
@@ -109,11 +109,11 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(32.0),
         drive(40.0),
         deliverMarker,
-        drive(-130.0),
-        turnTo(82.5),
-        drive(155.0),
-        turnTo(90.0),
-        drive(70.0)
+        drive(-115.0),
+        turnTo(85.0),
+        drive(180.0),
+        turnTo(130.0),
+        drive(50.0)
     )
 
     @Throws(InterruptedException::class)
@@ -129,37 +129,51 @@ class DepotAutonomous : LinearOpMode() {
 class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(20.0),
-        drive(20.0),
-        drive(-5.0)
+        turnTo(CraterAutonomous.InitialTurnHeading),
+        drive(CraterAutonomous.InitialSideDriveDistance),
+        drive(-25.0),
+        turnTo(87.5),
+        drive(85.0),
+        turnTo(128.0),
+        drive(70.0),
+        deliverMarker,
+        drive(-200.0)
     )
 
     private val centerAction = actionSequenceOf(
         turnTo(0.0),
-        drive(-60.0),
-        drive(1050.0),
-        turnTo(90.0),
-        drive(-350.0),
-        turnTo(82.5),
-        drive(2600.0),
-        turnTo(90.0),
-        drive(450.0),
-        turnTo(120.0),
-        drive(2600.0),
+        drive(CraterAutonomous.InitialCenterDriveDistance),
+        drive(-15.0),
+        turnTo(87.5),
+        drive(85.0),
+        turnTo(128.0),
+        drive(100.0),
         deliverMarker,
-        drive(-7000.0)
+        drive(-200.0)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-20.0),
-        drive(20.0),
-        drive(-5.0)
+        turnTo(-CraterAutonomous.InitialTurnHeading),
+        drive(CraterAutonomous.InitialSideDriveDistance),
+        drive(-30.0),
+        turnTo(87.5),
+        drive(100.0),
+        turnTo(130.0),
+        drive(70.0),
+        deliverMarker,
+        drive(-200.0)
     )
 
     @Throws(InterruptedException::class)
     override fun runOpMode() = runBlocking {
         roverRuckusRobot(this@CraterAutonomous, this)
             .perform(mainAction(leftAction, centerAction, rightAction))
+    }
+
+    companion object {
+        const val InitialTurnHeading = 27.5
+        const val InitialCenterDriveDistance = 31.0
+        const val InitialSideDriveDistance = 50.0
     }
 
 }

@@ -42,11 +42,11 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
             intakeLift = "intake lift"
             intake = "intake"
         }
-        install(IMULocalizer) {
-            imuName = "imu"
-            order = AxesOrder.ZYX
-        }
         if (linearOpMode.isAutonomous()) {
+            install(IMULocalizer) {
+                imuName = "imu"
+                order = AxesOrder.ZYX
+            }
             install(TankDriveTrain.LocalizerInstaller) {
                 wheelDiameter = 10.16
             }
