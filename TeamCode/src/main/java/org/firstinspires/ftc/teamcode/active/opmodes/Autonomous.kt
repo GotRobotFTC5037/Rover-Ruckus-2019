@@ -81,6 +81,7 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
+
         turnTo(35.0),
         drive(60.0),
         turnTo(-25.0),

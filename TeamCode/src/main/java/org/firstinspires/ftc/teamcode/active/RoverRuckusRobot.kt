@@ -78,23 +78,23 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
             intakeLift = RobotConstants.INTAKE_LIFT_MOTOR
             intake = RobotConstants.INTAKE_MOTOR
         }
+        // Range Sensors
+        install(RangeSensor, FrontRangeSensor) {
+            sensorName = RobotConstants.FRONT_RANGE_SENSOR
+        }
+        install(RangeSensor, LeftRangeSensor) {
+            sensorName = RobotConstants.LEFT_RANGE_SENSOR
+        }
+        install(RangeSensor, RightRangeSensor) {
+            sensorName = RobotConstants.RIGHT_RANGE_SENSOR
+        }
+        install(RangeSensor, FrontRevTof) {
+            sensorName = RobotConstants.FRONT_REV_TOF
+        }
 
         // Autonomous
         if (linearOpMode.isAutonomous()) {
 
-            // Range Sensors
-            install(RangeSensor, FrontRangeSensor) {
-                sensorName = RobotConstants.FRONT_RANGE_SENSOR
-            }
-            install(RangeSensor, LeftRangeSensor) {
-                sensorName = RobotConstants.LEFT_RANGE_SENSOR
-            }
-            install(RangeSensor, RightRangeSensor) {
-                sensorName = RobotConstants.RIGHT_RANGE_SENSOR
-            }
-            install(RangeSensor, FrontRevTof) {
-                sensorName = RobotConstants.FRONT_REV_TOF
-            }
 
             // Localizer
             install(TankDriveTrainLocalizer) {

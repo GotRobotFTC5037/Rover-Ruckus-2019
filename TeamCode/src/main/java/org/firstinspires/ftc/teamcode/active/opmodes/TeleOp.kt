@@ -8,11 +8,13 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.Intake
 import org.firstinspires.ftc.teamcode.active.features.Lift
 import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
 
@@ -27,7 +29,11 @@ class TeleOp : LinearOpMode() {
             val lift = requestFeature(Lift)
             val deployer = requestFeature(MarkerDeployer)
             val intake = requestFeature(Intake)
-
+            val frontRangeSensor = requestFeature(RobotConstants.FrontRangeSensor)
+            val leftRangeSensor = requestFeature(RobotConstants.LeftRangeSensor)
+            val rightRangeSensor = requestFeature(RobotConstants.RightRangeSensor)
+            val frontRevTof = requestFeature(RobotConstants.FrontRevTof)
+            val imu = requestFeature(IMULocalizer)
             var reversed = false
 
             launch {
@@ -106,7 +112,23 @@ class TeleOp : LinearOpMode() {
                     yield()
                 }
             }
-            telemetry.log().add("Tof position")
+
+            launch {
+                val orientation = imu.newOrientationChannel()
+                while (true) {
+                    val currentOrientation = orientation.receive()
+                    telemetry.addData("heading", currentOrientation.heading)
+                    telemetry.addData("pitch", currentOrientation.pitch)
+                    telemetry.addData("roll", currentOrientation.roll)
+                    telemetry.addData("front MR", frontRangeSensor.getDistance())
+                    telemetry.addData("front Rev", frontRevTof.getDistance())
+                    telemetry.addData("left MR", leftRangeSensor.getDistance())
+                    telemetry.addData("right MR", rightRangeSensor.getDistance())
+                    telemetry.update()
+                    yield()
+                }
+            }
+
             delayUntilStop()
             coroutineContext.cancelChildren()
         }
