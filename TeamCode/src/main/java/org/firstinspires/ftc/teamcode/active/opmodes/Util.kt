@@ -28,27 +28,3 @@ class RetractLift : LinearOpMode(), Utility {
         }
     }
 }
-
-@TeleOp
-class IMUData : LinearOpMode() {
-    override fun runOpMode() = runBlocking {
-        robot(this@IMUData, this) {
-            install(IMULocalizer) {
-                imuName = "imu"
-                order = AxesOrder.XYZ
-            }
-        }.perform {
-            val imu = requestFeature(IMULocalizer)
-            val orientation = imu.newOrientationChannel()
-            while (true) {
-                val update = orientation.receive()
-                telemetry.addLine()
-                    .addData("X", update.heading)
-                    .addData("Y", update.pitch)
-                    .addData("Z", update.roll)
-                telemetry.update()
-                yield()
-            }
-        }
-    }
-}

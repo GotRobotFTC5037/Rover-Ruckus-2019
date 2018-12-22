@@ -37,7 +37,6 @@ private class RobotImpl(
         key: FeatureKey<TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
-        telemetry.log().add("Installing ${feature.name}...")
         val featureInstance = feature.install(this, configuration)
         features[key] = featureInstance
     }
@@ -88,7 +87,7 @@ suspend fun robot(
     linearOpMode.telemetry.log().add("Waiting for start...")
     linearOpMode.delayUntilStart()
 
-    opModeScope.launch {
+    GlobalScope.launch {
         linearOpMode.delayUntilStop()
         robot.cancelAndJoin()
     }

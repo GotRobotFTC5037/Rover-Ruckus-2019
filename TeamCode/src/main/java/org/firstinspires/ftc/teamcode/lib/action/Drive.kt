@@ -15,17 +15,36 @@ fun drive(deltaDistance: Double): MoveAction = move {
             val localizer = requestFeature(TankDriveTrainLocalizer)
             val positionChannel = localizer.newPositionChannel()
             val driveTrainJob = launch {
-                while (true) {
-                    driveTrain.setMotorPowers(power(), power())
-                    yield()
+                if (deltaDistance > 0.0) {
+                    while (true) {
+                        driveTrain.setMotorPowers(leftPower = power(), rightPower = power())
+                        yield()
+                    }
+                } else if (deltaDistance < 0.0) {
+                    while (true) {
+                        driveTrain.setMotorPowers(leftPower = -power(), rightPower = -power())
+                        yield()
+                    }
                 }
             }.apply {
                 invokeOnCompletion {
                     driveTrain.stop()
                 }
             }
-            positionChannel.any { abs(it.average) > abs(deltaDistance) }
+            positionChannel.any {
+                val target = abs(deltaDistance)
+                val currentPosition = abs(it.average)
+
+                telemetry.addLine()
+                    .addData("Target", deltaDistance)
+                    .addData("Current", currentPosition)
+                telemetry.update()
+
+                currentPosition > target
+            }
             driveTrainJob.cancel()
         }
     }
+}.apply {
+    context = MoveActionContext(Drive(deltaDistance))
 }

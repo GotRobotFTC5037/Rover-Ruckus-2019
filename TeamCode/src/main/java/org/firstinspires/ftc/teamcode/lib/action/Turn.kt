@@ -22,9 +22,16 @@ fun turnTo(targetHeading: Double): MoveAction = move {
             val adjustedTargetHeading = properHeading(targetHeading)
             val initialHeading = properHeading(headingChannel.receive())
             val driveTrainJob = launch {
-                while (true) {
-                    driveTrain.setMotorPowers(-power(), power())
-                    yield()
+                if (targetHeading > initialHeading) {
+                    while (true) {
+                        driveTrain.setMotorPowers(power(), -power())
+                        yield()
+                    }
+                } else if (targetHeading < initialHeading) {
+                    while (true) {
+                        driveTrain.setMotorPowers(-power(), power())
+                        yield()
+                    }
                 }
             }.apply {
                 invokeOnCompletion {
@@ -32,13 +39,29 @@ fun turnTo(targetHeading: Double): MoveAction = move {
                 }
             }
             if (adjustedTargetHeading > initialHeading) {
-                headingChannel.first { adjustedTargetHeading <= it }
+                headingChannel.first {
+                    telemetry.addLine()
+                        .addData("Target", adjustedTargetHeading)
+                        .addData("Current", it)
+                    telemetry.update()
+
+                    adjustedTargetHeading <= it
+                }
             } else if (adjustedTargetHeading < initialHeading) {
-                headingChannel.first { adjustedTargetHeading >= it }
+                headingChannel.first {
+                    telemetry.addLine()
+                        .addData("Target", adjustedTargetHeading)
+                        .addData("Current", it)
+                    telemetry.update()
+
+                    adjustedTargetHeading >= it
+                }
             }
             driveTrainJob.cancel()
         }
     }
+}.apply {
+    context = MoveActionContext(TurnTo(targetHeading))
 }
 
 fun turn(deltaHeading: Double): MoveAction = move {

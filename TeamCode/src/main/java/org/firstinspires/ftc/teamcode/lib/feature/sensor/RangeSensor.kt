@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.feature.sensor
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.DistanceSensor
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.lib.feature.Feature

@@ -60,8 +60,11 @@ object RobotConstants {
             "BtuNm+aXd67bMKHPu4AJ9HmC7b4hj57Jx7xB3IF+pXq8T0NkjVLzc89W1Xf+"
 }
 
-suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope) =
-    robot(linearOpMode, coroutineScope) {
+suspend fun roverRuckusRobot(
+    linearOpMode: LinearOpMode,
+    coroutineScope: CoroutineScope,
+    useCamera: Boolean = true
+) = robot(linearOpMode, coroutineScope) {
 
         // Components
         install(TankDriveTrain) {
@@ -91,34 +94,41 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
         install(RangeSensor, FrontRevTof) {
             sensorName = RobotConstants.FRONT_REV_TOF
         }
+        install(IMULocalizer) {
+            imuName = RobotConstants.IMU
+            order = AxesOrder.ZYX
+        }
 
         // Autonomous
         if (linearOpMode.isAutonomous()) {
-
 
             // Localizer
             install(TankDriveTrainLocalizer) {
                 wheelDiameter = RobotConstants.WHEEL_DIAMETER
             }
-            install(IMULocalizer) {
-                imuName = RobotConstants.IMU
-                order = AxesOrder.ZYX
-            }
 
             // Vision
-            install(Vuforia) {
-                vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
-                fillCameraMonitorViewParent = true
-                cameraName = linearOpMode.hardwareMap.get(WebcamName::class.java, RobotConstants.WEBCAM)
-            }
-            install(CargoDetector) {
-                minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
-                useObjectTracker = true
+            if (useCamera) {
+                install(Vuforia) {
+                    vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
+                    fillCameraMonitorViewParent = true
+                    cameraName = linearOpMode.hardwareMap.get(
+                        WebcamName::class.java,
+                        RobotConstants.WEBCAM
+                    )
+                }
+                install(CargoDetector) {
+                    minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
+                    useObjectTracker = true
+                }
             }
 
             // Drive Correction
             install(TargetHeading) {
                 initialTargetHeading = 0.0
+            }
+            install(HeadingCorrection) {
+                coefficient = 0.15
             }
 
             // Pipeline Interceptors
@@ -127,17 +137,14 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
                 Drive uses ConstantPowerManager(power = 0.75)
                 TurnTo uses ConstantPowerManager(power = 0.75)
             }
-            install(HeadingCorrection) {
 
-            }
-
-            // Safety
-            install(TiltTermination) {
-
-            }
-            install(InterferenceDetection) {
-
-            }
+//            // Safety
+//            install(TiltTermination) {
+//
+//            }
+//            install(InterferenceDetection) {
+//
+//            }
         }
     }
 

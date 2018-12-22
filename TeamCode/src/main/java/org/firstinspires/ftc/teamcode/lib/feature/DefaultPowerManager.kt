@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.lib.feature
 
+import org.firstinspires.ftc.teamcode.lib.ConstantPowerManager
+import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
 import org.firstinspires.ftc.teamcode.lib.PipelineContext
 import org.firstinspires.ftc.teamcode.lib.PowerManager
-import org.firstinspires.ftc.teamcode.lib.action.Action
-import org.firstinspires.ftc.teamcode.lib.action.MoveAction
-import org.firstinspires.ftc.teamcode.lib.action.MoveActionClause
-import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
+import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
 class DefaultPowerManager(
@@ -15,10 +14,10 @@ class DefaultPowerManager(
     fun interceptor(context: PipelineContext<Action, Robot>) {
         val action = context.subject
         if (action is MoveAction) {
-            for (entry in powerManagers) {
-                if (action.context.type == entry.key) {
-                    action.context[PowerManager] = entry.value
-                }
+            action.context[PowerManager] = when (action.context.type) {
+                is Drive -> ConstantPowerManager(0.50)
+                is TurnTo -> ConstantPowerManager(0.75)
+                else -> NothingPowerManager
             }
         }
     }

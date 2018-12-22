@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
+import org.firstinspires.ftc.teamcode.lib.util.delayUntilStart
 import org.firstinspires.ftc.teamcode.lib.util.sameOrNull
 import kotlin.coroutines.CoroutineContext
 
@@ -42,18 +43,27 @@ class TankDriveTrain(
                 motor.power = power
             }
         }
+
+        var currentPower = MotorPowers(0.0, 0.0)
+
+        launch {
+            while (true) {
+                currentPower = powerChannel.receive()
+                yield()
+            }
+        }
+
         while (true) {
-            val powers = powerChannel.receive()
-            setMotorPowers(powers.leftPower, leftMotors)
-            setMotorPowers(powers.rightPower, rightMotors)
+            val realPowers = powerPipeline.execute(currentPower.copy(), this@TankDriveTrain)
+            setMotorPowers(realPowers.leftPower, leftMotors)
+            setMotorPowers(realPowers.rightPower, rightMotors)
             yield()
         }
     }
 
     fun setMotorPowers(leftPower: Double, rightPower: Double) = runBlocking {
         val rawPower = MotorPowers(leftPower, rightPower)
-        val motorPowers = powerPipeline.execute(rawPower, this@TankDriveTrain)
-        powerChannel.send(motorPowers)
+        powerChannel.send(rawPower)
     }
 
     override fun stop() {
@@ -68,7 +78,10 @@ class TankDriveTrain(
                 configuration.rightMotors,
                 robot.coroutineContext
             ).apply {
-               start()
+                launch {
+                    robot.linearOpMode.delayUntilStart()
+                    start()
+                }
             }
         }
     }

@@ -27,6 +27,8 @@ private val extendLift = action {
     }
     extendingJob.join()
     driveTrain.stop()
+}.apply {
+    timeoutMillis = 10_000
 }
 
 private val retractLift = action {
@@ -39,7 +41,6 @@ private val retractLift = action {
 
 private val deliverMarker = action {
     val markerDeployer = requestFeature(MarkerDeployer)
-    delay(1000)
     markerDeployer.deploy()
     delay(1000)
     markerDeployer.retract()
