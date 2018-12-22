@@ -89,7 +89,7 @@ class DepotAutonomous : LinearOpMode() {
         drive(60.0),
         turnTo(0.0),
         deliverMarker,
-        turnTo(-40.0),
+        turnTo(-45.0),
         drive(-180.0)
     )
 
@@ -98,24 +98,24 @@ class DepotAutonomous : LinearOpMode() {
         drive(80.0),
         deliverMarker,
         drive(-75.0),
-        turnTo(85.0),
+        turnTo(90.0),
         drive(45.0),
         turnTo(45.0),
         drive(15.0),
-        turnTo(125.0),
+        turnTo(135.0),
         drive(70.0)
     )
 
     private val rightAction = actionSequenceOf(
         turnTo(-35.0),
         drive(70.0),
-        turnTo(32.0),
+        turnTo(35.0),
         drive(40.0),
         deliverMarker,
         drive(-115.0),
-        turnTo(85.0),
+        turnTo(90.0),
         drive(180.0),
-        turnTo(130.0),
+        turnTo(135.0),
         drive(50.0)
     )
 
@@ -135,9 +135,9 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(CraterAutonomous.InitialTurnHeading),
         drive(CraterAutonomous.InitialSideDriveDistance),
         drive(-25.0),
-        turnTo(87.5),
+        turnTo(90.0),
         drive(85.0),
-        turnTo(128.0),
+        turnTo(130.0),
         drive(70.0),
         deliverMarker,
         drive(-200.0)
@@ -147,9 +147,9 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(0.0),
         drive(CraterAutonomous.InitialCenterDriveDistance),
         drive(-15.0),
-        turnTo(87.5),
+        turnTo(90.0),
         drive(85.0),
-        turnTo(128.0),
+        turnTo(130.0),
         drive(100.0),
         deliverMarker,
         drive(-200.0)
@@ -159,9 +159,9 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(-CraterAutonomous.InitialTurnHeading),
         drive(CraterAutonomous.InitialSideDriveDistance),
         drive(-30.0),
-        turnTo(87.5),
+        turnTo(90.0),
         drive(100.0),
-        turnTo(130.0),
+        turnTo(135.0),
         drive(70.0),
         deliverMarker,
         drive(-200.0)
