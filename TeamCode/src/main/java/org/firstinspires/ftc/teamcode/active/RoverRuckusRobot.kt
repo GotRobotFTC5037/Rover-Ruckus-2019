@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.teamcode.active.RobotConstants.FrontRangeSensor
+import org.firstinspires.ftc.teamcode.active.RobotConstants.FrontRevTof
 import org.firstinspires.ftc.teamcode.active.RobotConstants.LeftRangeSensor
 import org.firstinspires.ftc.teamcode.active.RobotConstants.RightRangeSensor
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
@@ -44,10 +45,12 @@ object RobotConstants {
     const val FRONT_RANGE_SENSOR = "front range sensor"
     const val LEFT_RANGE_SENSOR = "left range sensor"
     const val RIGHT_RANGE_SENSOR = "right range sensor"
+    const val FRONT_REV_TOF = "front tof"
 
     val FrontRangeSensor = featureKey<RangeSensor>()
     val LeftRangeSensor = featureKey<RangeSensor>()
     val RightRangeSensor = featureKey<RangeSensor>()
+    val FrontRevTof = featureKey<RangeSensor>()
 
     // TODO: Put this key into a file and read from the file.
     const val VUFORIA_KEY = "Af8tA0P/////AAABmS0VzHrieUymkaB0I3Xxz04Khxz8ayagqgOyxunzdcpieUETaApI" +
@@ -88,6 +91,9 @@ suspend fun roverRuckusRobot(linearOpMode: LinearOpMode, coroutineScope: Corouti
             }
             install(RangeSensor, RightRangeSensor) {
                 sensorName = RobotConstants.RIGHT_RANGE_SENSOR
+            }
+            install(RangeSensor, FrontRevTof) {
+                sensorName = RobotConstants.FRONT_REV_TOF
             }
 
             // Localizer

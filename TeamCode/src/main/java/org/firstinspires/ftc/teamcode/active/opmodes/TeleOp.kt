@@ -106,7 +106,7 @@ class TeleOp : LinearOpMode() {
                     yield()
                 }
             }
-
+            telemetry.log().add("Tof position")
             delayUntilStop()
             coroutineContext.cancelChildren()
         }
