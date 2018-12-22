@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.broadcast
+import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
@@ -31,9 +32,10 @@ class IMULocalizer(
         val roll: Double
     )
 
-    private fun CoroutineScope.broadcastOrientation() =
+    private fun CoroutineScope.broadcastOrientation(ticker: ReceiveChannel<Unit>) =
         broadcast(capacity = Channel.CONFLATED) {
             while (true) {
+                ticker.receive()
                 val orientation = imu.getAngularOrientation(reference, order, AngleUnit.DEGREES)
                 val update = OrientationUpdate(
                     orientation.firstAngle.toDouble(),
@@ -55,7 +57,7 @@ class IMULocalizer(
         }
     }
 
-    private val orientationChannel = broadcastOrientation()
+    private val orientationChannel = broadcastOrientation(ticker(10))
 
     fun newOrientationChannel() = orientationChannel.openSubscription()
 
@@ -67,8 +69,7 @@ class IMULocalizer(
         var order: AxesOrder = AxesOrder.ZYX
     }
 
-    companion object Installer :
-        FeatureInstaller<Configuration, IMULocalizer> {
+    companion object Installer : FeatureInstaller<Configuration, IMULocalizer> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): IMULocalizer {
             val configuration = Configuration().apply(configure)
             val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)

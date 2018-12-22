@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
+import org.firstinspires.ftc.teamcode.lib.robot.telemetry
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 
@@ -15,7 +16,7 @@ import kotlin.reflect.KClass
  */
 interface ActionScope : CoroutineScope {
     val robot: Robot
-    val telemetry: Telemetry get() = robot.linearOpMode.telemetry
+    val telemetry: Telemetry get() = robot.telemetry
     fun <F : Feature> requestFeature(featureKey: FeatureKey<F>): F
     fun <F : Feature> requestFeature(featureClass: KClass<F>): F
     suspend fun perform(action: Action)
@@ -50,7 +51,7 @@ interface Action {
  */
 abstract class AbstractAction : Action {
     override var disabled: Boolean = false
-    override var timeoutMillis: Long = Long.MAX_VALUE
+    override var timeoutMillis: Long = 30_000 // Autonomous is 30 seconds.
 }
 
 /**
@@ -82,6 +83,12 @@ infix fun Action.then(action: Action): Action = actionSequenceOf(this, action)
  */
 fun actionSequenceOf(vararg actions: Action): Action = action {
     for (action in actions) {
+        perform(action)
+    }
+}
+
+fun repeat(action: Action, times: Int): Action = action {
+    kotlin.repeat(times){
         perform(action)
     }
 }

@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.lib.feature
 
 import org.firstinspires.ftc.teamcode.lib.PipelineContext
+import org.firstinspires.ftc.teamcode.lib.PowerManager
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.action.MoveAction
-import org.firstinspires.ftc.teamcode.lib.action.MoveActionKeys
+import org.firstinspires.ftc.teamcode.lib.action.MoveActionClause
 import org.firstinspires.ftc.teamcode.lib.action.MoveActionType
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
-import org.firstinspires.ftc.teamcode.lib.PowerManager
 
-class MoveActionDefaults(
+class DefaultPowerManager(
     private val powerManagers: Map<MoveActionType, PowerManager>
 ) : Feature {
 
@@ -16,8 +16,8 @@ class MoveActionDefaults(
         val action = context.subject
         if (action is MoveAction) {
             for (entry in powerManagers) {
-                if (action.attributes[MoveActionKeys.Type] == entry.key) {
-                    action.attributes[MoveActionKeys.PowerManager] = entry.value
+                if (action.context.type == entry.key) {
+                    action.context[PowerManager] = entry.value
                 }
             }
         }
@@ -27,19 +27,19 @@ class MoveActionDefaults(
 
         internal val powerManagers = mutableMapOf<MoveActionType, PowerManager>()
 
-        fun defaultPowerManager(type: MoveActionType, powerManager: PowerManager) {
-            powerManagers[type] = powerManager
+        infix fun MoveActionClause.uses(powerManager: PowerManager) {
+
         }
 
     }
 
-    companion object Installer : FeatureInstaller<Configuration, MoveActionDefaults> {
+    companion object Installer : FeatureInstaller<Configuration, DefaultPowerManager> {
         override fun install(
             robot: Robot,
             configure: Configuration.() -> Unit
-        ): MoveActionDefaults {
+        ): DefaultPowerManager {
             val configuration = Configuration().apply(configure)
-            val defaults = MoveActionDefaults(configuration.powerManagers)
+            val defaults = DefaultPowerManager(configuration.powerManagers)
             robot.actionPipeline.intercept {
                 defaults.interceptor(this)
             }

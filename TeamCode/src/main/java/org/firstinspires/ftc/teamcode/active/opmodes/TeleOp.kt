@@ -8,9 +8,9 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.firstinspires.ftc.teamcode.active.Intake
-import org.firstinspires.ftc.teamcode.active.Lift
-import org.firstinspires.ftc.teamcode.active.MarkerDeployer
+import org.firstinspires.ftc.teamcode.active.features.Intake
+import org.firstinspires.ftc.teamcode.active.features.Lift
+import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.robot.perform

@@ -5,7 +5,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
+import org.firstinspires.ftc.teamcode.lib.Pipeline
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
@@ -24,14 +27,33 @@ class TankDriveTrain(
 
     private val motors get() = leftMotors + rightMotors
 
-    fun setMotorPowers(leftPower: Double, rightPower: Double) {
+    data class MotorPowers(
+        val leftPower: Double,
+        val rightPower: Double
+    )
+
+    private val powerChannel: Channel<MotorPowers> = Channel(Channel.CONFLATED)
+
+    val powerPipeline: Pipeline<MotorPowers, TankDriveTrain> = Pipeline()
+
+    fun CoroutineScope.start() = launch {
         fun setMotorPowers(power: Double, motors: List<DcMotor>) {
             for (motor in motors) {
                 motor.power = power
             }
         }
-        setMotorPowers(leftPower, leftMotors)
-        setMotorPowers(rightPower, rightMotors)
+        while (true) {
+            val powers = powerChannel.receive()
+            setMotorPowers(powers.leftPower, leftMotors)
+            setMotorPowers(powers.rightPower, rightMotors)
+            yield()
+        }
+    }
+
+    fun setMotorPowers(leftPower: Double, rightPower: Double) = runBlocking {
+        val rawPower = MotorPowers(leftPower, rightPower)
+        val motorPowers = powerPipeline.execute(rawPower, this@TankDriveTrain)
+        powerChannel.send(motorPowers)
     }
 
     override fun stop() {
@@ -40,14 +62,14 @@ class TankDriveTrain(
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
-            val configuration = Configuration(
-                robot.hardwareMap
-            ).apply(configure)
+            val configuration = Configuration(robot.hardwareMap).apply(configure)
             return TankDriveTrain(
                 configuration.leftMotors,
                 configuration.rightMotors,
                 robot.coroutineContext
-            )
+            ).apply {
+               start()
+            }
         }
     }
 
@@ -139,5 +161,3 @@ class TankDriveTrain(
     }
 
 }
-
-

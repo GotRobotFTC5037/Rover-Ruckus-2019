@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE")
 
-package org.firstinspires.ftc.teamcode.active
+package org.firstinspires.ftc.teamcode.active.features
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -36,16 +36,24 @@ interface CargoDetector : Feature {
 
     companion object Installer : FeatureInstaller<Configuration, CargoDetector> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): CargoDetector {
-            val configuration = Configuration().apply(configure)
+            val configuration = Configuration()
+                .apply(configure)
             val context = robot.hardwareMap.appContext
             val viewId = context.resources.getIdentifier(VIEW_ID, "id", context.packageName)
             val parameters: TFObjectDetector.Parameters =
                 configuration.apply { tfodMonitorViewIdParent = viewId }
             val vuforia = robot[Vuforia]
             val objectDetector = objectDetector(parameters, vuforia.localizer).apply {
-                loadModelFromAsset(TFOD_MODEL_ASSET, GOLD_MINERAL, SILVER_MINERAL)
+                loadModelFromAsset(
+                    TFOD_MODEL_ASSET,
+                    GOLD_MINERAL,
+                    SILVER_MINERAL
+                )
             }
-            return CargoDetectorImpl(objectDetector, robot.coroutineContext)
+            return CargoDetectorImpl(
+                objectDetector,
+                robot.coroutineContext
+            )
         }
     }
 }

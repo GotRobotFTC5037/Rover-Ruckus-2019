@@ -1,10 +1,17 @@
 package org.firstinspires.ftc.teamcode.lib.feature
 
-class InterferenceDetectionDetection: Feature {
+import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
-    class Configuration : FeatureConfiguration {
+class InterferenceDetection : Feature {
 
+    companion object Installer : FeatureInstaller<Configuration, InterferenceDetection> {
+        override fun install(
+            robot: Robot,
+            configure: Configuration.() -> Unit
+        ): InterferenceDetection {
+            TODO("not implemented")
+        }
     }
-}
 
-enum class InterferenceSeverity
+    class Configuration : FeatureConfiguration
+}

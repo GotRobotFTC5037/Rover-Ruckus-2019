@@ -1,20 +1,29 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
-interface MoveActionContext {
+import org.firstinspires.ftc.teamcode.lib.HeadingCorrector
+import org.firstinspires.ftc.teamcode.lib.NothingHeadingCorrector
+import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
+import org.firstinspires.ftc.teamcode.lib.PowerManager
 
-    operator fun <E : Element> get(key: Key<E>): E?
+class MoveActionContext(val type: MoveActionType) {
 
-    interface Key<E : Element>
+    private val elements = mutableMapOf<Key<*>, Element>()
 
-    interface Element : MoveActionContext {
-        val key: Key<*>
+    init {
+        elements[PowerManager] = NothingPowerManager
+        elements[HeadingCorrector] = NothingHeadingCorrector
     }
-}
 
-object EmptyMoveActionContext : MoveActionContext {
-    override fun <E : MoveActionContext.Element> get(key: MoveActionContext.Key<E>): E? = null
-}
+    operator fun contains(key: Key<*>): Boolean = elements.contains(key)
 
-abstract class AbstractMoveActionContextElement(
-    override val key: MoveActionContext.Key<*>
-) : MoveActionContext.Element
+    operator fun <T : Element> set(key: Key<T>, value: T) {
+        elements[key] = value
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T : Element> get(key: Key<T>): T = elements[key] as T
+
+    interface Key<T : Element>
+
+    interface Element
+}

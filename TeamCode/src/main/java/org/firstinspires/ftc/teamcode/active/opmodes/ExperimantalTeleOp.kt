@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.active.opmodes
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.firstinspires.ftc.teamcode.active.Intake
-import org.firstinspires.ftc.teamcode.active.MarkerDeployer
-import org.firstinspires.ftc.teamcode.active.Lift
+import org.firstinspires.ftc.teamcode.active.features.Intake
+import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
+import org.firstinspires.ftc.teamcode.active.features.Lift
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.action.action
 import org.firstinspires.ftc.teamcode.lib.driverControl
@@ -77,6 +77,9 @@ class ExperimantalTeleOp : LinearOpMode() {
     }
 
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@ExperimantalTeleOp, this).perform(teleOp)
+        roverRuckusRobot(
+            this@ExperimantalTeleOp,
+            this
+        ).perform(teleOp)
     }
 }

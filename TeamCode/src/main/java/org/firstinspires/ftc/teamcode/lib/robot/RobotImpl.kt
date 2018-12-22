@@ -4,20 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.action.ActionPipeline
-import org.firstinspires.ftc.teamcode.lib.action.ActionScope
-import org.firstinspires.ftc.teamcode.lib.action.action
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
+import org.firstinspires.ftc.teamcode.lib.util.cancelAndJoin
 import org.firstinspires.ftc.teamcode.lib.util.delayUntilStart
+import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-/**
- *
- */
 private class RobotImpl(
     override val linearOpMode: LinearOpMode,
     override val opmodeScope: CoroutineScope
@@ -35,22 +32,12 @@ private class RobotImpl(
      */
     override val actionPipeline: ActionPipeline = ActionPipeline()
 
-    /**
-     * Installs a feature onto the robot.
-     */
-    override fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
-        feature: FeatureInstaller<TConfiguration, TFeature>,
-        configuration: TConfiguration.() -> Unit
-    ) {
-        val featureInstance = feature.install(this, configuration)
-        features[feature] = featureInstance
-    }
-
     override fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
         feature: FeatureInstaller<TConfiguration, TFeature>,
         key: FeatureKey<TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
+        telemetry.log().add("Installing ${feature.name}...")
         val featureInstance = feature.install(this, configuration)
         features[key] = featureInstance
     }
@@ -88,25 +75,22 @@ private class RobotImpl(
 
 }
 
-suspend fun Robot.perform(block: suspend ActionScope.() -> Unit) {
-    val action = action(block)
-    perform(action)
-}
-
-suspend fun robot(linearOpMode: LinearOpMode, coroutineScope: CoroutineScope, configure: Robot.() -> Unit): Robot {
+suspend fun robot(
+    linearOpMode: LinearOpMode,
+    opModeScope: CoroutineScope,
+    configure: Robot.() -> Unit
+): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
 
     linearOpMode.telemetry.log().add("Setting up robot...")
-    val robot = RobotImpl(linearOpMode, coroutineScope).apply(configure)
+    val robot = RobotImpl(linearOpMode, opModeScope).apply(configure)
 
     linearOpMode.telemetry.log().add("Waiting for start...")
     linearOpMode.delayUntilStart()
 
-    robot.launch {
-        while(!linearOpMode.isStopRequested) {
-            yield()
-        }
-        robot.coroutineContext[Job]!!.cancel()
+    opModeScope.launch {
+        linearOpMode.delayUntilStop()
+        robot.cancelAndJoin()
     }
 
     return robot
