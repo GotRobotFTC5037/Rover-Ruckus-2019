@@ -76,12 +76,20 @@ private val deliverMarker = action {
     markerDeployer.retract()
     delay(1000)
 }
+    private val deployMarker = action {
+        val markerDeployer = requestFeature(MarkerDeployer)
+        markerDeployer.deploy()
+    }
+private val escapeHook = action {
+    drive(-5.0)
+    turn(-90.0)
+
+}
 
 
 
 @Autonomous
 class DepotAutonomous : LinearOpMode() {
-
     private val leftAction = actionSequenceOf(
         turnTo(35.0),
         drive(60.0),
@@ -90,7 +98,8 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(0.0),
         deliverMarker,
         turnTo(-45.0),
-        drive(-180.0)
+        drive(-180.0),
+        deployMarker
     )
 
     private val centerAction = actionSequenceOf(
@@ -103,7 +112,8 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(45.0),
         drive(15.0),
         turnTo(135.0),
-        drive(70.0)
+        drive(70.0),
+        deployMarker
     )
 
     private val rightAction = actionSequenceOf(
@@ -116,7 +126,8 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(90.0),
         drive(180.0),
         turnTo(135.0),
-        drive(50.0)
+        drive(50.0),
+        deployMarker
     )
 
     @Throws(InterruptedException::class)
@@ -140,7 +151,8 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(130.0),
         drive(70.0),
         deliverMarker,
-        drive(-200.0)
+        drive(-200.0),
+        deployMarker
     )
 
     private val centerAction = actionSequenceOf(
@@ -152,7 +164,8 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(130.0),
         drive(100.0),
         deliverMarker,
-        drive(-200.0)
+        drive(-200.0),
+        deployMarker
     )
 
     private val rightAction = actionSequenceOf(
@@ -164,7 +177,8 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(135.0),
         drive(70.0),
         deliverMarker,
-        drive(-200.0)
+        drive(-200.0),
+        deployMarker
     )
 
     @Throws(InterruptedException::class)
