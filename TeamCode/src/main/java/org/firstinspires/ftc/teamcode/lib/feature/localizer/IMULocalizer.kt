@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.broadcast
-import kotlinx.coroutines.channels.ticker
+import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
+import org.firstinspires.ftc.teamcode.lib.action.properHeading
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
@@ -23,6 +21,7 @@ class IMULocalizer(
     private val imu: BNO055IMU,
     private val reference: AxesReference,
     private val order: AxesOrder,
+    private val initialHeading: Double,
     override val coroutineContext: CoroutineContext
 ) : RobotHeadingLocalizer, CoroutineScope {
 
@@ -32,13 +31,14 @@ class IMULocalizer(
         val roll: Double
     )
 
-    private fun CoroutineScope.broadcastOrientation(ticker: ReceiveChannel<Unit>) =
-        broadcast(capacity = Channel.CONFLATED) {
+    private fun CoroutineScope.broadcastOrientation(ticker: ReceiveChannel<Unit>): BroadcastChannel<OrientationUpdate> {
+
+        return broadcast(capacity = Channel.CONFLATED) {
             while (true) {
                 ticker.receive()
                 val orientation = imu.getAngularOrientation(reference, order, AngleUnit.DEGREES)
                 val update = OrientationUpdate(
-                    orientation.firstAngle.toDouble(),
+                    properHeading(orientation.firstAngle.toDouble() + initialHeading),
                     orientation.secondAngle.toDouble(),
                     orientation.thirdAngle.toDouble()
                 )
@@ -46,6 +46,7 @@ class IMULocalizer(
                 yield()
             }
         }
+    }
 
     private fun CoroutineScope.broadcastHeading(
         orientationChannel: ReceiveChannel<OrientationUpdate>
@@ -67,6 +68,7 @@ class IMULocalizer(
         var imuName: String = "imu"
         var axesReference: AxesReference = AxesReference.INTRINSIC
         var order: AxesOrder = AxesOrder.ZYX
+        var initialHeading: Double = 0.0
     }
 
     companion object Installer : FeatureInstaller<Configuration, IMULocalizer> {
@@ -78,6 +80,7 @@ class IMULocalizer(
                 imu,
                 configuration.axesReference,
                 configuration.order,
+                configuration.initialHeading,
                 robot.coroutineContext
             )
         }

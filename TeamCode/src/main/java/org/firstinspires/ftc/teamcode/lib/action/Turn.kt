@@ -10,11 +10,6 @@ import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.power
 
 fun turnTo(targetHeading: Double): MoveAction = move {
-    tailrec fun properHeading(heading: Double): Double = when {
-        heading >= 180.0 -> properHeading(heading - 360)
-        heading < -180.0 -> properHeading(heading + 360)
-        else -> heading
-    }
     when (val driveTrain = requestFeature(DriveTrain::class)) {
         is TankDriveTrain -> {
             val localizer = requestFeature(IMULocalizer)

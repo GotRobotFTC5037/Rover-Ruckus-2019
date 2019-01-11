@@ -12,41 +12,6 @@ import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 
-private val extendLift = action {
-    val landerLatch = requestFeature(Lift)
-    val driveTrain = requestFeature(DriveTrain::class)
-    val extendingJob = launch {
-        telemetry.log().add("Extending lift")
-        landerLatch.extend()
-    }
-    while (landerLatch.liftPosition < LIFT_DOWN_POSITION - 2000) {
-        yield()
-    }
-    when (driveTrain) {
-        is TankDriveTrain -> driveTrain.setMotorPowers(0.35, 0.35)
-    }
-    extendingJob.join()
-    driveTrain.stop()
-}.apply {
-    timeoutMillis = 10_000
-}
-
-private val retractLift = action {
-    val landerLatch = requestFeature(Lift)
-    robot.opmodeScope.launch {
-        delay(1000)
-        landerLatch.retract()
-    }
-}
-
-private val deliverMarker = action {
-    val markerDeployer = requestFeature(MarkerDeployer)
-    markerDeployer.deploy()
-    delay(1000)
-    markerDeployer.retract()
-    delay(1000)
-}
-
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
     val telemetry = robot.linearOpMode.telemetry
     val cargoDetector = requestFeature(CargoDetector)
@@ -74,15 +39,50 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             centerAction
         }
     }
-    perform(extendLift then retractLift then goldAction)
+    perform(actionSequenceOf(extendLift, turnTo(), retractLift, goldAction))
 }
+
+private val extendLift = action {
+    val landerLatch = requestFeature(Lift)
+    val driveTrain = requestFeature(DriveTrain::class)
+    val extendingJob = launch {
+        telemetry.log().add("Extending lift")
+        landerLatch.extend()
+    }
+    while (landerLatch.liftPosition < LIFT_DOWN_POSITION - 2000) {
+        yield()
+    }
+    when (driveTrain) {
+        is TankDriveTrain -> driveTrain.setMotorPowers(-0.35, -0.35)
+    }
+    extendingJob.join()
+    driveTrain.stop()
+}.apply {
+    timeoutMillis = 10_000
+}
+
+private val retractLift = action {
+    val landerLatch = requestFeature(Lift)
+    robot.opmodeScope.launch {
+        delay(1000)
+        landerLatch.retract()
+    }
+}
+
+private val deliverMarker = action {
+    val markerDeployer = requestFeature(MarkerDeployer)
+    markerDeployer.deploy()
+    delay(1000)
+    markerDeployer.retract()
+    delay(1000)
+}
+
 
 
 @Autonomous
 class DepotAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-
         turnTo(35.0),
         drive(60.0),
         turnTo(-25.0),
@@ -132,8 +132,8 @@ class DepotAutonomous : LinearOpMode() {
 class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
-        turnTo(CraterAutonomous.InitialTurnHeading),
-        drive(CraterAutonomous.InitialSideDriveDistance),
+        turnTo(27.5),
+        drive(50.0),
         drive(-25.0),
         turnTo(90.0),
         drive(85.0),
@@ -145,7 +145,7 @@ class CraterAutonomous : LinearOpMode() {
 
     private val centerAction = actionSequenceOf(
         turnTo(0.0),
-        drive(CraterAutonomous.InitialCenterDriveDistance),
+        drive(31.0),
         drive(-15.0),
         turnTo(90.0),
         drive(85.0),
@@ -156,8 +156,8 @@ class CraterAutonomous : LinearOpMode() {
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-CraterAutonomous.InitialTurnHeading),
-        drive(CraterAutonomous.InitialSideDriveDistance),
+        turnTo(-27.5),
+        drive(50.0),
         drive(-30.0),
         turnTo(90.0),
         drive(100.0),
@@ -171,12 +171,6 @@ class CraterAutonomous : LinearOpMode() {
     override fun runOpMode() = runBlocking {
         roverRuckusRobot(this@CraterAutonomous, this)
             .perform(mainAction(leftAction, centerAction, rightAction))
-    }
-
-    companion object {
-        const val InitialTurnHeading = 27.5
-        const val InitialCenterDriveDistance = 31.0
-        const val InitialSideDriveDistance = 50.0
     }
 
 }

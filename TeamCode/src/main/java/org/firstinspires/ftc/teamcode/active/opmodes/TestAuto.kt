@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.lib.action.*
 @Autonomous
 class Test : LinearOpMode() {
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@Test, this, useCamera = false).perform(
+        roverRuckusRobot(this@Test, this, shouldUseCamera = false).perform(
             actionSequenceOf(
                 drive(300.0),
                 drive(-300.0)

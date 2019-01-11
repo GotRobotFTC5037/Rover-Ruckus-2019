@@ -4,10 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
-import org.firstinspires.ftc.teamcode.active.RobotConstants.FrontRangeSensor
-import org.firstinspires.ftc.teamcode.active.RobotConstants.FrontRevTof
-import org.firstinspires.ftc.teamcode.active.RobotConstants.LeftRangeSensor
-import org.firstinspires.ftc.teamcode.active.RobotConstants.RightRangeSensor
 import org.firstinspires.ftc.teamcode.active.features.CargoDetector
 import org.firstinspires.ftc.teamcode.active.features.Intake
 import org.firstinspires.ftc.teamcode.active.features.Lift
@@ -17,12 +13,13 @@ import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
 import org.firstinspires.ftc.teamcode.lib.action.Drive
 import org.firstinspires.ftc.teamcode.lib.action.TurnTo
 import org.firstinspires.ftc.teamcode.lib.action.UnspecifiedMoveActionType
-import org.firstinspires.ftc.teamcode.lib.feature.*
+import org.firstinspires.ftc.teamcode.lib.feature.DefaultPowerManager
+import org.firstinspires.ftc.teamcode.lib.feature.HeadingCorrection
+import org.firstinspires.ftc.teamcode.lib.feature.TargetHeading
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.MotorDirection
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrainLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.sensor.RangeSensor
 import org.firstinspires.ftc.teamcode.lib.feature.vision.Vuforia
 import org.firstinspires.ftc.teamcode.lib.robot.install
 import org.firstinspires.ftc.teamcode.lib.robot.robot
@@ -42,16 +39,6 @@ object RobotConstants {
     const val WHEEL_DIAMETER = 10.16
     const val CARGO_DETECTION_MIN_CONFIDENCE = 0.45
 
-    const val FRONT_RANGE_SENSOR = "front range sensor"
-    const val LEFT_RANGE_SENSOR = "left range sensor"
-    const val RIGHT_RANGE_SENSOR = "right range sensor"
-    const val FRONT_REV_TOF = "front tof"
-
-    val FrontRangeSensor = featureKey<RangeSensor>()
-    val LeftRangeSensor = featureKey<RangeSensor>()
-    val RightRangeSensor = featureKey<RangeSensor>()
-    val FrontRevTof = featureKey<RangeSensor>()
-
     // TODO: Put this key into a file and read from the file.
     const val VUFORIA_KEY = "Af8tA0P/////AAABmS0VzHrieUymkaB0I3Xxz04Khxz8ayagqgOyxunzdcpieUETaApI" +
             "5AxHTeLxmZEhFE6MGDV42Z86mWVaGGAW2Ust+8e9Cz8oEbz7yj+zbjydNHI8b+5ShaGaR9/CEeEytBl7MBg8" +
@@ -63,7 +50,7 @@ object RobotConstants {
 suspend fun roverRuckusRobot(
     linearOpMode: LinearOpMode,
     coroutineScope: CoroutineScope,
-    useCamera: Boolean = true
+    shouldUseCamera: Boolean = true
 ) = robot(linearOpMode, coroutineScope) {
 
         // Components
@@ -81,19 +68,8 @@ suspend fun roverRuckusRobot(
             intakeLift = RobotConstants.INTAKE_LIFT_MOTOR
             intake = RobotConstants.INTAKE_MOTOR
         }
-        // Range Sensors
-        install(RangeSensor, FrontRangeSensor) {
-            sensorName = RobotConstants.FRONT_RANGE_SENSOR
-        }
-        install(RangeSensor, LeftRangeSensor) {
-            sensorName = RobotConstants.LEFT_RANGE_SENSOR
-        }
-        install(RangeSensor, RightRangeSensor) {
-            sensorName = RobotConstants.RIGHT_RANGE_SENSOR
-        }
-        install(RangeSensor, FrontRevTof) {
-            sensorName = RobotConstants.FRONT_REV_TOF
-        }
+
+        // Localizer
         install(IMULocalizer) {
             imuName = RobotConstants.IMU
             order = AxesOrder.ZYX
@@ -108,7 +84,7 @@ suspend fun roverRuckusRobot(
             }
 
             // Vision
-            if (useCamera) {
+            if (shouldUseCamera) {
                 install(Vuforia) {
                     vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
                     fillCameraMonitorViewParent = true
@@ -138,13 +114,6 @@ suspend fun roverRuckusRobot(
                 TurnTo uses ConstantPowerManager(power = 0.75)
             }
 
-//            // Safety
-//            install(TiltTermination) {
-//
-//            }
-//            install(InterferenceDetection) {
-//
-//            }
         }
     }
 
