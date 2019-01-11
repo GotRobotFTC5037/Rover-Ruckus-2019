@@ -10,11 +10,11 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 
-const val LIFT_DOWN_POSITION = 27_000
+const val LIFT_DOWN_POSITION = 15_500
 
 class Lift(
     private val liftMotor: DcMotor,
-    private val liftButton: TouchSensor
+    private val  liftButton: TouchSensor
 ) : Feature {
 
     val liftPosition: Int get() = liftMotor.currentPosition
