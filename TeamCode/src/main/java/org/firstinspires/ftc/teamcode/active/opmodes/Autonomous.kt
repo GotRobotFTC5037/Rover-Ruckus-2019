@@ -6,10 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
-import org.firstinspires.ftc.teamcode.active.features.*
+import org.firstinspires.ftc.teamcode.active.features.CargoDetector
+import org.firstinspires.ftc.teamcode.active.features.GoldPosition
+import org.firstinspires.ftc.teamcode.active.features.Lift
+import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.action.*
-import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
@@ -42,7 +44,8 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
     perform(
         actionSequenceOf(
             extendLift,
-            turnTo(5.0),
+            wiggleWheels(1000),
+            turnTo(95.0),
             drive(-10.0),
             retractLift,
             turnTo(0.0),
@@ -90,8 +93,9 @@ private fun wiggleWheels(duration: Long) = action {
         }
     }
     delay(duration)
-    wiggleJob.cancelAndJoin()
     driveTrain.stop()
+    wiggleJob.cancelAndJoin()
+
 }
 
 

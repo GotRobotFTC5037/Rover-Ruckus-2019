@@ -19,12 +19,12 @@ fun turnTo(targetHeading: Double): MoveAction = move {
             val driveTrainJob = launch {
                 if (targetHeading > initialHeading) {
                     while (true) {
-                        driveTrain.setMotorPowers(power(), -power())
+                        driveTrain.setMotorPowers(-power(), power())
                         yield()
                     }
                 } else if (targetHeading < initialHeading) {
                     while (true) {
-                        driveTrain.setMotorPowers(-power(), power())
+                        driveTrain.setMotorPowers(power(), -power())
                         yield()
                     }
                 }

@@ -55,8 +55,8 @@ suspend fun roverRuckusRobot(
 
         // Components
         install(TankDriveTrain) {
-            addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.FORWARD)
-            addRightMotor(RobotConstants.RIGHT_DRIVE_MOTOR, MotorDirection.REVERSE)
+            addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.REVERSE)
+            addRightMotor(RobotConstants.RIGHT_DRIVE_MOTOR, MotorDirection.FORWARD)
         }
         install(Lift) {
             liftMotorName = RobotConstants.LIFT_MOTOR
@@ -73,6 +73,7 @@ suspend fun roverRuckusRobot(
         install(IMULocalizer) {
             imuName = RobotConstants.IMU
             order = AxesOrder.ZYX
+            initialHeading = 90.0
         }
 
         // Autonomous
@@ -101,7 +102,7 @@ suspend fun roverRuckusRobot(
 
             // Drive Correction
             install(TargetHeading) {
-                initialTargetHeading = 0.0
+                initialTargetHeading = 90.0
             }
             install(HeadingCorrection) {
                 coefficient = 0.15
