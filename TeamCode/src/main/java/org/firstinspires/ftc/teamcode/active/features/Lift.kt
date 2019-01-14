@@ -58,6 +58,7 @@ class Lift(
             liftMotor.direction = DcMotorSimple.Direction.FORWARD
             liftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             liftMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            liftMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
             val liftButton = robot.hardwareMap.get(TouchSensor::class.java, config.liftButton)
 

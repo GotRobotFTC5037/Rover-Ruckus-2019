@@ -37,9 +37,11 @@ class TeleOp : LinearOpMode() {
                         yield()
                     }
                     reversed = !reversed
+                    yield()
                     while (!gamepad1.start) {
                         yield()
                     }
+                    yield()
                 }
             }
 
@@ -81,14 +83,15 @@ class TeleOp : LinearOpMode() {
                         yield()
                     }
                     isDeployerExtended = !isDeployerExtended
+                    yield()
                 }
             }
 
             launch {
                 while (true) {
                     val power = when {
-                        gamepad2.right_trigger > 0.5 -> 1.0
-                        gamepad2.left_trigger > 0.5 -> -0.5
+                        gamepad2.left_trigger > 0.5 -> 1.0
+                        gamepad2.right_trigger > 0.5 -> -0.5
                         else -> 0.0
                     }
                     intake.setLiftPower(power)
@@ -99,8 +102,8 @@ class TeleOp : LinearOpMode() {
             launch {
                 while (true) {
                     val power = when {
-                        gamepad2.a -> 0.60
-                        gamepad2.b -> -0.40
+                        gamepad2.b -> 0.75
+                        gamepad2.a -> -0.55
                         else -> 0.0
                     }
                     intake.setIntakePower(power)
@@ -110,11 +113,13 @@ class TeleOp : LinearOpMode() {
 
             launch {
                 while(true) {
+                    telemetry.addData("Reversed?", reversed)
                     telemetry.addData("Position", lift.liftPosition)
                     telemetry.update()
                     yield()
                 }
             }
+
 
             delayUntilStop()
             coroutineContext.cancelChildren()

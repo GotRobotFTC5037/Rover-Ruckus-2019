@@ -45,10 +45,9 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
         actionSequenceOf(
             extendLift,
             wiggleWheels(1000),
-            turnTo(95.0),
-            drive(-10.0),
+            turnTo(93.5).apply { timeoutMillis = 1000 },
+            drive(-5.0),
             retractLift,
-            turnTo(0.0),
             goldAction
         )
     )
@@ -86,9 +85,9 @@ private fun wiggleWheels(duration: Long) = action {
     val driveTrain = requestFeature(TankDriveTrain)
     val wiggleJob = launch {
         while (isActive) {
-            driveTrain.setMotorPowers(0.0, 0.5)
+            driveTrain.setMotorPowers(0.75, 0.0)
             delay(100)
-            driveTrain.setMotorPowers(0.0, -0.5)
+            driveTrain.setMotorPowers(-0.75, 0.0)
             delay(100)
         }
     }
@@ -102,42 +101,40 @@ private fun wiggleWheels(duration: Long) = action {
 @Autonomous
 class DepotAutonomous : LinearOpMode() {
     private val leftAction = actionSequenceOf(
-        turnTo(35.0),
+        turnTo(40.0),
         drive(60.0),
         turnTo(-25.0),
-        drive(60.0),
+        drive(70.0),
         turnTo(0.0),
         deliverMarker,
-        turnTo(-45.0),
-        drive(-180.0),
-        deployMarker
+        turnTo(-50.0),
+        drive(-170.0)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(0.0),
-        drive(80.0),
+        turnTo(7.5),
+        drive(100.0),
         deliverMarker,
-        drive(-75.0),
+        turnTo(0.0),
+        drive(-65.0),
         turnTo(90.0),
-        drive(45.0),
-        turnTo(45.0),
+        drive(100.0),
+        turn(7.5),
         drive(15.0),
-        turnTo(135.0),
-        drive(70.0),
         deployMarker
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-35.0),
+        turnTo(-20.0),
         drive(70.0),
         turnTo(35.0),
-        drive(40.0),
+        drive(65.0),
         deliverMarker,
-        drive(-115.0),
+        drive(-105.0),
         turnTo(90.0),
         drive(180.0),
-        turnTo(135.0),
-        drive(50.0),
+        turnTo(130.0),
+        drive(40.0),
         deployMarker
     )
 
@@ -162,21 +159,20 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(130.0),
         drive(70.0),
         deliverMarker,
-        drive(-200.0),
-        deployMarker
+        drive(-200.0)
     )
 
     private val centerAction = actionSequenceOf(
+        turnTo(25.0),
+        drive(45.0),
         turnTo(0.0),
-        drive(31.0),
-        drive(-15.0),
+        drive(-12.5),
         turnTo(90.0),
-        drive(85.0),
+        drive(95.0),
         turnTo(130.0),
         drive(100.0),
         deliverMarker,
-        drive(-200.0),
-        deployMarker
+        drive(-200.0)
     )
 
     private val rightAction = actionSequenceOf(
@@ -188,8 +184,8 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(135.0),
         drive(70.0),
         deliverMarker,
-        drive(-200.0),
-        deployMarker
+        turn(5.0),
+        drive(-200.0)
     )
 
     @Throws(InterruptedException::class)
@@ -199,3 +195,4 @@ class CraterAutonomous : LinearOpMode() {
     }
 
 }
+

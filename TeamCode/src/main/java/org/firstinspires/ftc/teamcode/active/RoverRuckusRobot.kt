@@ -55,8 +55,8 @@ suspend fun roverRuckusRobot(
 
         // Components
         install(TankDriveTrain) {
-            addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.REVERSE)
-            addRightMotor(RobotConstants.RIGHT_DRIVE_MOTOR, MotorDirection.FORWARD)
+            addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.FORWARD)
+            addRightMotor(RobotConstants.RIGHT_DRIVE_MOTOR, MotorDirection.REVERSE)
         }
         install(Lift) {
             liftMotorName = RobotConstants.LIFT_MOTOR
