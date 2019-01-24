@@ -8,14 +8,11 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.firstinspires.ftc.teamcode.active.RobotConstants
-import org.firstinspires.ftc.teamcode.active.features.Intake
+import org.firstinspires.ftc.teamcode.active.features.CargoDeliverySystem
 import org.firstinspires.ftc.teamcode.active.features.Lift
 import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
-import org.firstinspires.ftc.teamcode.active.features.Popper
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
-import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
 import org.firstinspires.ftc.teamcode.lib.util.loop
@@ -30,8 +27,7 @@ class TeleOp : LinearOpMode() {
             val driveTrain = requestFeature(TankDriveTrain)
             val lift = requestFeature(Lift)
             val deployer = requestFeature(MarkerDeployer)
-            val popper = requestFeature(Popper)
-            val intake = requestFeature(Intake)
+            val deliverySystem = requestFeature(CargoDeliverySystem)
 
             var reversed = false
 
@@ -52,13 +48,13 @@ class TeleOp : LinearOpMode() {
             loop {
                 if (!reversed) {
                     driveTrain.setMotorPowers(
-                            -gamepad1.right_stick_y.toDouble(),
-                            -gamepad1.left_stick_y.toDouble()
+                        -gamepad1.right_stick_y.toDouble(),
+                        -gamepad1.left_stick_y.toDouble()
                     )
                 } else {
                     driveTrain.setMotorPowers(
-                            gamepad1.left_stick_y.toDouble(),
-                            gamepad1.right_stick_y.toDouble()
+                        gamepad1.left_stick_y.toDouble(),
+                        gamepad1.right_stick_y.toDouble()
                     )
                 }
                 yield()
@@ -86,33 +82,46 @@ class TeleOp : LinearOpMode() {
                 }
             }
 
-            // Cargo Intake Lift
+            // Cargo CargoDeliverySystem Lift
             loop {
                 val power = when {
                     gamepad2.left_trigger > 0.5 -> 1.0
                     gamepad2.right_trigger > 0.5 -> -0.5
                     else -> 0.0
                 }
-                intake.setLiftPower(power)
+                deliverySystem.intake.setLiftPower(power)
             }
 
-            // Cargo Intake
+            // Cargo CargoDeliverySystem
             loop {
                 val power = when {
                     gamepad2.b -> 0.75
                     gamepad2.a -> -0.55
                     else -> 0.0
                 }
-                intake.setIntakePower(power)
+                deliverySystem.intake.setIntakePower(power)
             }
 
             // Popper
             loop {
                 when (gamepad2.x) {
-                    true -> popper.activate()
-                    false -> popper.deactivate()
+                    true -> deliverySystem.popper.enablePopper()
+                    false -> deliverySystem.popper.disablePopper()
                 }
             }
+
+            // Chute
+            loop {
+                deliverySystem.chute.setChuteLiftPower(-gamepad2.right_stick_y.toDouble())
+            }
+
+            loop {
+                when {
+                    gamepad2.dpad_up -> deliverySystem.chute.raiseShutter()
+                    gamepad2.dpad_down -> deliverySystem.chute.dropShutter()
+                }
+            }
+
 
             // Telemetry
             loop {

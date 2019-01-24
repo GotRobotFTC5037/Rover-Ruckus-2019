@@ -47,9 +47,9 @@ object RobotConstants {
 
 @Suppress("SpellCheckingInspection")
 suspend fun roverRuckusRobot(
-        linearOpMode: LinearOpMode,
-        coroutineScope: CoroutineScope,
-        shouldUseCamera: Boolean = true
+    linearOpMode: LinearOpMode,
+    coroutineScope: CoroutineScope,
+    shouldUseCamera: Boolean = true
 ) = robot(linearOpMode, coroutineScope) {
 
     // Components
@@ -63,12 +63,9 @@ suspend fun roverRuckusRobot(
     install(MarkerDeployer) {
         servoName = RobotConstants.MARKER_DEPLOYER_SERVO
     }
-    install(Intake) {
+    install(CargoDeliverySystem) {
         intakeLift = RobotConstants.INTAKE_LIFT_MOTOR
         intake = RobotConstants.INTAKE_MOTOR
-    }
-    install(Popper) {
-        motorName = RobotConstants.POPPER_MOTOR
     }
 
     // Localizer
@@ -92,8 +89,8 @@ suspend fun roverRuckusRobot(
                 vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
                 fillCameraMonitorViewParent = true
                 cameraName = linearOpMode.hardwareMap.get(
-                        WebcamName::class.java,
-                        RobotConstants.WEBCAM
+                    WebcamName::class.java,
+                    RobotConstants.WEBCAM
                 )
             }
             install(CargoDetector) {
