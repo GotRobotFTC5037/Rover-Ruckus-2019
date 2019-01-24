@@ -33,3 +33,7 @@ class MoveActionScope(robot: Robot, val context: MoveActionContext) : AbstractAc
  * Returns a [MoveAction] that
  */
 fun move(block: suspend MoveActionScope.() -> Unit): MoveAction = MoveAction(block)
+
+//infix fun MoveAction.using(element: MoveActionPipeline.MoveActionPipelineElement): MoveAction {
+//
+//}

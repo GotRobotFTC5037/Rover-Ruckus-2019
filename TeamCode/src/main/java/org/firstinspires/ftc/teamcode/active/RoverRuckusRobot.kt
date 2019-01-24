@@ -4,10 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
-import org.firstinspires.ftc.teamcode.active.features.CargoDetector
-import org.firstinspires.ftc.teamcode.active.features.Intake
-import org.firstinspires.ftc.teamcode.active.features.Lift
-import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
+import org.firstinspires.ftc.teamcode.active.features.*
 import org.firstinspires.ftc.teamcode.lib.ConstantPowerManager
 import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
 import org.firstinspires.ftc.teamcode.lib.action.Drive
@@ -34,6 +31,7 @@ object RobotConstants {
     const val MARKER_DEPLOYER_SERVO = "marker"
     const val INTAKE_LIFT_MOTOR = "intake lift"
     const val INTAKE_MOTOR = "intake"
+    const val POPPER_MOTOR = "popper"
     const val IMU = "imu"
     const val WEBCAM = "webcam"
     const val WHEEL_DIAMETER = 10.16
@@ -47,74 +45,78 @@ object RobotConstants {
             "BtuNm+aXd67bMKHPu4AJ9HmC7b4hj57Jx7xB3IF+pXq8T0NkjVLzc89W1Xf+"
 }
 
+@Suppress("SpellCheckingInspection")
 suspend fun roverRuckusRobot(
-    linearOpMode: LinearOpMode,
-    coroutineScope: CoroutineScope,
-    shouldUseCamera: Boolean = true
+        linearOpMode: LinearOpMode,
+        coroutineScope: CoroutineScope,
+        shouldUseCamera: Boolean = true
 ) = robot(linearOpMode, coroutineScope) {
 
-        // Components
-        install(TankDriveTrain) {
-            addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.FORWARD)
-            addRightMotor(RobotConstants.RIGHT_DRIVE_MOTOR, MotorDirection.REVERSE)
-        }
-        install(Lift) {
-            liftMotorName = RobotConstants.LIFT_MOTOR
-        }
-        install(MarkerDeployer) {
-            servoName = RobotConstants.MARKER_DEPLOYER_SERVO
-        }
-        install(Intake) {
-            intakeLift = RobotConstants.INTAKE_LIFT_MOTOR
-            intake = RobotConstants.INTAKE_MOTOR
-        }
+    // Components
+    install(TankDriveTrain) {
+        addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.FORWARD)
+        addRightMotor(RobotConstants.RIGHT_DRIVE_MOTOR, MotorDirection.REVERSE)
+    }
+    install(Lift) {
+        liftMotorName = RobotConstants.LIFT_MOTOR
+    }
+    install(MarkerDeployer) {
+        servoName = RobotConstants.MARKER_DEPLOYER_SERVO
+    }
+    install(Intake) {
+        intakeLift = RobotConstants.INTAKE_LIFT_MOTOR
+        intake = RobotConstants.INTAKE_MOTOR
+    }
+    install(Popper) {
+        motorName = RobotConstants.POPPER_MOTOR
+    }
+
+    // Localizer
+    install(IMULocalizer) {
+        imuName = RobotConstants.IMU
+        order = AxesOrder.ZYX
+        initialHeading = 90.0
+    }
+
+    // Autonomous
+    if (linearOpMode.isAutonomous()) {
 
         // Localizer
-        install(IMULocalizer) {
-            imuName = RobotConstants.IMU
-            order = AxesOrder.ZYX
-            initialHeading = 90.0
+        install(TankDriveTrainLocalizer) {
+            wheelDiameter = RobotConstants.WHEEL_DIAMETER
         }
 
-        // Autonomous
-        if (linearOpMode.isAutonomous()) {
-
-            // Localizer
-            install(TankDriveTrainLocalizer) {
-                wheelDiameter = RobotConstants.WHEEL_DIAMETER
-            }
-
-            // Vision
-            if (shouldUseCamera) {
-                install(Vuforia) {
-                    vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
-                    fillCameraMonitorViewParent = true
-                    cameraName = linearOpMode.hardwareMap.get(
+        // Vision
+        if (shouldUseCamera) {
+            install(Vuforia) {
+                vuforiaLicenseKey = RobotConstants.VUFORIA_KEY
+                fillCameraMonitorViewParent = true
+                cameraName = linearOpMode.hardwareMap.get(
                         WebcamName::class.java,
                         RobotConstants.WEBCAM
-                    )
-                }
-                install(CargoDetector) {
-                    minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
-                    useObjectTracker = true
-                }
+                )
             }
-
-            // Drive Correction
-            install(TargetHeading) {
-                initialTargetHeading = 90.0
+            install(CargoDetector) {
+                minimumConfidence = RobotConstants.CARGO_DETECTION_MIN_CONFIDENCE
+                useObjectTracker = true
             }
-            install(HeadingCorrection) {
-                coefficient = 0.15
-            }
-
-            // Pipeline Interceptors
-            install(DefaultPowerManager) {
-                UnspecifiedMoveActionType uses NothingPowerManager
-                Drive uses ConstantPowerManager(power = 0.75)
-                TurnTo uses ConstantPowerManager(power = 0.75)
-            }
-
         }
+
+        // Drive Correction
+        install(TargetHeading) {
+            initialTargetHeading = 90.0
+        }
+        install(HeadingCorrection) {
+            coefficient = 0.15
+        }
+
+        // Pipeline Interceptors
+        install(DefaultPowerManager) {
+            UnspecifiedMoveActionType uses NothingPowerManager
+            Drive uses ConstantPowerManager(power = 0.75)
+            TurnTo uses ConstantPowerManager(power = 0.75)
+        }
+
     }
+}
 
