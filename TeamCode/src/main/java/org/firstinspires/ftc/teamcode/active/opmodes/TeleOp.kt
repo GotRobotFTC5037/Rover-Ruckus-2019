@@ -32,16 +32,18 @@ class TeleOp : LinearOpMode() {
             var reversed = false
 
             // Drive Train Direction
-            loop {
-                while (gamepad1.start) {
+            launch {
+                while(true) {
+                    while (gamepad1.start) {
+                        yield()
+                    }
+                    reversed = !reversed
+                    yield()
+                    while (!gamepad1.start) {
+                        yield()
+                    }
                     yield()
                 }
-                reversed = !reversed
-                yield()
-                while (!gamepad1.start) {
-                    yield()
-                }
-                yield()
             }
 
             // Drive Train
