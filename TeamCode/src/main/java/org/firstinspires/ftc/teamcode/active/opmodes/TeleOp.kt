@@ -104,12 +104,8 @@ class TeleOp : LinearOpMode() {
             }
 
             // Popper
-            loop {
-                when (gamepad2.x) {
-                    true -> deliverySystem.popper.enablePopper()
-                    false -> deliverySystem.popper.disablePopper()
-                }
-            }
+
+            
 
             // Chute
             loop {
@@ -130,6 +126,7 @@ class TeleOp : LinearOpMode() {
             loop {
                 telemetry.addData("Reversed?", reversed)
                 telemetry.addData("Position", lift.liftPosition)
+                telemetry.addData("Popper Position", deliverySystem.popper.position)
                 telemetry.update()
             }
 
