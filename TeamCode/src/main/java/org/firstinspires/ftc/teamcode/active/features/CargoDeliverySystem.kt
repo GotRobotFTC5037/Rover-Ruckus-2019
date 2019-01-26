@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
+import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
@@ -45,12 +46,22 @@ class CargoDeliverySystem(
     }
 
     inner class Popper {
+        val position: Int get() = popperMotor.currentPosition
         fun enablePopper() {
             popperMotor.power = 1.0
         }
 
         fun disablePopper() {
             popperMotor.power = 0.0
+        }
+
+       suspend fun popperDistance(distance: Int) {
+            val initialPosition = popperMotor.currentPosition
+           popperMotor.power = 1.0
+           while(initialPosition + distance < popperMotor.currentPosition) {
+               yield()
+           }
+           popperMotor.power = 0.0
         }
     }
 
