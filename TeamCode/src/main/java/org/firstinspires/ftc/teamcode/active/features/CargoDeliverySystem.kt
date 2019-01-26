@@ -68,9 +68,14 @@ class CargoDeliverySystem(
             configure: Configuration.() -> Unit
         ): CargoDeliverySystem {
             val configuration = Configuration().apply(configure)
-            val lift = robot.hardwareMap.get(DcMotor::class.java, configuration.intakeLift)
+            val lift = robot.hardwareMap.get(DcMotor::class.java, configuration.intakeLift).apply {
+                zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            }
             val intake = robot.hardwareMap.get(DcMotor::class.java, configuration.intake)
-            val chuteLift = robot.hardwareMap.get(DcMotor::class.java, configuration.chuteLift)
+            val chuteLift =
+                robot.hardwareMap.get(DcMotor::class.java, configuration.chuteLift).apply {
+                    zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                }
             val popper = robot.hardwareMap.get(DcMotor::class.java, configuration.popper)
             val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter)
             return CargoDeliverySystem(lift, intake, popper, chuteLift, shutter)

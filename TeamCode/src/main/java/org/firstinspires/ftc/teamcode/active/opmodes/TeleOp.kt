@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.robot.perform
+import org.firstinspires.ftc.teamcode.lib.util.clip
 import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
 import org.firstinspires.ftc.teamcode.lib.util.loop
 
@@ -84,7 +85,6 @@ class TeleOp : LinearOpMode() {
                 }
             }
 
-            // Cargo CargoDeliverySystem Lift
             loop {
                 val power = when {
                     gamepad2.left_trigger > 0.5 -> 1.0
@@ -94,7 +94,6 @@ class TeleOp : LinearOpMode() {
                 deliverySystem.intake.setLiftPower(power)
             }
 
-            // Cargo CargoDeliverySystem
             loop {
                 val power = when {
                     gamepad2.b -> 0.75
@@ -114,7 +113,9 @@ class TeleOp : LinearOpMode() {
 
             // Chute
             loop {
-                deliverySystem.chute.setChuteLiftPower(-gamepad2.right_stick_y.toDouble())
+                deliverySystem.chute.setChuteLiftPower(
+                    gamepad2.right_stick_y.toDouble().clip(0.0..1.0)
+                )
             }
 
             loop {

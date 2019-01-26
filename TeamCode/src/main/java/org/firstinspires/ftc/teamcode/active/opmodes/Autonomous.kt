@@ -157,9 +157,9 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(90.0),
         drive(85.0),
         turnTo(130.0),
-        drive(70.0),// using wallFollowing(distance = 5.0),
+        drive(70.0),
         deliverMarker,
-        drive(-200.0)// using wallFollowing(distance = 5.0)
+        drive(-200.0)
     )
 
     private val centerAction = actionSequenceOf(
@@ -170,9 +170,9 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(90.0),
         drive(95.0),
         turnTo(130.0),
-        drive(100.0),// using wallFollowing(distance = 5.0),
+        drive(100.0),
         deliverMarker,
-        drive(-200.0)// using wallFollowing(distance = 5.0)
+        drive(-200.0)
     )
 
     private val rightAction = actionSequenceOf(
@@ -182,10 +182,10 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(90.0),
         drive(100.0),
         turnTo(135.0),
-        drive(70.0),// using wallFollowing(distance = 5.0),
+        drive(70.0),
         deliverMarker,
         turn(5.0),
-        drive(-200.0)// using wallFollowing(distance = 5.0)
+        drive(-200.0)
     )
 
     @Throws(InterruptedException::class)
