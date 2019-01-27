@@ -34,7 +34,7 @@ class TeleOp : LinearOpMode() {
 
             // Drive Train Direction
             launch {
-                while(true) {
+                while (true) {
                     while (gamepad1.start) {
                         yield()
                     }
@@ -105,12 +105,26 @@ class TeleOp : LinearOpMode() {
 
             // Popper
 
-            
-
+            launch {
+                while (true) {
+                    if (gamepad2.x) {
+                        deliverySystem.popper.turnBy(3600)
+                    }
+                    yield()
+                }
+            }
+//            loop {
+//                when (gamepad2.x) {
+//                    true -> deliverySystem.popper.enablePopper()
+//                    false -> deliverySystem.popper.disablePopper()
+//
+//                }
+//
+//            }
             // Chute
             loop {
                 deliverySystem.chute.setChuteLiftPower(
-                    gamepad2.right_stick_y.toDouble().clip(0.0..1.0)
+                    -gamepad2.right_stick_y.toDouble()
                 )
             }
 
