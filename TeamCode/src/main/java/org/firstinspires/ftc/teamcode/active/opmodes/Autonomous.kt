@@ -3,6 +3,7 @@
 package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
@@ -98,45 +99,66 @@ private fun wiggleWheels(duration: Long) = action {
 }
 
 
+
+private val depotLeftAction = actionSequenceOf(
+    turnTo(40.0),
+    drive(60.0),
+    turnTo(-25.0),
+    drive(70.0),
+    turnTo(0.0),
+    deliverMarker,
+    turnTo(-50.0),
+    drive(-170.0)
+)
+
+class LeftDepotAutonomous: LinearOpMode() {
+    override fun runOpMode() {
+
+    }
+}
+
+private val depotCenterAction = actionSequenceOf(
+    turnTo(7.5),
+    drive(100.0),
+    deliverMarker,
+    turnTo(0.0),
+    drive(-65.0),
+    turnTo(90.0),
+    drive(100.0),
+    turn(7.5),
+    drive(15.0),
+    deployMarker
+)
+
+class CenterDepotAutonomous: LinearOpMode() {
+    override fun runOpMode() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
+
+private val depotRightAction = actionSequenceOf(
+    turnTo(-20.0),
+    drive(70.0),
+    turnTo(35.0),
+    drive(65.0),
+    deliverMarker,
+    drive(-105.0),
+    turnTo(90.0),
+    drive(180.0),
+    turnTo(130.0),
+    drive(40.0),
+    deployMarker
+)
+
+class RightDepotAutonomous: LinearOpMode() {
+    override fun runOpMode() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
+
+@Disabled
 @Autonomous
 class DepotAutonomous : LinearOpMode() {
-    private val leftAction = actionSequenceOf(
-        turnTo(40.0),
-        drive(60.0),
-        turnTo(-25.0),
-        drive(70.0),
-        turnTo(0.0),
-        deliverMarker,
-        turnTo(-50.0),
-        drive(-170.0)
-    )
-
-    private val centerAction = actionSequenceOf(
-        turnTo(7.5),
-        drive(100.0),
-        deliverMarker,
-        turnTo(0.0),
-        drive(-65.0),
-        turnTo(90.0),
-        drive(100.0),
-        turn(7.5),
-        drive(15.0),
-        deployMarker
-    )
-
-    private val rightAction = actionSequenceOf(
-        turnTo(-20.0),
-        drive(70.0),
-        turnTo(35.0),
-        drive(65.0),
-        deliverMarker,
-        drive(-105.0),
-        turnTo(90.0),
-        drive(180.0),
-        turnTo(130.0),
-        drive(40.0),
-        deployMarker
-    )
 
     @Throws(InterruptedException::class)
     override fun runOpMode() = runBlocking {
@@ -147,46 +169,59 @@ class DepotAutonomous : LinearOpMode() {
 }
 
 
+private val craterLeftAction = actionSequenceOf(
+    turnTo(27.5),
+    drive(50.0),
+    drive(-25.0),
+    turnTo(90.0),
+    drive(85.0),
+    turnTo(130.0),
+    drive(70.0),
+    deliverMarker,
+    drive(-200.0)
+)
+
+class LeftCraterAutonomous: LinearOpMode() {
+
+}
+
+private val craterCenterAction = actionSequenceOf(
+    turnTo(25.0),
+    drive(45.0),
+    turnTo(0.0),
+    drive(-12.5),
+    turnTo(90.0),
+    drive(95.0),
+    turnTo(130.0),
+    drive(100.0),
+    deliverMarker,
+    drive(-200.0)
+)
+
+class CenterCraterAutonomous: LinearOpMode() {
+
+}
+
+private val craterRightAction = actionSequenceOf(
+    turnTo(-27.5),
+    drive(50.0),
+    drive(-30.0),
+    turnTo(90.0),
+    drive(100.0),
+    turnTo(135.0),
+    drive(70.0),
+    deliverMarker,
+    turn(5.0),
+    drive(-200.0)
+)
+
+class RightCraterAutonomous: LinearOpMode() {
+
+}
+
+@Disabled
 @Autonomous
 class CraterAutonomous : LinearOpMode() {
-
-    private val leftAction = actionSequenceOf(
-        turnTo(27.5),
-        drive(50.0),
-        drive(-25.0),
-        turnTo(90.0),
-        drive(85.0),
-        turnTo(130.0),
-        drive(70.0),
-        deliverMarker,
-        drive(-200.0)
-    )
-
-    private val centerAction = actionSequenceOf(
-        turnTo(25.0),
-        drive(45.0),
-        turnTo(0.0),
-        drive(-12.5),
-        turnTo(90.0),
-        drive(95.0),
-        turnTo(130.0),
-        drive(100.0),
-        deliverMarker,
-        drive(-200.0)
-    )
-
-    private val rightAction = actionSequenceOf(
-        turnTo(-27.5),
-        drive(50.0),
-        drive(-30.0),
-        turnTo(90.0),
-        drive(100.0),
-        turnTo(135.0),
-        drive(70.0),
-        deliverMarker,
-        turn(5.0),
-        drive(-200.0)
-    )
 
     @Throws(InterruptedException::class)
     override fun runOpMode() = runBlocking {

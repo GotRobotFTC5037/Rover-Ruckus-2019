@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
+import org.firstinspires.ftc.teamcode.lib.util.clip
 import org.firstinspires.ftc.teamcode.lib.util.delayUntilStart
 import org.firstinspires.ftc.teamcode.lib.util.sameOrNull
 import kotlin.coroutines.CoroutineContext
@@ -55,8 +56,8 @@ class TankDriveTrain(
 
         while (true) {
             val realPowers = powerPipeline.execute(currentPower.copy(), this@TankDriveTrain)
-            setMotorPowers(realPowers.leftPower, leftMotors)
-            setMotorPowers(realPowers.rightPower, rightMotors)
+            setMotorPowers(realPowers.leftPower.clip(-1.0..1.0), leftMotors)
+            setMotorPowers(realPowers.rightPower.clip(-1.0..1.0), rightMotors)
             yield()
         }
     }
