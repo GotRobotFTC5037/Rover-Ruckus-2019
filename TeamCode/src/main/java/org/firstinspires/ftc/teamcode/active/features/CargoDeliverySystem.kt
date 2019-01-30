@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
@@ -34,11 +33,11 @@ class CargoDeliverySystem(
 
     inner class Chute {
         fun dropShutter() {
-            chuteShutterServo.position = 1.0 / 6.0
+            chuteShutterServo.position = 0.0
         }
 
         fun raiseShutter() {
-            chuteShutterServo.position = 4.0 / 6.0
+            chuteShutterServo.position = 1.0
         }
 
         fun setChuteLiftPower(power: Double) {
@@ -56,10 +55,10 @@ class CargoDeliverySystem(
             popperMotor.power = 0.0
         }
 
-       suspend fun turnBy(distance: Int) {
+       suspend fun popperDistance(distance: Int) {
             val initialPosition = popperMotor.currentPosition
            popperMotor.power = 1.0
-           while(initialPosition + distance > popperMotor.currentPosition) {
+           while(initialPosition + distance < popperMotor.currentPosition) {
                yield()
            }
            popperMotor.power = 0.0
@@ -87,7 +86,6 @@ class CargoDeliverySystem(
             val chuteLift =
                 robot.hardwareMap.get(DcMotor::class.java, configuration.chuteLift).apply {
                     zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-                    direction = DcMotorSimple.Direction.REVERSE
                 }
             val popper = robot.hardwareMap.get(DcMotor::class.java, configuration.popper)
             val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter)
