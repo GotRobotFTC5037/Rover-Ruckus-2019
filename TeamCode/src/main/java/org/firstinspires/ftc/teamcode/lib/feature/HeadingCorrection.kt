@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.lib.robot.Robot
 class HeadingCorrection(
     localizer: IMULocalizer,
     private val targetHeading: TargetHeading,
-    private val coefficient:Double
+    private val coefficient: Double
 ) : Feature {
 
     var enabled = true

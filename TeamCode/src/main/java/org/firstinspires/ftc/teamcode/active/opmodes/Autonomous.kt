@@ -45,7 +45,7 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
         actionSequenceOf(
             extendLift,
             wiggleWheels(1000),
-            turnTo(93.5).apply { timeoutMillis = 1000 },
+            turnTo(93.5),//.apply { timeoutMillis = 1000 },
             drive(-5.0),
             retractLift,
             goldAction
@@ -172,7 +172,7 @@ class CraterAutonomous : LinearOpMode() {
         drive(100.0),
         deliverMarker,
         drive(-200.0)
-    )
+    )   
 
     private val rightAction = actionSequenceOf(
         turnTo(-27.5),

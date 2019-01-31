@@ -46,7 +46,6 @@ class CargoDeliverySystem(
     }
 
     inner class Popper {
-        val position: Int get() = popperMotor.currentPosition
         fun enablePopper() {
             popperMotor.power = 1.0
         }

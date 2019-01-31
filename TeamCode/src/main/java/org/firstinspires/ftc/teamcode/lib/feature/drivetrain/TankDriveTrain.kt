@@ -135,7 +135,14 @@ class TankDriveTrain(
         val leftPosition: Double,
         val rightPosition: Double
     ) {
-        val average: Double get() = (leftPosition + rightPosition) / 2
+        val average: Double
+            get() = if (leftPosition > 5.0 && rightPosition > 5.0) {
+                (leftPosition + rightPosition) / 2
+            } else if (leftPosition > 5.0 && rightPosition <= 5.0) {
+                leftPosition
+            } else {
+                rightPosition
+            }
     }
 
     inner class PositionLocalizer(
