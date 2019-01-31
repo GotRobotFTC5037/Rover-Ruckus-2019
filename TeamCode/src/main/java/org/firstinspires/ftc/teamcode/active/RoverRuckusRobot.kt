@@ -38,11 +38,7 @@ object RobotConstants {
     const val CARGO_DETECTION_MIN_CONFIDENCE = 0.45
 
     // TODO: Put this key into a file and read from the file.
-    const val VUFORIA_KEY = "Af8tA0P/////AAABmS0VzHrieUymkaB0I3Xxz04Khxz8ayagqgOyxunzdcpieUETaApI" +
-            "5AxHTeLxmZEhFE6MGDV42Z86mWVaGGAW2Ust+8e9Cz8oEbz7yj+zbjydNHI8b+5ShaGaR9/CEeEytBl7MBg8" +
-            "viMLEnNO0imxu/2GN4wyIWUgTkEL0H2yehJnwwQvLwyT3Q/F/8Evips+fjLuu8kvfjmuyBobIJYR2Xk29aXv" +
-            "fXlizL8YHq8IlddJw90weHjjvi5BMOszJKGbZwb3H5luPl0KKW6EvzMpQWblHS+OQkXWNhr9lMjpuxncDKYq" +
-            "BtuNm+aXd67bMKHPu4AJ9HmC7b4hj57Jx7xB3IF+pXq8T0NkjVLzc89W1Xf+"
+    const val VUFORIA_KEY = "AdIaYr//////AAABmbPW4cADC0JWmq5z8YPKV2BLhjRavE34U++fSDpW2nfDwTsg99Uz5YWBQL02Wgz62sORWmPOVnNooNp87t4XrMIK8NlZKHJ8oFBfHsmar4sODJt7hqSUy3ZeUMfGsCUQyh8J/dHrFdGQJ7EdTJUdB8XMK+urV2h51WpIyaZCL1Aa1BjNBODanTcX2yFTMDjno9QIbzQZ3ZfFwy6Nx/y196DvIa8/47/y0x2OLFzcVpeiUvDwtKKc9CzrAUVSpd8/qLcOKPTKy5VUxRawILhbovkLTntIzBFtikuLp9kqqrysX4kW2gzW2H4XjF2z+cqrypKT8dwHCsLlEdcS1jXBVlfbExfj+7efvMPP3dSi4Zjo"
 }
 
 @Suppress("SpellCheckingInspection")

@@ -173,7 +173,7 @@ class CraterAutonomous : LinearOpMode() {
         drive(100.0),
         deliverMarker,
         drive(-200.0)
-    )
+    )   
 
     private val rightAction = actionSequenceOf(
         turnTo(-27.5),
