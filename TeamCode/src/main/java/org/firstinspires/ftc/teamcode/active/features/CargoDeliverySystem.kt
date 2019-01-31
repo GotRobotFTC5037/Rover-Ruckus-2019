@@ -55,13 +55,13 @@ class CargoDeliverySystem(
             popperMotor.power = 0.0
         }
 
-       suspend fun popperDistance(distance: Int) {
+        suspend fun popperDistance(distance: Int) {
             val initialPosition = popperMotor.currentPosition
-           popperMotor.power = 1.0
-           while(initialPosition + distance < popperMotor.currentPosition) {
-               yield()
-           }
-           popperMotor.power = 0.0
+            popperMotor.power = 1.0
+            while (initialPosition + distance < popperMotor.currentPosition) {
+                yield()
+            }
+            popperMotor.power = 0.0
         }
     }
 

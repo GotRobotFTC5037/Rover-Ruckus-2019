@@ -34,7 +34,7 @@ class TeleOp : LinearOpMode() {
 
             // Drive Train Direction
             launch {
-                while(true) {
+                while (true) {
                     while (gamepad1.start) {
                         yield()
                     }
@@ -105,7 +105,6 @@ class TeleOp : LinearOpMode() {
 
             // Popper
 
-            
 
             // Chute
             loop {

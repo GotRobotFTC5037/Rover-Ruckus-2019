@@ -92,9 +92,8 @@ private fun wiggleWheels(duration: Long) = action {
         }
     }
     delay(duration)
-    driveTrain.stop()
     wiggleJob.cancelAndJoin()
-
+    driveTrain.stop()
 }
 
 
