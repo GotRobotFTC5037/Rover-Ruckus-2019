@@ -114,7 +114,7 @@ class TeleOp : LinearOpMode() {
             // Chute
             loop {
                 deliverySystem.chute.setChuteLiftPower(
-                    gamepad2.right_stick_y.toDouble().clip(0.0..1.0)
+                    -gamepad2.right_stick_y.toDouble()
                 )
             }
 

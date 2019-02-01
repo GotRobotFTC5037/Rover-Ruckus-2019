@@ -118,10 +118,9 @@ suspend fun roverRuckusRobot(
         // Pipeline Interceptors
         install(DefaultPowerManager) {
             UnspecifiedMoveActionType uses NothingPowerManager
-            Drive uses ConstantPowerManager(power = 0.75)
-            TurnTo uses ConstantPowerManager(power = 0.75)
+            Drive uses ConstantPowerManager(power = 1.0)
+            TurnTo uses ConstantPowerManager(power = 1.0)
         }
 
     }
 }
-
