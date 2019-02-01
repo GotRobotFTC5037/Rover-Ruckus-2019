@@ -85,7 +85,7 @@ class CargoDeliverySystem(
             val intake = robot.hardwareMap.get(DcMotor::class.java, configuration.intake)
             val chuteLift =
                 robot.hardwareMap.get(DcMotor::class.java, configuration.chuteLift).apply {
-                    direction = DcMotorSimple.Direction.REVERSE
+                    direction = DcMotorSimple.Direction.FORWARD
                     zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 }
             val popper = robot.hardwareMap.get(DcMotor::class.java, configuration.popper)
