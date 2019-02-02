@@ -11,18 +11,16 @@ import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
 import org.firstinspires.ftc.teamcode.lib.action.Drive
 import org.firstinspires.ftc.teamcode.lib.action.TurnTo
 import org.firstinspires.ftc.teamcode.lib.action.UnspecifiedMoveActionType
-import org.firstinspires.ftc.teamcode.lib.feature.DefaultPowerManager
-import org.firstinspires.ftc.teamcode.lib.feature.HeadingCorrection
-import org.firstinspires.ftc.teamcode.lib.feature.TargetHeading
+import org.firstinspires.ftc.teamcode.lib.feature.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.MotorDirection
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrainLocalizer
-import org.firstinspires.ftc.teamcode.lib.feature.featureKey
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.sensor.RangeSensor
 import org.firstinspires.ftc.teamcode.lib.feature.vision.Vuforia
 import org.firstinspires.ftc.teamcode.lib.robot.install
 import org.firstinspires.ftc.teamcode.lib.robot.robot
+import org.firstinspires.ftc.teamcode.lib.robot.telemetry
 import org.firstinspires.ftc.teamcode.lib.util.isAutonomous
 
 @Suppress("SpellCheckingInspection")
@@ -55,6 +53,8 @@ suspend fun roverRuckusRobot(
     shouldUseCamera: Boolean = true
 ) = robot(linearOpMode, coroutineScope) {
 
+    telemetry.msTransmissionInterval = 500
+
     // Components
     install(TankDriveTrain) {
         addLeftMotor(RobotConstants.LEFT_DRIVE_MOTOR, MotorDirection.FORWARD)
@@ -78,13 +78,12 @@ suspend fun roverRuckusRobot(
         initialHeading = 90.0
     }
 
+    install(TiltTermination) {
+        this.terminationAngle = 45.0
+    }
+
     // Autonomous
     if (linearOpMode.isAutonomous()) {
-
-//        // Range Sensors
-//        install(RangeSensor, RightRangeSensor) {
-//            sensorName = "right range sensor"
-//        }
 
         // Localizer
         install(TankDriveTrainLocalizer) {
