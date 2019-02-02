@@ -81,6 +81,7 @@ class CargoDeliverySystem(
             val configuration = Configuration().apply(configure)
             val lift = robot.hardwareMap.get(DcMotor::class.java, configuration.intakeLift).apply {
                 zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                power = 0.0
             }
             val intake = robot.hardwareMap.get(DcMotor::class.java, configuration.intake)
             val chuteLift =
@@ -89,7 +90,9 @@ class CargoDeliverySystem(
                     zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 }
             val popper = robot.hardwareMap.get(DcMotor::class.java, configuration.popper)
-            val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter)
+            val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter).apply {
+                this.scaleRange(0.0, 0.75)
+            }
             return CargoDeliverySystem(lift, intake, popper, chuteLift, shutter)
         }
     }

@@ -81,10 +81,10 @@ suspend fun roverRuckusRobot(
     // Autonomous
     if (linearOpMode.isAutonomous()) {
 
-        // Range Sensors
-        install(RangeSensor, RightRangeSensor) {
-            sensorName = "right range sensor"
-        }
+//        // Range Sensors
+//        install(RangeSensor, RightRangeSensor) {
+//            sensorName = "right range sensor"
+//        }
 
         // Localizer
         install(TankDriveTrainLocalizer) {

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
     val telemetry = robot.linearOpMode.telemetry
     val cargoDetector = requestFeature(CargoDetector)
-    val position = withTimeoutOrNull(2500) {
+    val position = withTimeoutOrNull(500) {
         cargoDetector.goldPosition.first { it != GoldPosition.UNKNOWN }
     } ?: GoldPosition.UNKNOWN
     val goldAction = when (position) {
@@ -106,7 +106,7 @@ class DepotAutonomous : LinearOpMode() {
         drive(70.0),
         turnTo(0.0),
         deliverMarker,
-        turnTo(-50.0),
+        turnTo(-46.5),
         drive(-170.0)
     )
 
@@ -127,7 +127,7 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(-20.0),
         drive(70.0),
         turnTo(35.0),
-        drive(65.0),
+        drive(50.0),
         deliverMarker,
         drive(-105.0),
         turnTo(90.0),
