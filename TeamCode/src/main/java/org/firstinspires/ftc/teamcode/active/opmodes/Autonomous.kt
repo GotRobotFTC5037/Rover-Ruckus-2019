@@ -45,8 +45,8 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
         actionSequenceOf(
             extendLift,
             wiggleWheels(1000),
-            turnTo(93.5),//.apply { timeoutMillis = 1000 },
-            drive(-5.0),
+            turnTo(91.5),
+            drive(-6.0),
             retractLift,
             goldAction
         )
@@ -85,9 +85,9 @@ private fun wiggleWheels(duration: Long) = action {
     val driveTrain = requestFeature(TankDriveTrain)
     val wiggleJob = launch {
         while (isActive) {
-            driveTrain.setMotorPowers(0.75, 0.0)
+            driveTrain.setMotorPowers(1.0, 1.0)
             delay(100)
-            driveTrain.setMotorPowers(-0.75, 0.0)
+            driveTrain.setMotorPowers(-1.0, 1.0)
             delay(100)
         }
     }
@@ -101,8 +101,8 @@ private fun wiggleWheels(duration: Long) = action {
 class DepotAutonomous : LinearOpMode() {
     private val leftAction = actionSequenceOf(
         turnTo(40.0),
-        drive(60.0),
-        turnTo(-25.0),
+        drive(80.0),
+        turnTo(-20.0),
         drive(70.0),
         turnTo(0.0),
         deliverMarker,
@@ -117,9 +117,9 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(0.0),
         drive(-65.0),
         turnTo(90.0),
-        drive(100.0),
-        turn(7.5),
-        drive(15.0),
+        drive(115.0),
+        turnTo(130.0),
+        drive(25.0),
         deployMarker
     )
 

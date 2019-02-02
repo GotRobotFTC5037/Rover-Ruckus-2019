@@ -81,7 +81,7 @@ class CargoDeliverySystem(
             val configuration = Configuration().apply(configure)
             val lift = robot.hardwareMap.get(DcMotor::class.java, configuration.intakeLift).apply {
                 zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-                power = 0.0
+                power = 0.1
             }
             val intake = robot.hardwareMap.get(DcMotor::class.java, configuration.intake)
             val chuteLift =
