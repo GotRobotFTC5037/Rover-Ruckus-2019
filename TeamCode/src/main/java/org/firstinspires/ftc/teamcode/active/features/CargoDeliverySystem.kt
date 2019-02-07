@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.active.features
 
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.Servo
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
@@ -80,14 +81,18 @@ class CargoDeliverySystem(
             val configuration = Configuration().apply(configure)
             val lift = robot.hardwareMap.get(DcMotor::class.java, configuration.intakeLift).apply {
                 zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+                power = 0.1
             }
             val intake = robot.hardwareMap.get(DcMotor::class.java, configuration.intake)
             val chuteLift =
                 robot.hardwareMap.get(DcMotor::class.java, configuration.chuteLift).apply {
+                    direction = DcMotorSimple.Direction.FORWARD
                     zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
                 }
             val popper = robot.hardwareMap.get(DcMotor::class.java, configuration.popper)
-            val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter)
+            val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter).apply {
+                this.scaleRange(0.0, 0.75)
+            }
             return CargoDeliverySystem(lift, intake, popper, chuteLift, shutter)
         }
     }

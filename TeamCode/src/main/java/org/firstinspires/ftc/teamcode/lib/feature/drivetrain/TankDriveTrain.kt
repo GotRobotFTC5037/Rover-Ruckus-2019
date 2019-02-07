@@ -61,18 +61,27 @@ class TankDriveTrain(
         }
     }
 
-    fun setMotorPowers(leftPower: Double, rightPower: Double) = runBlocking {
+    suspend fun setMotorPowers(leftPower: Double, rightPower: Double) {
         val rawPower = MotorPowers(leftPower, rightPower)
         powerChannel.send(rawPower)
+        yield()
+    }
+
+    fun setRawMotorPowers(leftPower: Double, rightPower: Double) {
+        rightMotors.forEach { it.power = rightPower }
+        leftMotors.forEach { it.power = leftPower }
     }
 
     override fun stop() {
-        setMotorPowers(0.0, 0.0)
+        runBlocking { setMotorPowers(0.0, 0.0) }
     }
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
+            for (motor in configuration.leftMotors + configuration.rightMotors) {
+                motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+            }
             return TankDriveTrain(
                 configuration.leftMotors,
                 configuration.rightMotors,

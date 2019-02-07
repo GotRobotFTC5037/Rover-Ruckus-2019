@@ -19,23 +19,25 @@ fun distancedDrive(
     deltaDriveDistance: Double,
     targetDistance: Double,
     rangeSensorKey: FeatureKey<RangeSensor>,
-    coeficcient: Double
+    coefficient: Double
 ): MoveAction = move {
     when (val driveTrain = requestFeature(DriveTrain::class)) {
         is TankDriveTrain -> {
             val localizer = requestFeature(TankDriveTrainLocalizer)
             val rangeSensor = requestFeature(rangeSensorKey)
 
+            fun adjustmentPower() = (rangeSensor.distance - targetDistance) * coefficient
+
             val positionChannel = localizer.newPositionChannel()
             val driveTrainJob = launch {
                 if (deltaDriveDistance > 0.0) {
                     while (true) {
-                        driveTrain.setMotorPowers(leftPower = power(), rightPower = power())
+                        driveTrain.setMotorPowers(leftPower = power() + adjustmentPower(), rightPower = power() - adjustmentPower())
                         yield()
                     }
                 } else if (deltaDriveDistance < 0.0) {
                     while (true) {
-                        driveTrain.setMotorPowers(leftPower = -power(), rightPower = -power())
+                        driveTrain.setMotorPowers(leftPower = -power() - adjustmentPower(), rightPower = -power() - adjustmentPower())
                         yield()
                     }
                 }

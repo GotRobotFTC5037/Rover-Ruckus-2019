@@ -48,19 +48,21 @@ class TeleOp : LinearOpMode() {
             }
 
             // Drive Train
-            loop {
-                if (!reversed) {
-                    driveTrain.setMotorPowers(
-                        -gamepad1.right_stick_y.toDouble(),
-                        -gamepad1.left_stick_y.toDouble()
-                    )
-                } else {
-                    driveTrain.setMotorPowers(
-                        gamepad1.left_stick_y.toDouble(),
-                        gamepad1.right_stick_y.toDouble()
-                    )
+            launch {
+                while (true) {
+                    if (!reversed) {
+                        driveTrain.setMotorPowers(
+                            -gamepad1.right_stick_y.toDouble(),
+                            -gamepad1.left_stick_y.toDouble()
+                        )
+                    } else {
+                        driveTrain.setMotorPowers(
+                            gamepad1.left_stick_y.toDouble(),
+                            gamepad1.right_stick_y.toDouble()
+                        )
+                    }
+                    yield()
                 }
-                yield()
             }
 
             // Lift
@@ -85,52 +87,64 @@ class TeleOp : LinearOpMode() {
                 }
             }
 
-            loop {
-                val power = when {
-                    gamepad2.left_trigger > 0.5 -> 1.0
-                    gamepad2.right_trigger > 0.5 -> -0.5
-                    else -> 0.0
+            launch {
+                while (true) {
+                    val power = when {
+                        gamepad2.left_trigger > 0.5 -> 1.0
+                        gamepad2.right_trigger > 0.5 -> -0.5
+                        else -> 0.0
+                    }
+                    deliverySystem.intake.setLiftPower(power)
                 }
-                deliverySystem.intake.setLiftPower(power)
             }
 
-            loop {
-                val power = when {
-                    gamepad2.b -> 0.75
-                    gamepad2.a -> -0.55
-                    else -> 0.0
+            launch {
+                while (true) {
+                    val power = when {
+                        gamepad2.b -> 0.75
+                        gamepad2.a -> -0.55
+                        else -> 0.0
+                    }
+                    deliverySystem.intake.setIntakePower(power)
                 }
-                deliverySystem.intake.setIntakePower(power)
             }
 
             // Popper
-            loop {
-                when (gamepad2.x) {
-                    true -> deliverySystem.popper.enablePopper()
-                    false -> deliverySystem.popper.disablePopper()
+            launch {
+                while (true) {
+                    when (gamepad2.x) {
+                        true -> deliverySystem.popper.enablePopper()
+                        false -> deliverySystem.popper.disablePopper()
+                    }
                 }
             }
 
             // Chute
-            loop {
-                deliverySystem.chute.setChuteLiftPower(
-                    gamepad2.right_stick_y.toDouble().clip(0.0..1.0)
-                )
+            launch {
+                while (true) {
+                    deliverySystem.chute.setChuteLiftPower(
+                        -gamepad2.right_stick_y.toDouble()
+                    )
+                }
             }
 
-            loop {
-                when {
-                    gamepad2.dpad_up -> deliverySystem.chute.raiseShutter()
-                    gamepad2.dpad_down -> deliverySystem.chute.dropShutter()
+            launch {
+                while (true) {
+                    when {
+                        gamepad2.dpad_up -> deliverySystem.chute.raiseShutter()
+                        gamepad2.dpad_down -> deliverySystem.chute.dropShutter()
+                    }
                 }
             }
 
 
             // Telemetry
-            loop {
-                telemetry.addData("Reversed?", reversed)
-                telemetry.addData("Position", lift.liftPosition)
-                telemetry.update()
+            launch {
+                while (true) {
+                    telemetry.addData("Reversed?", reversed)
+                    telemetry.addData("Position", lift.liftPosition)
+                    telemetry.update()
+                }
             }
 
             delayUntilStop()

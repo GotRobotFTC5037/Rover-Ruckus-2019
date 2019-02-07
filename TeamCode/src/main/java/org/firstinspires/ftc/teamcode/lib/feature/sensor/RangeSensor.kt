@@ -13,7 +13,7 @@ class RangeSensor(
     private val sensor: DistanceSensor
 ) : Feature {
 
-    fun getDistance(): Double = sensor.getDistance(DistanceUnit.CM)
+    val distance: Double = sensor.getDistance(DistanceUnit.CM)
 
     class Configuration : FeatureConfiguration {
         var sensorName = "range sensor"

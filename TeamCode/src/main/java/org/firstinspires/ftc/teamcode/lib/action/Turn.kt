@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
 import kotlinx.coroutines.channels.first
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.TargetHeading
@@ -61,4 +62,11 @@ fun turnTo(targetHeading: Double): MoveAction = move {
 
 fun turn(deltaHeading: Double): MoveAction = move {
     perform(turnTo(requestFeature(TargetHeading).targetHeading + deltaHeading))
+}
+
+fun timeTurn(time: Long, power: Double) = action {
+    val driveTrain = requestFeature(TankDriveTrain)
+    driveTrain.setMotorPowers(-power, power)
+    delay(time)
+    driveTrain.stop()
 }
