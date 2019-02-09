@@ -115,11 +115,11 @@ class DepotAutonomous : LinearOpMode() {
         drive(100.0),
         deliverMarker,
         turnTo(0.0),
-        drive(-65.0),
+        drive(-70.0),
         turnTo(90.0),
-        drive(115.0),
+        drive(120.0),
         turnTo(130.0),
-        drive(25.0),
+        drive(10.0),
         deployMarker
     )
 
