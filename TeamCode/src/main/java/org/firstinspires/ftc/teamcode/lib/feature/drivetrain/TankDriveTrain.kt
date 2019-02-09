@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
 
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.selects.select
 import org.firstinspires.ftc.teamcode.lib.Pipeline
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
@@ -26,22 +24,39 @@ class TankDriveTrain(
 
     private val motors get() = leftMotors + rightMotors
 
-    data class MotorPowers(
-        val left: Double,
-        val right: Double
-    )
-
+    private val powerChannel: Channel<MotorPowers> = Channel(Channel.CONFLATED)
 
     val powerPipeline: Pipeline<MotorPowers, TankDriveTrain> = Pipeline()
 
     suspend fun setMotorPowers(powers: MotorPowers) {
-        for (motor in leftMotors) {
-            motor.power = powers.left
-        }
-        for (motor in rightMotors) {
-            motor.power = powers.right
+        powerChannel.send(powers)
+    }
+
+    fun CoroutineScope.startUpdatingMotorPowers(ticker: ReceiveChannel<Unit>) = launch {
+        var currentTargetPowers = MotorPowers(0.0, 0.0)
+        while (true) {
+            select<Unit> {
+                powerChannel.onReceive {
+                    currentTargetPowers = it
+                }
+                ticker.onReceive {
+                    val motorPowers =
+                        powerPipeline.execute(currentTargetPowers.copy(), this@TankDriveTrain)
+                    for (motor in leftMotors) {
+                        motor.power = motorPowers.left
+                    }
+                    for (motor in rightMotors) {
+                        motor.power = motorPowers.right
+                    }
+                }
+            }
         }
     }
+
+    data class MotorPowers(
+        val left: Double,
+        val right: Double
+    )
 
     override fun stop() {
         runBlocking { setMotorPowers(MotorPowers(0.0, 0.0)) }
@@ -57,7 +72,9 @@ class TankDriveTrain(
                 configuration.leftMotors,
                 configuration.rightMotors,
                 robot.coroutineContext
-            )
+            ).apply {
+                startUpdatingMotorPowers(ticker(10, mode = TickerMode.FIXED_DELAY))
+            }
         }
     }
 
