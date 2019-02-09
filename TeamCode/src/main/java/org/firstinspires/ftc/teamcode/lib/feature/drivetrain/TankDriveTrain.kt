@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.Pipeline
@@ -14,7 +13,6 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
-import org.firstinspires.ftc.teamcode.lib.util.delayUntilStart
 import org.firstinspires.ftc.teamcode.lib.util.sameOrNull
 import kotlin.coroutines.CoroutineContext
 
@@ -29,51 +27,24 @@ class TankDriveTrain(
     private val motors get() = leftMotors + rightMotors
 
     data class MotorPowers(
-        val leftPower: Double,
-        val rightPower: Double
+        val left: Double,
+        val right: Double
     )
 
-    private val powerChannel: Channel<MotorPowers> = Channel(Channel.CONFLATED)
 
     val powerPipeline: Pipeline<MotorPowers, TankDriveTrain> = Pipeline()
 
-    fun CoroutineScope.start() = launch {
-        fun setMotorPowers(power: Double, motors: List<DcMotor>) {
-            for (motor in motors) {
-                motor.power = power
-            }
+    suspend fun setMotorPowers(powers: MotorPowers) {
+        for (motor in leftMotors) {
+            motor.power = powers.left
         }
-
-        var currentPower = MotorPowers(0.0, 0.0)
-
-        launch {
-            while (true) {
-                currentPower = powerChannel.receive()
-                yield()
-            }
+        for (motor in rightMotors) {
+            motor.power = powers.right
         }
-
-        while (true) {
-            val realPowers = powerPipeline.execute(currentPower.copy(), this@TankDriveTrain)
-            setMotorPowers(realPowers.leftPower, leftMotors)
-            setMotorPowers(realPowers.rightPower, rightMotors)
-            yield()
-        }
-    }
-
-    suspend fun setMotorPowers(leftPower: Double, rightPower: Double) {
-        val rawPower = MotorPowers(leftPower, rightPower)
-        powerChannel.send(rawPower)
-        yield()
-    }
-
-    fun setRawMotorPowers(leftPower: Double, rightPower: Double) {
-        rightMotors.forEach { it.power = rightPower }
-        leftMotors.forEach { it.power = leftPower }
     }
 
     override fun stop() {
-        runBlocking { setMotorPowers(0.0, 0.0) }
+        runBlocking { setMotorPowers(MotorPowers(0.0, 0.0)) }
     }
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
@@ -86,12 +57,7 @@ class TankDriveTrain(
                 configuration.leftMotors,
                 configuration.rightMotors,
                 robot.coroutineContext
-            ).apply {
-                launch {
-                    robot.linearOpMode.delayUntilStart()
-                    start()
-                }
-            }
+            )
         }
     }
 

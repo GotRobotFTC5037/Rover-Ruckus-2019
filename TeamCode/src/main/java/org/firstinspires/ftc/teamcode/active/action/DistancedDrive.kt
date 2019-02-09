@@ -32,12 +32,22 @@ fun distancedDrive(
             val driveTrainJob = launch {
                 if (deltaDriveDistance > 0.0) {
                     while (true) {
-                        driveTrain.setMotorPowers(leftPower = power() + adjustmentPower(), rightPower = power() - adjustmentPower())
+                        driveTrain.setMotorPowers(
+                            TankDriveTrain.MotorPowers(
+                                power() + adjustmentPower(),
+                                power() - adjustmentPower()
+                            )
+                        )
                         yield()
                     }
                 } else if (deltaDriveDistance < 0.0) {
                     while (true) {
-                        driveTrain.setMotorPowers(leftPower = -power() - adjustmentPower(), rightPower = -power() - adjustmentPower())
+                        driveTrain.setMotorPowers(
+                            TankDriveTrain.MotorPowers(
+                                -power() - adjustmentPower(),
+                                -power() - adjustmentPower()
+                            )
+                        )
                         yield()
                     }
                 }

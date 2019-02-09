@@ -20,12 +20,13 @@ fun turnTo(targetHeading: Double): MoveAction = move {
             val driveTrainJob = launch {
                 if (targetHeading > initialHeading) {
                     while (true) {
-                        driveTrain.setMotorPowers(power(), -power())
+                        driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(power(), -power()))
                         yield()
                     }
                 } else if (targetHeading < initialHeading) {
                     while (true) {
-                        driveTrain.setMotorPowers(-power(), power())
+                        driveTrain.setMotorPowers(
+                            TankDriveTrain.MotorPowers(-power(), power()))
                         yield()
                     }
                 }
@@ -66,7 +67,7 @@ fun turn(deltaHeading: Double): MoveAction = move {
 
 fun timeTurn(time: Long, power: Double) = action {
     val driveTrain = requestFeature(TankDriveTrain)
-    driveTrain.setMotorPowers(-power, power)
+    driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(-power, power))
     delay(time)
     driveTrain.stop()
 }

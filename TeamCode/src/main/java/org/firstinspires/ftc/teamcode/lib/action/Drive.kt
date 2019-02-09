@@ -17,12 +17,14 @@ fun drive(deltaDistance: Double): MoveAction = move {
             val driveTrainJob = launch {
                 if (deltaDistance > 0.0) {
                     while (true) {
-                        driveTrain.setMotorPowers(leftPower = power(), rightPower = power())
+                        driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(power(), power()))
                         yield()
                     }
                 } else if (deltaDistance < 0.0) {
                     while (true) {
-                        driveTrain.setMotorPowers(leftPower = -power(), rightPower = -power())
+                        driveTrain.setMotorPowers(
+                            TankDriveTrain.MotorPowers(-power(), -power())
+                        )
                         yield()
                     }
                 }
