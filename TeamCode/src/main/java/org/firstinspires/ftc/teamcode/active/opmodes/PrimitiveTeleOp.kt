@@ -21,7 +21,7 @@ class PrimitiveTeleOp: LinearOpMode() {
         while (!isStarted) {
             yield()
         }
-        
+
         launch {
             while (true) {
                 frontLeftMotor.power = -gamepad1.left_stick_y.toDouble()
