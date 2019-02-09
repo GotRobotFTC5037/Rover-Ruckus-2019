@@ -6,6 +6,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptTelemetry
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
@@ -13,6 +15,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.vision.Vuforia
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
+import org.firstinspires.ftc.teamcode.lib.robot.telemetry
 import org.firstinspires.ftc.teamcode.lib.util.objectDetector
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
@@ -52,7 +55,8 @@ interface CargoDetector : Feature {
             }
             return CargoDetectorImpl(
                 objectDetector,
-                robot.coroutineContext
+                robot.coroutineContext,
+                robot.telemetry
             )
         }
     }
@@ -60,7 +64,8 @@ interface CargoDetector : Feature {
 
 class CargoDetectorImpl(
     private val objectDetector: TFObjectDetector,
-    override val coroutineContext: CoroutineContext
+    override val coroutineContext: CoroutineContext,
+    private val telemetry: Telemetry
 ) : CargoDetector, CoroutineScope {
 
     override val goldPosition: ReceiveChannel<GoldPosition> =
@@ -73,6 +78,8 @@ class CargoDetectorImpl(
         invokeOnClose {
             shutdown()
         }
+        val goldPositionLine = telemetry.addLine("Gold Positions")
+        val silverPositionLine = telemetry.addLine("Solver Positions")
         while (true) {
             val recognitions = objectDetector.updatedRecognitions
             if (recognitions != null) {
@@ -87,6 +94,9 @@ class CargoDetectorImpl(
                 } else {
                     GoldPosition.UNKNOWN
                 }
+                gold.map { it.left }.forEach { telemetry.addLine(it.toString()) }
+                silver.map { it.left }.forEach { telemetry.addLine(it.toString()) }
+                telemetry.update()
                 send(position)
                 yield()
             } else {
