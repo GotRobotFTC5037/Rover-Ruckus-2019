@@ -79,8 +79,6 @@ class CargoDetectorImpl(
         invokeOnClose {
             shutdown()
         }
-        val goldPositionLine = telemetry.addLine("Gold Positions")
-        val silverPositionLine = telemetry.addLine("Solver Positions")
         while (true) {
             val recognitions = objectDetector.updatedRecognitions
             if (recognitions != null) {
@@ -105,8 +103,9 @@ class CargoDetectorImpl(
                     }
                 } else {
                     GoldPosition.UNKNOWN
-
                 }
+                telemetry.addLine("Detected Position: $position")
+                telemetry.update()
                 send(position)
                 yield()
             } else {
