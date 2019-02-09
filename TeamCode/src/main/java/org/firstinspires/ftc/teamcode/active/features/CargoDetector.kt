@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.lib.robot.telemetry
 import org.firstinspires.ftc.teamcode.lib.util.objectDetector
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 
 private const val TFOD_MODEL_ASSET = "RoverRuckus.tflite"
 private const val GOLD_MINERAL = "Gold Mineral"
@@ -83,20 +84,29 @@ class CargoDetectorImpl(
         while (true) {
             val recognitions = objectDetector.updatedRecognitions
             if (recognitions != null) {
-                val gold = recognitions.filter { it.label == GOLD_MINERAL }
-                val silver = recognitions.filter { it.label == SILVER_MINERAL }
+                val gold = recognitions.filter {
+                    it.label == GOLD_MINERAL && it.width < it.imageWidth / 3
+                }
+                val silver = recognitions.filter {
+                    it.label == SILVER_MINERAL && it.width < it.imageWidth / 3
+                }
                 val position = if (gold.count() == 1 && silver.count() == 2) {
                     when {
-                        silver.none { it.left > gold.first().left } -> GoldPosition.RIGHT
-                        silver.none { it.right < gold.first().right } -> GoldPosition.LEFT
-                        else -> GoldPosition.CENTER
+                        silver.none { it.left > gold.first().left } -> { GoldPosition.RIGHT }
+                        silver.none { it.right < gold.first().right } -> { GoldPosition.LEFT }
+                        else -> { GoldPosition.CENTER }
+                    }
+                } else if (gold.count() == 1 && silver.count() == 1) {
+                    val goldPos: Int = gold.first().left.roundToInt()
+                    val imageWidth: Int = gold.first().imageWidth
+                    when {
+                        goldPos in (imageWidth / 3)..(imageWidth / 3 * 2) -> GoldPosition.CENTER
+                        else -> { GoldPosition.UNKNOWN }
                     }
                 } else {
                     GoldPosition.UNKNOWN
+
                 }
-                gold.map { it.left }.forEach { telemetry.addLine(it.toString()) }
-                silver.map { it.left }.forEach { telemetry.addLine(it.toString()) }
-                telemetry.update()
                 send(position)
                 yield()
             } else {
