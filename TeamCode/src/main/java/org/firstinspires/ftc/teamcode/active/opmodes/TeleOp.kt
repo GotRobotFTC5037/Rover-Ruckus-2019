@@ -66,7 +66,12 @@ class TeleOp : LinearOpMode() {
             }
 
             // Lift
-            loop { lift.setPower(-gamepad2.left_stick_y.toDouble()) }
+            launch {
+                while(true) {
+                    lift.setPower(-gamepad2.left_stick_y.toDouble())
+                    yield()
+                }
+            }
 
             // Marker Deployer
             launch {
@@ -95,6 +100,7 @@ class TeleOp : LinearOpMode() {
                         else -> 0.0
                     }
                     deliverySystem.intake.setLiftPower(power)
+                    yield()
                 }
             }
 
@@ -106,6 +112,7 @@ class TeleOp : LinearOpMode() {
                         else -> 0.0
                     }
                     deliverySystem.intake.setIntakePower(power)
+                    yield()
                 }
             }
 
@@ -116,6 +123,7 @@ class TeleOp : LinearOpMode() {
                         true -> deliverySystem.popper.enablePopper()
                         false -> deliverySystem.popper.disablePopper()
                     }
+                    yield()
                 }
             }
 
@@ -125,6 +133,7 @@ class TeleOp : LinearOpMode() {
                     deliverySystem.chute.setChuteLiftPower(
                         -gamepad2.right_stick_y.toDouble()
                     )
+                    yield()
                 }
             }
 
@@ -134,6 +143,7 @@ class TeleOp : LinearOpMode() {
                         gamepad2.dpad_up -> deliverySystem.chute.raiseShutter()
                         gamepad2.dpad_down -> deliverySystem.chute.dropShutter()
                     }
+                    yield()
                 }
             }
 
@@ -145,6 +155,7 @@ class TeleOp : LinearOpMode() {
                     telemetry.addData("Position", lift.liftPosition)
                     telemetry.update()
                 }
+                yield()
             }
 
             delayUntilStop()
