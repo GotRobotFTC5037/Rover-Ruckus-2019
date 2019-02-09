@@ -85,9 +85,9 @@ private fun wiggleWheels(duration: Long) = action {
     val driveTrain = requestFeature(TankDriveTrain)
     val wiggleJob = launch {
         while (isActive) {
-            driveTrain.setMotorPowers(1.0, 1.0)
+            driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(1.0, 1.0))
             delay(100)
-            driveTrain.setMotorPowers(-1.0, 1.0)
+            driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(-1.0, 1.0))
             delay(100)
         }
     }

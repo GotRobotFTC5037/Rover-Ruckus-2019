@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.lib.feature
 
-import com.qualcomm.robotcore.util.DifferentialControlLoopCoefficients
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.runBlocking
 import org.firstinspires.ftc.teamcode.lib.PipelineContext
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
@@ -27,8 +24,8 @@ class HeadingCorrection(
             val error = currentHeading - targetHeading
             val correction = coefficient * error
             val newPowerPowers = TankDriveTrain.MotorPowers(
-                currentPowers.leftPower - correction,
-                currentPowers.rightPower + correction
+                currentPowers.left - correction,
+                currentPowers.right + correction
             )
             context.proceedWith(newPowerPowers)
         } else {
