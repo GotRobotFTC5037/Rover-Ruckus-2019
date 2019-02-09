@@ -23,6 +23,7 @@ class TeleOp : LinearOpMode() {
     override fun runOpMode() = runBlocking {
         roverRuckusRobot(this@TeleOp, this).perform {
             val driveTrain = requestFeature(TankDriveTrain)
+            val lift = requestFeature(Lift)
             while (isActive) {
                 driveTrain.setMotorPowers(
                     TankDriveTrain.MotorPowers(
@@ -30,6 +31,11 @@ class TeleOp : LinearOpMode() {
                         right = -gamepad1.right_stick_x.toDouble()
                     )
                 )
+                when {
+                    gamepad1.dpad_up -> lift.setPower(1.0)
+                    gamepad1.dpad_down -> lift.setPower(-1.0)
+                    else -> lift.setPower(0.0)
+                }
             }
         }
     }
