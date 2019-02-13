@@ -6,10 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
-import org.firstinspires.ftc.teamcode.active.features.CargoDetector
-import org.firstinspires.ftc.teamcode.active.features.GoldPosition
-import org.firstinspires.ftc.teamcode.active.features.Lift
-import org.firstinspires.ftc.teamcode.active.features.MarkerDeployer
+import org.firstinspires.ftc.teamcode.active.features.*
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
@@ -67,6 +64,12 @@ private val retractLift = action {
         delay(1000)
         landerLatch.retract()
     }
+}
+
+//private val deployIntake = action {
+//    val intake = requestFeature(CargoDeliverySystem.Intake)
+
+
 }
 
 private val deliverMarker = action {

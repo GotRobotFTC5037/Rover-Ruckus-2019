@@ -34,7 +34,7 @@ class TankDriveTrain(
 
     fun CoroutineScope.startUpdatingMotorPowers(ticker: ReceiveChannel<Unit>) = launch {
         var currentTargetPowers = MotorPowers(0.0, 0.0)
-        while (true) {
+        while (isActive) {
             select<Unit> {
                 powerChannel.onReceive {
                     currentTargetPowers = it

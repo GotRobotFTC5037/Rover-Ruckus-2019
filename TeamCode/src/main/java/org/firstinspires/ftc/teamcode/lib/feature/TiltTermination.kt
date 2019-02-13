@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.lib.feature
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
@@ -16,7 +17,7 @@ class TiltTermination(
 ) : Feature, CoroutineScope {
 
     fun start() = launch {
-        while (true) {
+        while (isActive) {
             val orientation = orientationChannel.receive()
             if (abs(orientation.pitch) > terminationAngle || abs(orientation.roll) > terminationAngle) {
                 throw TiltTerminationException()

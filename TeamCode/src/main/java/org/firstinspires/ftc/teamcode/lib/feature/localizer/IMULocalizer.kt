@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.lib.feature.localizer
 import com.qualcomm.hardware.bosch.BNO055IMU
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
@@ -34,7 +35,7 @@ class IMULocalizer(
     private fun CoroutineScope.broadcastOrientation(ticker: ReceiveChannel<Unit>): BroadcastChannel<OrientationUpdate> {
 
         return broadcast(capacity = Channel.CONFLATED) {
-            while (true) {
+            while (isActive) {
                 ticker.receive()
                 val orientation = imu.getAngularOrientation(reference, order, AngleUnit.DEGREES)
                 val update = OrientationUpdate(
@@ -51,7 +52,7 @@ class IMULocalizer(
     private fun CoroutineScope.broadcastHeading(
         orientationChannel: ReceiveChannel<OrientationUpdate>
     ) = broadcast(capacity = Channel.CONFLATED) {
-        while (true) {
+        while (isActive) {
             val orientation = orientationChannel.receive()
             send(orientation.heading)
             yield()
