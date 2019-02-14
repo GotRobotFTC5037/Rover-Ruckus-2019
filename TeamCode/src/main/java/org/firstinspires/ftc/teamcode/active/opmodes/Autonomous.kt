@@ -69,9 +69,6 @@ private val retractLift = action {
 //private val deployIntake = action {
 //    val intake = requestFeature(CargoDeliverySystem.Intake)
 
-
-
-
 private val deliverMarker = action {
     val markerDeployer = requestFeature(MarkerDeployer)
     markerDeployer.deploy()
