@@ -151,14 +151,14 @@ class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(45.5),
-        drive(40.0),
+        drive(35.0),
         turnTo(90.0),
-        drive(97.5),
+        drive(96.5),
         turnTo(130.0),
         drive(90.0),
         deliverMarker,
         turnTo(125.0),
-        drive(-200.0),
+        drive(-185.0),
         turnTo(135.0),
         drive(-35.0)
     )
