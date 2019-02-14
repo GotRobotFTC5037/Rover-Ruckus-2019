@@ -43,7 +43,11 @@ object RobotConstants {
     val RightRangeSensor = featureKey<RangeSensor>()
 
     // TODO: Put this key into a file and read from the file.
-    const val VUFORIA_KEY = "AdIaYr//////AAABmbPW4cADC0JWmq5z8YPKV2BLhjRavE34U++fSDpW2nfDwTsg99Uz5YWBQL02Wgz62sORWmPOVnNooNp87t4XrMIK8NlZKHJ8oFBfHsmar4sODJt7hqSUy3ZeUMfGsCUQyh8J/dHrFdGQJ7EdTJUdB8XMK+urV2h51WpIyaZCL1Aa1BjNBODanTcX2yFTMDjno9QIbzQZ3ZfFwy6Nx/y196DvIa8/47/y0x2OLFzcVpeiUvDwtKKc9CzrAUVSpd8/qLcOKPTKy5VUxRawILhbovkLTntIzBFtikuLp9kqqrysX4kW2gzW2H4XjF2z+cqrypKT8dwHCsLlEdcS1jXBVlfbExfj+7efvMPP3dSi4Zjo"
+    const val VUFORIA_KEY = "AdIaYr//////AAABmbPW4cADC0JWmq5z8YPKV2BLhjRavE34U++fSDpW2nfDwTsg99Uz" +
+            "5YWBQL02Wgz62sORWmPOVnNooNp87t4XrMIK8NlZKHJ8oFBfHsmar4sODJt7hqSUy3ZeUMfGsCUQyh8J/dHr" +
+            "FdGQJ7EdTJUdB8XMK+urV2h51WpIyaZCL1Aa1BjNBODanTcX2yFTMDjno9QIbzQZ3ZfFwy6Nx/y196DvIa8/" +
+            "47/y0x2OLFzcVpeiUvDwtKKc9CzrAUVSpd8/qLcOKPTKy5VUxRawILhbovkLTntIzBFtikuLp9kqqrysX4kW" +
+            "2gzW2H4XjF2z+cqrypKT8dwHCsLlEdcS1jXBVlfbExfj+7efvMPP3dSi4Zjo"
 }
 
 @Suppress("SpellCheckingInspection")

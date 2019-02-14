@@ -26,16 +26,20 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
 
     val positionChannel = localizer.newPositionChannel()
 
+    fun adjustmentPower() = (rangeSensor.distance - data.wallDistance) * data.coefficient
+
     val driveJob = launch {
         if (data.distance > 0.0) {
             while (true) {
-                driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(power(), power()))
+                val adjustmentPower = adjustmentPower()
+                driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(power() + adjustmentPower, power() - adjustmentPower))
                 yield()
             }
         } else if (data.distance < 0.0) {
             while (true) {
+                val adjustmentPower = adjustmentPower()
                 driveTrain.setMotorPowers(
-                    TankDriveTrain.MotorPowers(-power(), -power())
+                    TankDriveTrain.MotorPowers(-power() + adjustmentPower, -power() - adjustmentPower)
                 )
                 yield()
             }

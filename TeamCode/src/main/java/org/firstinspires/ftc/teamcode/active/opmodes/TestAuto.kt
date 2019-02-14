@@ -4,24 +4,23 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.runBlocking
+import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
-import org.firstinspires.ftc.teamcode.lib.action.actionSequenceOf
-import org.firstinspires.ftc.teamcode.lib.action.drive
-import org.firstinspires.ftc.teamcode.lib.action.turnTo
+import org.firstinspires.ftc.teamcode.lib.action.*
 
 @Autonomous
-@Disabled
-class Test : LinearOpMode() {
+class WallFollowingTest : LinearOpMode() {
     override fun runOpMode() = runBlocking {
-        roverRuckusRobot(this@Test, this, shouldUseCamera = false).perform(
-            actionSequenceOf(
-                turnTo(0.0),
-                drive(50.0),
-                turnTo(180.0),
-                drive(50.0),
-                turnTo(0.0)
+        roverRuckusRobot(this@WallFollowingTest, this, shouldUseCamera = false)
+            .perform(
+                wallFollowingDrive(
+                    WallFollowingData(
+                        99999.0,
+                        7.5,
+                        0.25,
+                        RobotConstants.RightRangeSensor)
+                )
             )
-        )
     }
 
 }
