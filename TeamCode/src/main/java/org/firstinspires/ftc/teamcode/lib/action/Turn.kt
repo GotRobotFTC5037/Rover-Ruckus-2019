@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.first
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.power
 
+@ExperimentalCoroutinesApi
 fun turnTo(targetHeading: Double): MoveAction = move {
     when (val driveTrain = requestFeature(DriveTrain::class)) {
         is TankDriveTrain -> {

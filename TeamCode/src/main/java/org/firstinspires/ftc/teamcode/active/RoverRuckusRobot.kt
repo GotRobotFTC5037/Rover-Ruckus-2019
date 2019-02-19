@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.CoroutineScope
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
-import org.firstinspires.ftc.teamcode.active.RobotConstants.RightRangeSensor
 import org.firstinspires.ftc.teamcode.active.features.*
 import org.firstinspires.ftc.teamcode.lib.ConstantPowerManager
 import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
@@ -33,7 +32,6 @@ object RobotConstants {
     const val MARKER_DEPLOYER_SERVO = "marker"
     const val INTAKE_LIFT_MOTOR = "intake lift"
     const val INTAKE_MOTOR = "intake"
-    const val POPPER_MOTOR = "popper"
     const val IMU = "imu"
     const val WEBCAM = "webcam"
     const val WHEEL_DIAMETER = 10.16
@@ -83,12 +81,18 @@ suspend fun roverRuckusRobot(
         initialHeading = 90.0
     }
 
+    // Saftey
     install(TiltTermination) {
         this.terminationAngle = 45.0
     }
 
     // Autonomous
     if (linearOpMode.isAutonomous()) {
+
+        // Sensors
+        install(RangeSensor, RobotConstants.RightRangeSensor) {
+            this.sensorName = "right range sensor"
+        }
 
         // Localizer
         install(TankDriveTrainLocalizer) {

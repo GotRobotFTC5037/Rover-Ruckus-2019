@@ -4,8 +4,10 @@ package org.firstinspires.ftc.teamcode.active.opmodes
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.robot.Robot
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.first
+import org.firstinspires.ftc.teamcode.active.RobotConstants
 import org.firstinspires.ftc.teamcode.active.features.*
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.action.*
@@ -97,7 +99,7 @@ private fun wiggleWheels(duration: Long) = action {
 }
 
 
-@Autonomous
+@Autonomous(name = "Depot Autonomous", group = "Competitive")
 class DepotAutonomous : LinearOpMode() {
     private val leftAction = actionSequenceOf(
         turnTo(40.0),
@@ -146,21 +148,20 @@ class DepotAutonomous : LinearOpMode() {
 }
 
 
-@Autonomous
+@Autonomous(name = "Crater Autonomous", group = "Competitive")
 class CraterAutonomous : LinearOpMode() {
 
     private val leftAction = actionSequenceOf(
         turnTo(45.5),
-        drive(35.0),
+        drive(65.0),
+        turnTo(0.0),
+        drive(-15.0),
         turnTo(90.0),
-        drive(96.5),
+        drive(80.0),
         turnTo(130.0),
-        drive(90.0),
+        wallFollowingDrive(WallFollowingData(80.0, 6.0, 0.15, RobotConstants.RightRangeSensor)),
         deliverMarker,
-        turnTo(125.0),
-        drive(-185.0),
-        turnTo(135.0),
-        drive(-35.0)
+        wallFollowingDrive(WallFollowingData(-185.0, 6.0, 0.15, RobotConstants.RightRangeSensor))
     )
 
     private val centerAction = actionSequenceOf(
@@ -172,22 +173,21 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(90.0),
         drive(100.0),
         turnTo(135.0),
-        drive(100.0),
+        wallFollowingDrive(WallFollowingData(80.0, 6.0, 0.15, RobotConstants.RightRangeSensor)),
         deliverMarker,
-        drive(-175.0)
+        wallFollowingDrive(WallFollowingData(-175.0, 6.0, 0.15, RobotConstants.RightRangeSensor))
     )   
 
     private val rightAction = actionSequenceOf(
         turnTo(-27.5),
         drive(50.0),
-        drive(-30.0),
+        drive(-25.0),
         turnTo(90.0),
-        drive(100.0),
+        drive(150.0),
         turnTo(135.0),
-        drive(70.0),
+        wallFollowingDrive(WallFollowingData(80.0, 6.0, 0.15, RobotConstants.RightRangeSensor)),
         deliverMarker,
-        turn(5.0),
-        drive(-200.0)
+        wallFollowingDrive(WallFollowingData(-175.0, 6.0, 0.15, RobotConstants.RightRangeSensor))
     )
 
     @Throws(InterruptedException::class)

@@ -27,7 +27,6 @@ class TiltTermination(
     }
 
     companion object Installer : FeatureInstaller<Configuration, TiltTermination> {
-
         override fun install(robot: Robot, configure: Configuration.() -> Unit): TiltTermination {
             val configuration = Configuration().apply(configure)
             val orientationChannel = robot[IMULocalizer].newOrientationChannel()

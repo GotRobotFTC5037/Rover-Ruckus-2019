@@ -18,8 +18,10 @@ import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 import org.firstinspires.ftc.teamcode.lib.robot.telemetry
 import org.firstinspires.ftc.teamcode.lib.util.objectDetector
 import java.util.concurrent.Executors
+import kotlin.concurrent.timer
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
+import kotlin.system.measureTimeMillis
 
 private const val TFOD_MODEL_ASSET = "RoverRuckus.tflite"
 private const val GOLD_MINERAL = "Gold Mineral"
@@ -40,8 +42,7 @@ interface CargoDetector : Feature {
 
     companion object Installer : FeatureInstaller<Configuration, CargoDetector> {
         override fun install(robot: Robot, configure: Configuration.() -> Unit): CargoDetector {
-            val configuration = Configuration()
-                .apply(configure)
+            val configuration = Configuration().apply(configure)
             val context = robot.hardwareMap.appContext
             val viewId = context.resources.getIdentifier(VIEW_ID, "id", context.packageName)
             val parameters: TFObjectDetector.Parameters =
@@ -82,31 +83,53 @@ class CargoDetectorImpl(
         while (true) {
             val recognitions = objectDetector.updatedRecognitions
             if (recognitions != null) {
-                val gold = recognitions.filter {
-                    it.label == GOLD_MINERAL && it.width < it.imageWidth / 3
-                }
-                val silver = recognitions.filter {
-                    it.label == SILVER_MINERAL && it.width < it.imageWidth / 3
-                }
-                val position = if (gold.count() == 1 && silver.count() == 2) {
-                    when {
-                        silver.none { it.left > gold.first().left } -> { GoldPosition.RIGHT }
-                        silver.none { it.right < gold.first().right } -> { GoldPosition.LEFT }
-                        else -> { GoldPosition.CENTER }
+                val timer = measureTimeMillis {
+                    val filteredRecognitions = recognitions.filter {
+                        it.width < 100 && it.width > 60
                     }
-                } else if (gold.count() == 1 && silver.count() == 1) {
-                    val goldPos: Int = gold.first().left.roundToInt()
-                    val imageWidth: Int = gold.first().imageWidth
-                    when {
-                        goldPos in (imageWidth / 3)..(imageWidth / 3 * 2) -> GoldPosition.CENTER
-                        else -> { GoldPosition.UNKNOWN }
+                    val gold = filteredRecognitions.filter {
+                        it.label == GOLD_MINERAL
                     }
-                } else {
-                    GoldPosition.UNKNOWN
+                    val silver = filteredRecognitions.filter {
+                        it.label == SILVER_MINERAL
+                    }
+                    val position = if (gold.count() == 1 && silver.count() == 2) {
+                        when {
+                            silver.none { it.left > gold.first().left } -> {
+                                GoldPosition.RIGHT
+                            }
+                            silver.none { it.right < gold.first().right } -> {
+                                GoldPosition.LEFT
+                            }
+                            else -> {
+                                GoldPosition.CENTER
+                            }
+                        }
+                    } else if (gold.count() == 1 && silver.count() == 1) {
+                        val goldPos: Int = gold.first().left.roundToInt()
+                        val imageWidth: Int = gold.first().imageWidth
+                        when (goldPos) {
+                            in 0..(imageWidth / 3) -> GoldPosition.LEFT
+                            in (imageWidth / 3)..(imageWidth / 3 * 2) -> GoldPosition.CENTER
+                            in (imageWidth / 3 * 2)..imageWidth -> GoldPosition.RIGHT
+                            else -> {
+                                GoldPosition.UNKNOWN
+                            }
+                        }
+                    } else {
+                        GoldPosition.UNKNOWN
+                    }
+
+                    telemetry.addLine("Detected Position: $position")
+                    telemetry.addLine("# Gold: ${gold.count()}")
+                    telemetry.addLine("# Silver: ${silver.count()}")
+                    gold.forEach {
+                        telemetry.addLine("Gold Pos: ${it.bottom}|${it.imageHeight}")
+                    }
+                    send(position)
                 }
-                telemetry.addLine("Detected Position: $position")
+                telemetry.addLine("Time: $timer")
                 telemetry.update()
-                send(position)
                 yield()
             } else {
                 yield()

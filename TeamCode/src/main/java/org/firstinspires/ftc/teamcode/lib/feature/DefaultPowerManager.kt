@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.lib.PowerManager
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 
+@Suppress("unused")
 class DefaultPowerManager(
     private val powerManagers: Map<MoveActionType, PowerManager>
 ) : Feature {
@@ -26,6 +27,7 @@ class DefaultPowerManager(
 
         internal val powerManagers = mutableMapOf<MoveActionType, PowerManager>()
 
+        @Suppress("UNUSED_PARAMETER")
         infix fun MoveActionClause.uses(powerManager: PowerManager) {
 
         }

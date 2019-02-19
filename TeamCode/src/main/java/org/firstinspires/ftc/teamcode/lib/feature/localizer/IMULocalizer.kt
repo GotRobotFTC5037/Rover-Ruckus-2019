@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.lib.feature.localizer
 
 import com.qualcomm.hardware.bosch.BNO055IMU
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.yield
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference
@@ -32,6 +30,7 @@ class IMULocalizer(
         val roll: Double
     )
 
+    @ExperimentalCoroutinesApi
     private fun CoroutineScope.broadcastOrientation(ticker: ReceiveChannel<Unit>): BroadcastChannel<OrientationUpdate> {
 
         return broadcast(capacity = Channel.CONFLATED) {
@@ -49,6 +48,7 @@ class IMULocalizer(
         }
     }
 
+    @ExperimentalCoroutinesApi
     private fun CoroutineScope.broadcastHeading(
         orientationChannel: ReceiveChannel<OrientationUpdate>
     ) = broadcast(capacity = Channel.CONFLATED) {
@@ -59,10 +59,14 @@ class IMULocalizer(
         }
     }
 
+    @ObsoleteCoroutinesApi
+    @ExperimentalCoroutinesApi
     private val orientationChannel = broadcastOrientation(ticker(10))
 
+    @ExperimentalCoroutinesApi
     fun newOrientationChannel() = orientationChannel.openSubscription()
 
+    @ExperimentalCoroutinesApi
     fun newHeadingChannel() = broadcastHeading(newOrientationChannel()).openSubscription()
 
     class Configuration : FeatureConfiguration {

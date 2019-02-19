@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.lib.robot.perform
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 import org.firstinspires.ftc.teamcode.lib.util.Utility
 
-@Autonomous
+@Autonomous(name = "Retract Lift", group = "Utils")
 class RetractLift : LinearOpMode(), Utility {
     override fun runOpMode() = runBlocking {
         robot(this@RetractLift, this) {

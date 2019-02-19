@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.any
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
@@ -33,6 +34,7 @@ fun drive(deltaDistance: Double): MoveAction = move {
                     driveTrain.stop()
                 }
             }
+            @Suppress("EXPERIMENTAL_API_USAGE")
             positionChannel.any {
                 val target = abs(deltaDistance)
                 val currentPosition = abs(it.average)

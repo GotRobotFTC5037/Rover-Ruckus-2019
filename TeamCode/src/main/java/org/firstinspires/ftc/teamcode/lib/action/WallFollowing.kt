@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
-import com.qualcomm.robotcore.hardware.DistanceSensor
 import kotlinx.coroutines.channels.any
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
@@ -26,7 +24,7 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
 
     val positionChannel = localizer.newPositionChannel()
 
-    fun adjustmentPower() = (rangeSensor.distance - data.wallDistance) * data.coefficient
+    fun adjustmentPower() = (rangeSensor.distance - data.wallDistance) * -data.coefficient
 
     val driveJob = launch {
         if (data.distance > 0.0) {
@@ -57,6 +55,8 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
         telemetry.addLine()
             .addData("Target", data.distance)
             .addData("Current", currentPosition)
+            .addData("Distance", rangeSensor.distance)
+            .addData("AP", adjustmentPower())
         telemetry.update()
 
         currentPosition > target

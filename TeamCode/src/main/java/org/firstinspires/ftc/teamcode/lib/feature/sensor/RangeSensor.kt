@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.lib.feature.sensor
 
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.DistanceSensor
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
@@ -13,7 +12,7 @@ class RangeSensor(
     private val sensor: DistanceSensor
 ) : Feature {
 
-    val distance: Double = sensor.getDistance(DistanceUnit.CM)
+    val distance: Double get() = sensor.getDistance(DistanceUnit.CM)
 
     class Configuration : FeatureConfiguration {
         var sensorName = "range sensor"

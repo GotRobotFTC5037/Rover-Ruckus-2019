@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.lib.robot
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import kotlinx.coroutines.*
+import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.action.ActionPipeline
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
@@ -37,6 +38,7 @@ private class RobotImpl(
         key: FeatureKey<TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
+        telemetry.log().add("Installing ${feature::class.qualifiedName}")
         val featureInstance = feature.install(this, configuration)
         features[key] = featureInstance
     }
@@ -66,6 +68,8 @@ private class RobotImpl(
     override suspend fun perform(action: Action) = coroutineScope {
         actionPipeline.execute(action, this@RobotImpl)
         action.run(this@RobotImpl)
+        telemetry.update()
+        return@coroutineScope
     }
 
     override fun performBlocking(action: Action) = runBlocking {
@@ -81,15 +85,18 @@ suspend fun robot(
 ): Robot {
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
 
+    linearOpMode.telemetry.log().displayOrder = Telemetry.Log.DisplayOrder.NEWEST_FIRST
+    linearOpMode.telemetry.log().capacity = 5
+
     linearOpMode.telemetry.log().add("Setting up robot...")
     val robot = RobotImpl(linearOpMode, opModeScope).apply(configure)
 
     linearOpMode.telemetry.log().add("Waiting for start...")
     linearOpMode.delayUntilStart()
 
-    GlobalScope.launch {
+    robot.launch {
         linearOpMode.delayUntilStop()
-        robot.cancelAndJoin()
+        robot.cancel()
     }
 
     return robot

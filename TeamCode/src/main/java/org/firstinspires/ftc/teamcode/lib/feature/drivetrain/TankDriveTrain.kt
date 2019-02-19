@@ -63,6 +63,7 @@ class TankDriveTrain(
     }
 
     companion object Installer : FeatureInstaller<Configuration, TankDriveTrain> {
+        @ObsoleteCoroutinesApi
         override fun install(robot: Robot, configure: Configuration.() -> Unit): TankDriveTrain {
             val configuration = Configuration(robot.hardwareMap).apply(configure)
             for (motor in configuration.leftMotors + configuration.rightMotors) {
