@@ -2,12 +2,12 @@
 
 package org.firstinspires.ftc.teamcode.active.features
 
+import com.google.gson.annotations.Until
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.*
 import org.firstinspires.ftc.robotcontroller.external.samples.ConceptTelemetry
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
@@ -57,8 +57,7 @@ interface CargoDetector : Feature {
             }
             return CargoDetectorImpl(
                 objectDetector,
-                robot.coroutineContext,
-                robot.telemetry
+                robot.coroutineContext
             )
         }
     }
@@ -66,74 +65,47 @@ interface CargoDetector : Feature {
 
 class CargoDetectorImpl(
     private val objectDetector: TFObjectDetector,
-    override val coroutineContext: CoroutineContext,
-    private val telemetry: Telemetry
+    override val coroutineContext: CoroutineContext
 ) : CargoDetector, CoroutineScope {
 
     override val goldPosition: ReceiveChannel<GoldPosition> =
-        produceGoldPosition(objectDetector)
+        produceGoldPosition(objectDetector, ticker(100, mode = TickerMode.FIXED_PERIOD))
 
     private fun CoroutineScope.produceGoldPosition(
-        objectDetector: TFObjectDetector
+        objectDetector: TFObjectDetector,
+        ticker: ReceiveChannel<Unit>
     ) = produce(capacity = Channel.CONFLATED) {
+
         objectDetector.activate()
+
         invokeOnClose {
             shutdown()
         }
-        while (true) {
-            val recognitions = objectDetector.updatedRecognitions
-            if (recognitions != null) {
-                val timer = measureTimeMillis {
-                    val filteredRecognitions = recognitions.filter {
-                        it.width < 100 && it.width > 60
-                    }
-                    val gold = filteredRecognitions.filter {
-                        it.label == GOLD_MINERAL
-                    }
-                    val silver = filteredRecognitions.filter {
-                        it.label == SILVER_MINERAL
-                    }
-                    val position = if (gold.count() == 1 && silver.count() == 2) {
-                        when {
-                            silver.none { it.left > gold.first().left } -> {
-                                GoldPosition.RIGHT
-                            }
-                            silver.none { it.right < gold.first().right } -> {
-                                GoldPosition.LEFT
-                            }
-                            else -> {
-                                GoldPosition.CENTER
-                            }
-                        }
-                    } else if (gold.count() == 1 && silver.count() == 1) {
-                        val goldPos: Int = gold.first().left.roundToInt()
-                        val imageWidth: Int = gold.first().imageWidth
-                        when (goldPos) {
-                            in 0..(imageWidth / 3) -> GoldPosition.LEFT
-                            in (imageWidth / 3)..(imageWidth / 3 * 2) -> GoldPosition.CENTER
-                            in (imageWidth / 3 * 2)..imageWidth -> GoldPosition.RIGHT
-                            else -> {
-                                GoldPosition.UNKNOWN
-                            }
-                        }
-                    } else {
-                        GoldPosition.UNKNOWN
-                    }
 
-                    telemetry.addLine("Detected Position: $position")
-                    telemetry.addLine("# Gold: ${gold.count()}")
-                    telemetry.addLine("# Silver: ${silver.count()}")
-                    gold.forEach {
-                        telemetry.addLine("Gold Pos: ${it.bottom}|${it.imageHeight}")
-                    }
-                    send(position)
+        while (true) {
+            ticker.receive()
+            val recognitions = objectDetector.recognitions
+
+            val gold = recognitions
+                .filter { it.isGold() }
+                .sortedBy { it.confidence }
+
+            val silver = recognitions
+                .filter { it.isSilver() }
+                .sortedBy { it.confidence }
+
+            val sendValue = if (gold.count() >= 1 && silver.count() >= 2) {
+                when {
+                    silver.subList(0, 1).all { it.left > gold.first().left } -> GoldPosition.RIGHT
+                    silver.subList(0, 1).all { it.left < gold.first().left } -> GoldPosition.LEFT
+                    else -> GoldPosition.CENTER
                 }
-                telemetry.addLine("Time: $timer")
-                telemetry.update()
-                yield()
             } else {
-                yield()
+                GoldPosition.UNKNOWN
             }
+
+            send(sendValue)
+            yield()
         }
     }
 
@@ -144,3 +116,10 @@ class CargoDetectorImpl(
     }
 
 }
+
+enum class CargoType {
+    GOLD, SILVER
+}
+
+fun Recognition.isGold() = this.label == GOLD_MINERAL
+fun Recognition.isSilver() = this.label == SILVER_MINERAL

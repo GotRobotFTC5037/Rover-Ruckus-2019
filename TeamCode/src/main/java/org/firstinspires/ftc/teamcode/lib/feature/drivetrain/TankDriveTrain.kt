@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.*
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotPositionLocalizer
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
+import org.firstinspires.ftc.teamcode.lib.util.delayUntilStart
 import org.firstinspires.ftc.teamcode.lib.util.sameOrNull
 import kotlin.coroutines.CoroutineContext
 
@@ -32,7 +34,8 @@ class TankDriveTrain(
         powerChannel.send(powers)
     }
 
-    fun CoroutineScope.startUpdatingMotorPowers(ticker: ReceiveChannel<Unit>) = launch {
+    fun CoroutineScope.startUpdatingMotorPowers(opMode: LinearOpMode, ticker: ReceiveChannel<Unit>) = launch {
+        opMode.delayUntilStart()
         var currentTargetPowers = MotorPowers(0.0, 0.0)
         while (isActive) {
             select<Unit> {
@@ -74,7 +77,7 @@ class TankDriveTrain(
                 configuration.rightMotors,
                 robot.coroutineContext
             ).apply {
-                startUpdatingMotorPowers(ticker(10, mode = TickerMode.FIXED_DELAY))
+                startUpdatingMotorPowers(robot.linearOpMode, ticker(10, mode = TickerMode.FIXED_DELAY))
             }
         }
     }

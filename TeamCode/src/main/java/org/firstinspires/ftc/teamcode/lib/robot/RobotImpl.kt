@@ -38,7 +38,7 @@ private class RobotImpl(
         key: FeatureKey<TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
-        telemetry.log().add("Installing ${feature::class.qualifiedName}")
+        telemetry.log().add("Installing ${feature::class.qualifiedName!!.split(".").reversed()[1]}")
         val featureInstance = feature.install(this, configuration)
         features[key] = featureInstance
     }
