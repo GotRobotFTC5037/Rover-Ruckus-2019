@@ -45,8 +45,10 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             extendLift,
             wiggleWheels(1000),
             turnTo(91.5),
-            drive(-7.5),
+            drive(-2.0),
             retractLift,
+            turnTo(90.0),
+            drive(2.0),
             goldAction
         )
     )
@@ -109,7 +111,7 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(0.0),
         deliverMarker,
         turnTo(135.0),
-        wallFollowingDrive(WallFollowingData(90.0, 7.5, 0.165, RobotConstants.RightRangeSensor)),
+        wallFollowingDrive(WallFollowingData(110.0, 7.5, 0.165, RobotConstants.RightRangeSensor)),
         deployMarker
     )
 
@@ -118,7 +120,7 @@ class DepotAutonomous : LinearOpMode() {
         drive(100.0),
         deliverMarker,
         turnTo(0.0),
-        drive(-85.0),
+        drive(-80.0),
         turnTo(90.0),
         drive(115.0),
         turnTo(130.0),
