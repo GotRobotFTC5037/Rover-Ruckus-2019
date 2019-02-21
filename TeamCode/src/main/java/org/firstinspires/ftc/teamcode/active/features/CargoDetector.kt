@@ -88,16 +88,18 @@ class CargoDetectorImpl(
 
             val gold = recognitions
                 .filter { it.isGold() }
-                .sortedBy { it.confidence }
+                .sortedBy { it.bottom }
+                .reversed()
 
             val silver = recognitions
                 .filter { it.isSilver() }
-                .sortedBy { it.confidence }
+                .sortedBy { it.bottom }
+                .reversed()
 
             val sendValue = if (gold.count() >= 1 && silver.count() >= 2) {
                 when {
-                    silver.subList(0, 1).all { it.left > gold.first().left } -> GoldPosition.RIGHT
-                    silver.subList(0, 1).all { it.left < gold.first().left } -> GoldPosition.LEFT
+                    silver.subList(0, 2).all { it.left < gold.first().left } -> GoldPosition.RIGHT
+                    silver.subList(0, 2).all { it.left > gold.first().left } -> GoldPosition.LEFT
                     else -> GoldPosition.CENTER
                 }
             } else {
@@ -115,10 +117,6 @@ class CargoDetectorImpl(
         }
     }
 
-}
-
-enum class CargoType {
-    GOLD, SILVER
 }
 
 fun Recognition.isGold() = this.label == GOLD_MINERAL

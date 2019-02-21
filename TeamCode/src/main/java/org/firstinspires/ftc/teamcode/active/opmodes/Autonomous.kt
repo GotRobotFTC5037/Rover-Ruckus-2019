@@ -45,7 +45,7 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             extendLift,
             wiggleWheels(1000),
             turnTo(91.5),
-            drive(-6.0),
+            drive(-7.5),
             retractLift,
             goldAction
         )
@@ -108,20 +108,20 @@ class DepotAutonomous : LinearOpMode() {
         drive(70.0),
         turnTo(0.0),
         deliverMarker,
-        turnTo(-46.5),
-        drive(-170.0)
+        turnTo(135.0),
+        wallFollowingDrive(WallFollowingData(-90.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
+        deployMarker
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(7.5),
+        turnTo(12.5),
         drive(100.0),
         deliverMarker,
         turnTo(0.0),
-        drive(-70.0),
+        drive(-85.0),
         turnTo(90.0),
-        drive(120.0),
+        drive(115.0),
         turnTo(130.0),
-        drive(10.0),
         deployMarker
     )
 
@@ -155,39 +155,38 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(45.5),
         drive(65.0),
         turnTo(0.0),
-        drive(-15.0),
+        drive(-17.5),
         turnTo(90.0),
-        drive(80.0),
-        turnTo(130.0),
-        wallFollowingDrive(WallFollowingData(80.0, 6.0, 0.15, RobotConstants.RightRangeSensor)),
+        drive(70.0),
+        turnTo(132.5),
+        wallFollowingDrive(WallFollowingData(55.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
         deliverMarker,
-        wallFollowingDrive(WallFollowingData(-185.0, 6.0, 0.15, RobotConstants.RightRangeSensor))
+        wallFollowingDrive(WallFollowingData(-130.0, 8.5, 0.165, RobotConstants.RightRangeSensor))
     )
 
     private val centerAction = actionSequenceOf(
-
         turnTo(20.0),
         drive(43.0),
         turnTo(0.0),
         drive(-17.5),
         turnTo(90.0),
-        drive(100.0),
-        turnTo(135.0),
-        wallFollowingDrive(WallFollowingData(80.0, 6.0, 0.15, RobotConstants.RightRangeSensor)),
+        drive(120.0),
+        turnTo(132.5),
+        wallFollowingDrive(WallFollowingData(55.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
         deliverMarker,
-        wallFollowingDrive(WallFollowingData(-175.0, 6.0, 0.15, RobotConstants.RightRangeSensor))
+        wallFollowingDrive(WallFollowingData(-130.0, 8.5, 0.165, RobotConstants.RightRangeSensor))
     )   
 
     private val rightAction = actionSequenceOf(
-        turnTo(-27.5),
+        turnTo(-25.0),
         drive(50.0),
-        drive(-25.0),
+        drive(-17.5),
         turnTo(90.0),
-        drive(150.0),
-        turnTo(135.0),
-        wallFollowingDrive(WallFollowingData(80.0, 6.0, 0.15, RobotConstants.RightRangeSensor)),
+        drive(155.0),
+        turnTo(132.5),
+        wallFollowingDrive(WallFollowingData(55.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
         deliverMarker,
-        wallFollowingDrive(WallFollowingData(-175.0, 6.0, 0.15, RobotConstants.RightRangeSensor))
+        wallFollowingDrive(WallFollowingData(-130.0, 8.5, 0.165, RobotConstants.RightRangeSensor))
     )
 
     @Throws(InterruptedException::class)

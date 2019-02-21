@@ -4,6 +4,7 @@ import kotlinx.coroutines.channels.any
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
+import org.firstinspires.ftc.teamcode.lib.feature.HeadingCorrection
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrainLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.sensor.RangeSensor
@@ -30,7 +31,9 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
         if (data.distance > 0.0) {
             while (true) {
                 val adjustmentPower = adjustmentPower()
-                driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(power() + adjustmentPower, power() - adjustmentPower))
+                driveTrain.setMotorPowers(
+                    TankDriveTrain.MotorPowers(power() + adjustmentPower, power() - adjustmentPower)
+                )
                 yield()
             }
         } else if (data.distance < 0.0) {

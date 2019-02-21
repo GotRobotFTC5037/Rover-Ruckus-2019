@@ -86,7 +86,7 @@ suspend fun robot(
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
 
     linearOpMode.telemetry.log().displayOrder = Telemetry.Log.DisplayOrder.NEWEST_FIRST
-    linearOpMode.telemetry.log().capacity = 5
+    linearOpMode.telemetry.log().capacity = 15
 
     linearOpMode.telemetry.log().add("Setting up robot...")
     val robot = RobotImpl(linearOpMode, opModeScope).apply(configure)
