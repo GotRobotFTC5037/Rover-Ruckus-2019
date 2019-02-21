@@ -109,7 +109,7 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(0.0),
         deliverMarker,
         turnTo(135.0),
-        wallFollowingDrive(WallFollowingData(-90.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
+        wallFollowingDrive(WallFollowingData(90.0, 7.5, 0.165, RobotConstants.RightRangeSensor)),
         deployMarker
     )
 
