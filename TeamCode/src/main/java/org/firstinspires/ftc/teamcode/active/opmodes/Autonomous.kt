@@ -47,7 +47,7 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             turnTo(91.5),
             drive(-5.0),
             retractLift,
-            turnTo(85.0),
+            turnTo(82.5),
             drive(5.0),
             goldAction
         )
@@ -164,8 +164,8 @@ class CraterAutonomous : LinearOpMode() {
     )
 
     private val craterWallFollowingData = WallFollowingData(
-        -130.0,
-        8.5,
+        -150.0,
+        6.0,
         0.165,
         RobotConstants.RightRangeSensor
     )
@@ -176,7 +176,7 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(0.0),
         drive(-17.5),
         turnTo(90.0),
-        drive(70.0),
+        drive(60.0),
         turnTo(132.5),
         wallFollowingDrive(depotWallFollowingData),
         deliverMarker,
@@ -187,7 +187,7 @@ class CraterAutonomous : LinearOpMode() {
     private val centerAction = actionSequenceOf(
         turnTo(0.0), // Point towards the center cargo
         drive(43.0), // Displace the cargo
-        drive(-17.5), // Back towards the lander
+        drive(-12.5), // Back towards the lander
         turnTo(90.0), // Turn to the left wall
         drive(110.0), // Drive to the left wall
         turnTo(132.5), // Turn towards the depot
@@ -202,8 +202,8 @@ class CraterAutonomous : LinearOpMode() {
         drive(60.0),
         drive(-17.5),
         turnTo(90.0),
-        drive(145.0),
-        turnTo(132.5),
+        drive(125.0),
+        turnTo(137.5),
         wallFollowingDrive(depotWallFollowingData),
         deliverMarker,
         wallFollowingDrive(craterWallFollowingData),
