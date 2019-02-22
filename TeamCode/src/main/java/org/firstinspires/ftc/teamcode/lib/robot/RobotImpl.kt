@@ -38,7 +38,9 @@ private class RobotImpl(
         key: FeatureKey<TFeature>,
         configuration: TConfiguration.() -> Unit
     ) {
-        telemetry.log().add("Installing ${feature::class.qualifiedName!!.split(".").reversed()[1]}")
+        telemetry.log().add(
+            "Installing ${feature::class.qualifiedName!!.split(".").reversed()[1]}..."
+        )
         val featureInstance = feature.install(this, configuration)
         features[key] = featureInstance
     }
@@ -83,15 +85,19 @@ suspend fun robot(
     opModeScope: CoroutineScope,
     configure: Robot.() -> Unit
 ): Robot {
+
+    // Make sure that the robot is not attempted to be created before hardwareMap is ready.
     linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
 
-    linearOpMode.telemetry.log().displayOrder = Telemetry.Log.DisplayOrder.NEWEST_FIRST
-    linearOpMode.telemetry.log().capacity = 15
+    val log = linearOpMode.telemetry.log()
+    log.displayOrder = Telemetry.Log.DisplayOrder.NEWEST_FIRST
+    log.capacity = 15
+    linearOpMode.msStuckDetectStop = Int.MAX_VALUE
 
-    linearOpMode.telemetry.log().add("Setting up robot...")
+    log.add("Setting up robot...")
     val robot = RobotImpl(linearOpMode, opModeScope).apply(configure)
 
-    linearOpMode.telemetry.log().add("Waiting for start...")
+    log.add("Waiting for start...")
     linearOpMode.delayUntilStart()
 
     robot.launch {

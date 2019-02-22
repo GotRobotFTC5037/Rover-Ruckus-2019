@@ -34,11 +34,11 @@ class CargoDeliverySystem(
 
     inner class Chute {
         fun dropShutter() {
-            chuteShutterServo.position = 0.0
+            chuteShutterServo.position = 1.0
         }
 
         fun raiseShutter() {
-            chuteShutterServo.position = 1.0
+            chuteShutterServo.position = 0.0
         }
 
         fun setChuteLiftPower(power: Double) {
@@ -91,7 +91,7 @@ class CargoDeliverySystem(
                 }
             val popper = robot.hardwareMap.get(DcMotor::class.java, configuration.popper)
             val shutter = robot.hardwareMap.get(Servo::class.java, configuration.shutter).apply {
-                this.scaleRange(0.0, 0.5)
+                this.scaleRange(0.15, 0.85)
             }
             return CargoDeliverySystem(lift, intake, popper, chuteLift, shutter)
         }
