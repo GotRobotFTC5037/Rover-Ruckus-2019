@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.lib.action
 
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.any
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
@@ -9,6 +10,13 @@ import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrainLocalizer
 import org.firstinspires.ftc.teamcode.lib.power
 import kotlin.math.abs
+
+fun timeDrive(power: Double, duration: Long): MoveAction = move {
+    val driveTrain = requestFeature(TankDriveTrain)
+    driveTrain.setMotorPowers(TankDriveTrain.MotorPowers(power, power))
+    delay(duration)
+    driveTrain.stop()
+}
 
 fun drive(deltaDistance: Double): MoveAction = move {
     when (val driveTrain = requestFeature(DriveTrain::class)) {

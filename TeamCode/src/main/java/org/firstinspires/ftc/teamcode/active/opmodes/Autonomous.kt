@@ -45,10 +45,10 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
             extendLift,
             wiggleWheels(1000),
             turnTo(91.5),
-            drive(-2.0),
+            drive(-5.0),
             retractLift,
-            turnTo(90.0),
-            drive(2.0),
+            turnTo(85.0),
+            drive(5.0),
             goldAction
         )
     )
@@ -69,9 +69,6 @@ private val retractLift = action {
         landerLatch.retract()
     }
 }
-
-//private val deployIntake = action {
-//    val intake = requestFeature(CargoDeliverySystem.Intake)
 
 private val deliverMarker = action {
     val markerDeployer = requestFeature(MarkerDeployer)
@@ -103,42 +100,48 @@ private fun wiggleWheels(duration: Long) = action {
 
 @Autonomous(name = "Depot Autonomous", group = "Competitive")
 class DepotAutonomous : LinearOpMode() {
+
+    private val leftGoldWallFollowingData = WallFollowingData(
+        90.0,
+        6.0,
+        0.165,
+        RobotConstants.RightRangeSensor
+    )
+
     private val leftAction = actionSequenceOf(
-        turnTo(40.0),
-        drive(80.0),
-        turnTo(-20.0),
-        drive(70.0),
-        turnTo(0.0),
+        turnTo(25.0), // Point toward the left cargo
+        drive(80.0), // Drive and displace the gold
+        turnTo(-35.0), // Turn towards the depot
+        drive(35.0), // Drive into the depot
+        turnTo(0.0), // Turn toward the inside of the depot
         deliverMarker,
-        turnTo(135.0),
-        wallFollowingDrive(WallFollowingData(110.0, 7.5, 0.165, RobotConstants.RightRangeSensor)),
-        deployMarker
+        turnTo(135.0), // Turn towards the left crater
+        wallFollowingDrive(leftGoldWallFollowingData),
+        deployMarker then timeDrive(0.25, 1000)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(12.5),
-        drive(100.0),
+        turnTo(0.0), // Point towards the center cargo
+        drive(100.0), // Drive, displace the gold and enter the depot
         deliverMarker,
-        turnTo(0.0),
-        drive(-80.0),
-        turnTo(90.0),
-        drive(115.0),
-        turnTo(130.0),
-        deployMarker
+        drive(-65.0), // Back up towards the lander
+        turnTo(90.0), // Turn to the left crater
+        drive(115.0), // Drive to the left crater
+        turnTo(130.0), // Point toward the left crater
+        deployMarker then timeDrive(0.25, 1000)
     )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-20.0),
-        drive(70.0),
-        turnTo(35.0),
-        drive(50.0),
+        turnTo(-30.0), // Point toward teh right cargo
+        drive(80.0), // Drive and displace the gold
+        turnTo(35.0), // Turn towards the depot
+        drive(50.0), // Drive into the depot
         deliverMarker,
-        drive(-105.0),
-        turnTo(90.0),
-        drive(180.0),
-        turnTo(130.0),
-        drive(40.0),
-        deployMarker
+        drive(-105.0), // Back out of the depot
+        turnTo(90.0), // Turn towards the left crater
+        drive(185.0), // Drive to the left crater
+        turnTo(130.0), // Turn to the left crater
+        deployMarker then timeDrive(0.25, 1000)
     )
 
     @Throws(InterruptedException::class)
@@ -153,42 +156,58 @@ class DepotAutonomous : LinearOpMode() {
 @Autonomous(name = "Crater Autonomous", group = "Competitive")
 class CraterAutonomous : LinearOpMode() {
 
+    private val depotWallFollowingData = WallFollowingData(
+        55.0,
+        8.5,
+        0.165,
+        RobotConstants.RightRangeSensor
+    )
+
+    private val craterWallFollowingData = WallFollowingData(
+        -130.0,
+        8.5,
+        0.165,
+        RobotConstants.RightRangeSensor
+    )
+
     private val leftAction = actionSequenceOf(
-        turnTo(45.5),
-        drive(65.0),
+        turnTo(35.0),
+        drive(60.0),
         turnTo(0.0),
         drive(-17.5),
         turnTo(90.0),
         drive(70.0),
         turnTo(132.5),
-        wallFollowingDrive(WallFollowingData(55.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
+        wallFollowingDrive(depotWallFollowingData),
         deliverMarker,
-        wallFollowingDrive(WallFollowingData(-130.0, 8.5, 0.165, RobotConstants.RightRangeSensor))
+        wallFollowingDrive(craterWallFollowingData),
+        timeDrive(-0.25, 1000)
     )
 
     private val centerAction = actionSequenceOf(
-        turnTo(20.0),
-        drive(43.0),
-        turnTo(0.0),
-        drive(-17.5),
-        turnTo(90.0),
-        drive(120.0),
-        turnTo(132.5),
-        wallFollowingDrive(WallFollowingData(55.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
+        turnTo(0.0), // Point towards the center cargo
+        drive(43.0), // Displace the cargo
+        drive(-17.5), // Back towards the lander
+        turnTo(90.0), // Turn to the left wall
+        drive(110.0), // Drive to the left wall
+        turnTo(132.5), // Turn towards the depot
+        wallFollowingDrive(depotWallFollowingData), // Go to the depot
         deliverMarker,
-        wallFollowingDrive(WallFollowingData(-130.0, 8.5, 0.165, RobotConstants.RightRangeSensor))
-    )   
+        wallFollowingDrive(craterWallFollowingData), // Go to the crater
+        timeDrive(-0.25, 1000)
+    )
 
     private val rightAction = actionSequenceOf(
-        turnTo(-25.0),
-        drive(50.0),
+        turnTo(-35.0),
+        drive(60.0),
         drive(-17.5),
         turnTo(90.0),
-        drive(155.0),
+        drive(145.0),
         turnTo(132.5),
-        wallFollowingDrive(WallFollowingData(55.0, 8.5, 0.165, RobotConstants.RightRangeSensor)),
+        wallFollowingDrive(depotWallFollowingData),
         deliverMarker,
-        wallFollowingDrive(WallFollowingData(-130.0, 8.5, 0.165, RobotConstants.RightRangeSensor))
+        wallFollowingDrive(craterWallFollowingData),
+        timeDrive(-0.25, 1000)
     )
 
     @Throws(InterruptedException::class)

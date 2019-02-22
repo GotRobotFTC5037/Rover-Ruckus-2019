@@ -57,7 +57,7 @@ class TeleOp : LinearOpMode() {
                 }
 
                 // Chute
-                cargoDeliverySystem.chute.setChuteLiftPower(gunner.right_stick_y.toDouble())
+                cargoDeliverySystem.chute.setChuteLiftPower(-gunner.right_stick_y.toDouble())
 
                 // Shutter
                 when {

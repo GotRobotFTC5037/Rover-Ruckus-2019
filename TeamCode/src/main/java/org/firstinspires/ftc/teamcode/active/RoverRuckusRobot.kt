@@ -39,7 +39,6 @@ object RobotConstants {
 
     // Keys
     val RightRangeSensor = featureKey<RangeSensor>()
-    val LeftRangeSensor = featureKey<RangeSensor>()
 
     // TODO: Put this key into a file and read from the file.
     const val VUFORIA_KEY = "AdIaYr//////AAABmbPW4cADC0JWmq5z8YPKV2BLhjRavE34U++fSDpW2nfDwTsg99Uz" +
@@ -94,9 +93,6 @@ suspend fun roverRuckusRobot(
         install(RangeSensor, RobotConstants.RightRangeSensor) {
             this.sensorName = "right range sensor"
         }
-//        install(RangeSensor, RobotConstants.LeftRangeSensor) {
-//            this.sensorName = "left range sensor"
-//        }
 
         // Localizer
         install(TankDriveTrainLocalizer) {

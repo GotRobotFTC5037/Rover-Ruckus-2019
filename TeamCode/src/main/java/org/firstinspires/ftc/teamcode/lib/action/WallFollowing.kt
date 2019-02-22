@@ -12,10 +12,10 @@ import org.firstinspires.ftc.teamcode.lib.power
 import kotlin.math.abs
 
 data class WallFollowingData(
-    val distance: Double,
-    val wallDistance: Double,
-    val coefficient: Double,
-    val rangeSensorKey: FeatureKey<RangeSensor>
+    var distance: Double,
+    var wallDistance: Double,
+    var coefficient: Double,
+    var rangeSensorKey: FeatureKey<RangeSensor>
 )
 
 fun wallFollowingDrive(data: WallFollowingData) = move {
@@ -25,7 +25,14 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
 
     val positionChannel = localizer.newPositionChannel()
 
-    fun adjustmentPower() = (rangeSensor.distance - data.wallDistance) * -data.coefficient
+    fun adjustmentPower(): Double {
+        val distance = rangeSensor.distance
+        return if (distance < 50) {
+            (distance - data.wallDistance) * -data.coefficient
+        } else {
+            0.0
+        }
+    }
 
     val driveJob = launch {
         if (data.distance > 0.0) {

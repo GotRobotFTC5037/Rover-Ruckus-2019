@@ -84,7 +84,9 @@ class CargoDetectorImpl(
 
         while (true) {
             ticker.receive()
+
             val recognitions = objectDetector.recognitions
+                .filter { it.width < 200 && it.height < 200 }
 
             val gold = recognitions
                 .filter { it.isGold() }
