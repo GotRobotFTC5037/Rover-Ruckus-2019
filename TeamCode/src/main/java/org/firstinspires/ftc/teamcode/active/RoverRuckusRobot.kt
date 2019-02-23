@@ -35,7 +35,7 @@ object RobotConstants {
     const val IMU = "imu"
     const val WEBCAM = "webcam"
     const val WHEEL_DIAMETER = 10.16
-    const val CARGO_DETECTION_MIN_CONFIDENCE = 0.45
+    const val CARGO_DETECTION_MIN_CONFIDENCE = 0.35
 
     // Keys
     val RightRangeSensor = featureKey<RangeSensor>()

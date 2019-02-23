@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.lib.action
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
@@ -60,8 +61,8 @@ abstract class AbstractAction : Action {
 private class StandardAction(private val block: suspend ActionScope.() -> Unit) : AbstractAction() {
     override suspend fun run(robot: Robot) {
         if (!disabled) {
-            withTimeout(timeoutMillis) {
-                val scope = StandardActionScope(robot)
+            val scope = StandardActionScope(robot)
+            withTimeoutOrNull(timeoutMillis) {
                 block.invoke(scope)
             }
         }
@@ -88,7 +89,7 @@ fun actionSequenceOf(vararg actions: Action): Action = action {
 }
 
 fun repeat(action: Action, times: Int): Action = action {
-    kotlin.repeat(times){
+    kotlin.repeat(times) {
         perform(action)
     }
 }

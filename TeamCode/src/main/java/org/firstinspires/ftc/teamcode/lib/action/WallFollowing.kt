@@ -30,7 +30,7 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
         return if (distance < 50) {
             (distance - data.wallDistance) * -data.coefficient
         } else {
-            0.0
+            0.5
         }
     }
 

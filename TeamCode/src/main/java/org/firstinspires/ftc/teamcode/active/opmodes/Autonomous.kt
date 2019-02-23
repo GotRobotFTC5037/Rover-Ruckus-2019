@@ -44,10 +44,10 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
         actionSequenceOf(
             extendLift,
             wiggleWheels(1000),
-            turnTo(91.5),
+            turnTo(90.75),
             drive(-5.0),
             retractLift,
-            turnTo(82.5),
+            turnTo(75.0),
             drive(5.0),
             goldAction
         )
@@ -109,9 +109,9 @@ class DepotAutonomous : LinearOpMode() {
     )
 
     private val leftAction = actionSequenceOf(
-        turnTo(25.0), // Point toward the left cargo
+        turnTo(30.0), // Point toward the left cargo
         drive(80.0), // Drive and displace the gold
-        turnTo(-35.0), // Turn towards the depot
+        turnTo(-15.0), // Turn towards the depot
         drive(35.0), // Drive into the depot
         turnTo(0.0), // Turn toward the inside of the depot
         deliverMarker,
@@ -202,7 +202,7 @@ class CraterAutonomous : LinearOpMode() {
         drive(60.0),
         drive(-17.5),
         turnTo(90.0),
-        drive(125.0),
+        drive(127.5),
         turnTo(137.5),
         wallFollowingDrive(depotWallFollowingData),
         deliverMarker,
