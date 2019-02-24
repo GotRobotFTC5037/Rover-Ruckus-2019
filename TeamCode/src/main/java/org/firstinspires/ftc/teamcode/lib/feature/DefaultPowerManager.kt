@@ -16,8 +16,8 @@ class DefaultPowerManager(
         val action = context.subject
         if (action is MoveAction) {
             action.context[PowerManager] = when (action.context.type) {
-                is Drive -> ConstantPowerManager(0.9)
-                is TurnTo -> ConstantPowerManager(1.0)
+                is Drive -> ConstantPowerManager(0.8)
+                is TurnTo -> ConstantPowerManager(0.8)
                 else -> NothingPowerManager
             }
         }

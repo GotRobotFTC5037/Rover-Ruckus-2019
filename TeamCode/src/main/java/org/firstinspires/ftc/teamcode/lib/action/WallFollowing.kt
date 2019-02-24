@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
 import org.firstinspires.ftc.teamcode.lib.feature.HeadingCorrection
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrainLocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.feature.localizer.RobotHeadingLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.sensor.RangeSensor
 import org.firstinspires.ftc.teamcode.lib.power
 import kotlin.math.abs
@@ -30,7 +32,7 @@ fun wallFollowingDrive(data: WallFollowingData) = move {
         return if (distance < 50) {
             (distance - data.wallDistance) * -data.coefficient
         } else {
-            0.5
+            0.0
         }
     }
 

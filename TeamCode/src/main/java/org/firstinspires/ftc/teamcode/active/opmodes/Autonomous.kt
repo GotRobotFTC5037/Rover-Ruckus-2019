@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.active.features.*
 import org.firstinspires.ftc.teamcode.active.roverRuckusRobot
 import org.firstinspires.ftc.teamcode.lib.action.*
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
+import org.firstinspires.ftc.teamcode.lib.util.Timeout
+import org.firstinspires.ftc.teamcode.lib.util.with
 
 private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Action) = action {
     val telemetry = robot.linearOpMode.telemetry
@@ -44,7 +46,7 @@ private fun mainAction(leftAction: Action, centerAction: Action, rightAction: Ac
         actionSequenceOf(
             extendLift,
             wiggleWheels(1000),
-            turnTo(90.75),
+            //turnTo(90.75) with Timeout(1000),
             drive(-5.0),
             retractLift,
             turnTo(75.0),
@@ -75,7 +77,7 @@ private val deliverMarker = action {
     markerDeployer.deploy()
     delay(1000)
     markerDeployer.retract()
-    delay(1000)
+//    delay(1000)
 }
 private val deployMarker = action {
     val markerDeployer = requestFeature(MarkerDeployer)
@@ -111,13 +113,13 @@ class DepotAutonomous : LinearOpMode() {
     private val leftAction = actionSequenceOf(
         turnTo(30.0), // Point toward the left cargo
         drive(80.0), // Drive and displace the gold
-        turnTo(-15.0), // Turn towards the depot
+        turnTo(-40.0), // Turn towards the depot
         drive(35.0), // Drive into the depot
         turnTo(0.0), // Turn toward the inside of the depot
         deliverMarker,
         turnTo(135.0), // Turn towards the left crater
         wallFollowingDrive(leftGoldWallFollowingData),
-        deployMarker then timeDrive(0.25, 1000)
+        deployMarker then timeDrive(0.25, 3000)
     )
 
     private val centerAction = actionSequenceOf(
@@ -128,7 +130,7 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(90.0), // Turn to the left crater
         drive(115.0), // Drive to the left crater
         turnTo(130.0), // Point toward the left crater
-        deployMarker then timeDrive(0.25, 1000)
+        deployMarker then timeDrive(0.25, 3000)
     )
 
     private val rightAction = actionSequenceOf(
@@ -141,7 +143,7 @@ class DepotAutonomous : LinearOpMode() {
         turnTo(90.0), // Turn towards the left crater
         drive(185.0), // Drive to the left crater
         turnTo(130.0), // Turn to the left crater
-        deployMarker then timeDrive(0.25, 1000)
+        deployMarker then timeDrive(0.25, 3000)
     )
 
     @Throws(InterruptedException::class)
@@ -176,7 +178,7 @@ class CraterAutonomous : LinearOpMode() {
         turnTo(0.0),
         drive(-17.5),
         turnTo(90.0),
-        drive(60.0),
+        drive(70.0),
         turnTo(132.5),
         wallFollowingDrive(depotWallFollowingData),
         deliverMarker,
