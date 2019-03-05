@@ -1,112 +1,52 @@
 package org.firstinspires.ftc.teamcode.lib.robot
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.HardwareMap
 import kotlinx.coroutines.*
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.lib.action.Action
-import org.firstinspires.ftc.teamcode.lib.action.ActionPipeline
-import org.firstinspires.ftc.teamcode.lib.feature.Feature
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
-import org.firstinspires.ftc.teamcode.lib.feature.FeatureKey
-import org.firstinspires.ftc.teamcode.lib.util.cancelAndJoin
-import org.firstinspires.ftc.teamcode.lib.util.delayUntilStart
-import org.firstinspires.ftc.teamcode.lib.util.delayUntilStop
+import org.firstinspires.ftc.teamcode.lib.feature.*
 import kotlin.coroutines.CoroutineContext
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
+import kotlin.coroutines.coroutineContext
 
 private class RobotImpl(
-    override val linearOpMode: LinearOpMode,
-    override val opmodeScope: CoroutineScope
-) : Robot {
+    private val telemetry: Telemetry,
+    private val hardwareMap: HardwareMap,
+    private val parentContext: CoroutineContext
+) : Robot, RobotFeatureInstaller, CoroutineScope {
 
-    private val job: Job = Job()
+    private val job: Job = Job(parentContext[Job])
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
+        get() = parentContext + CoroutineName("Robot") + job
 
-    private val features: MutableMap<FeatureKey<*>, Feature> = mutableMapOf()
+    private val features: MutableFeatureSet = MutableFeatureSet()
 
-    /**
-     * The pipeline that actions go though before they are performed.
-     */
-    override val actionPipeline: ActionPipeline = ActionPipeline()
-
-    override fun <TConfiguration : FeatureConfiguration, TFeature : Feature> install(
-        feature: FeatureInstaller<TConfiguration, TFeature>,
-        key: FeatureKey<TFeature>,
-        configuration: TConfiguration.() -> Unit
+    override suspend fun <F : Feature, C : FeatureConfiguration> install(
+        installer: FeatureInstaller<F, C>,
+        key: FeatureKey<F>,
+        configure: C.() -> Unit
     ) {
-        telemetry.log().add("Installing ${feature::class.qualifiedName!!.split(".").reversed()[1]}")
-        val featureInstance = feature.install(this, configuration)
-        features[key] = featureInstance
+        if (key !in features) {
+            telemetry.log().add("[Robot] Installing ${installer.featureName}")
+            val feature = installer.install(hardwareMap, configure)
+            features[key] = feature
+        } else {
+            throw InvalidInstallKeyException()
+        }
     }
 
-    /**
-     * Checks if a feature with the provided [key] is installed on the robot.
-     */
-    override fun contains(key: FeatureKey<*>): Boolean = key in features
-
-    /**
-     * Checks if any feature of the Feature class are installed on the robot.
-     */
-    override fun contains(featureClass: KClass<Feature>): Boolean =
-        features.any { it.value::class.isSubclassOf(featureClass) }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <F : Feature> get(key: FeatureKey<F>): F =
-        features[key] as? F ?: throw MissingRobotFeatureException()
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <F : Feature> get(featureClass: KClass<F>): F =
-        features.filter { it.value::class.isSubclassOf(featureClass) }
-            .toList()
-            .singleOrNull()
-            ?.second as? F ?: throw MissingRobotFeatureException()
-
-    override suspend fun perform(action: Action) = coroutineScope {
-        actionPipeline.execute(action, this@RobotImpl)
-        action.run(this@RobotImpl)
-        telemetry.update()
-        return@coroutineScope
+    override suspend fun perform(action: Action) = withContext(coroutineContext) {
+        action.run(features)
     }
-
-    override fun performBlocking(action: Action) = runBlocking {
-        perform(action)
-    }
-
 }
 
-suspend fun robot(
-    linearOpMode: LinearOpMode,
-    opModeScope: CoroutineScope,
-    configure: Robot.() -> Unit
-): Robot {
-    linearOpMode.hardwareMap ?: throw PrematureRobotCreationException()
-
-    linearOpMode.telemetry.log().displayOrder = Telemetry.Log.DisplayOrder.NEWEST_FIRST
-    linearOpMode.telemetry.log().capacity = 15
-
-    linearOpMode.telemetry.log().add("Setting up robot...")
-    val robot = RobotImpl(linearOpMode, opModeScope).apply(configure)
-
-    linearOpMode.telemetry.log().add("Waiting for start...")
-    linearOpMode.delayUntilStart()
-
-    robot.launch {
-        linearOpMode.delayUntilStop()
-        robot.cancel()
-    }
-
+suspend fun OpMode.robot(configure: suspend RobotFeatureInstaller.() -> Unit = {}): Robot {
+    val robot = RobotImpl(telemetry, hardwareMap, coroutineContext)
+    robot.configure()
     return robot
 }
 
-/**
- * Reports a situation where a [Robot] is attempted to be created before the [LinearOpMode] instance
- * is ready.
- */
-class PrematureRobotCreationException : RuntimeException() {
-    override val message: String? =
-        "Robots must only be instantiated after `runOpMode()` is executed."
-}
+class MissingFeatureException : RuntimeException()
+
+class InvalidInstallKeyException : RuntimeException()

@@ -1,18 +1,8 @@
 package org.firstinspires.ftc.teamcode.lib.action
 
-import org.firstinspires.ftc.teamcode.lib.HeadingCorrector
-import org.firstinspires.ftc.teamcode.lib.NothingHeadingCorrector
-import org.firstinspires.ftc.teamcode.lib.NothingPowerManager
-import org.firstinspires.ftc.teamcode.lib.PowerManager
-
-class MoveActionContext(val type: MoveActionType) {
+class MoveActionContext {
 
     private val elements = mutableMapOf<Key<*>, Element>()
-
-    init {
-        elements[PowerManager] = NothingPowerManager
-        elements[HeadingCorrector] = NothingHeadingCorrector
-    }
 
     operator fun contains(key: Key<*>): Boolean = elements.contains(key)
 
@@ -26,4 +16,5 @@ class MoveActionContext(val type: MoveActionType) {
     interface Key<T : Element>
 
     interface Element
+
 }

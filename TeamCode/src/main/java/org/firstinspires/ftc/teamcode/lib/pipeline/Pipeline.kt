@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.lib
+package org.firstinspires.ftc.teamcode.lib.pipeline
 
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.CoroutineContext
@@ -9,7 +9,12 @@ open class Pipeline<TSubject : Any, TContext : Any> {
     private val interceptors = mutableListOf<PipelineInterceptor<TSubject, TContext>>()
 
     suspend fun execute(subject: TSubject, context: TContext): TSubject =
-        PipelineContext(subject, context, interceptors.toList(), coroutineContext).proceed()
+        PipelineContext(
+            subject,
+            context,
+            interceptors.toList(),
+            coroutineContext
+        ).proceed()
 
     fun intercept(interceptor: PipelineInterceptor<TSubject, TContext>) {
         interceptors.add(interceptor)
