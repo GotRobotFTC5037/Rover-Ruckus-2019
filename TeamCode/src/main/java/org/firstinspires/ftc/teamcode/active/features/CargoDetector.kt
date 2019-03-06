@@ -1,21 +1,27 @@
 //@file:Suppress("EXPERIMENTAL_API_USAGE")
 //
-//package org.firstinspires.ftc.teamcode.active.old.features
+//package org.firstinspires.ftc.teamcode.active.features
 //
+//import com.google.gson.annotations.Until
 //import kotlinx.coroutines.*
 //import kotlinx.coroutines.channels.*
+//import org.firstinspires.ftc.robotcontroller.external.samples.ConceptTelemetry
+//import org.firstinspires.ftc.robotcore.external.Telemetry
 //import org.firstinspires.ftc.robotcore.external.tfod.Recognition
 //import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
 //import org.firstinspires.ftc.teamcode.lib.feature.Feature
 //import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 //import org.firstinspires.ftc.teamcode.lib.feature.FeatureInstaller
 //import org.firstinspires.ftc.teamcode.lib.feature.vision.Vuforia
-//import org.firstinspires.ftc.teamcode.lib.robot.robot
+//import org.firstinspires.ftc.teamcode.lib.robot.Robot
 //import org.firstinspires.ftc.teamcode.lib.robot.hardwareMap
 //import org.firstinspires.ftc.teamcode.lib.robot.telemetry
 //import org.firstinspires.ftc.teamcode.lib.util.objectDetector
 //import java.util.concurrent.Executors
+//import kotlin.concurrent.timer
 //import kotlin.coroutines.CoroutineContext
+//import kotlin.math.roundToInt
+//import kotlin.system.measureTimeMillis
 //
 //private const val TFOD_MODEL_ASSET = "RoverRuckus.tflite"
 //private const val GOLD_MINERAL = "Gold Mineral"
@@ -26,7 +32,7 @@
 //    LEFT, CENTER, RIGHT, UNKNOWN
 //}
 //
-//interface CargoDetector : Feature {
+//interface CargoDetector : Feature() {
 //
 //    val goldPosition: ReceiveChannel<GoldPosition>
 //
@@ -35,7 +41,7 @@
 //    fun shutdown()
 //
 //    companion object Installer : FeatureInstaller<Configuration, CargoDetector> {
-//        override fun install(robot: robot, configure: Configuration.() -> Unit): CargoDetector {
+//        override fun install(robot: Robot, configure: Configuration.() -> Unit): CargoDetector {
 //            val configuration = Configuration().apply(configure)
 //            val context = robot.hardwareMap.appContext
 //            val viewId = context.resources.getIdentifier(VIEW_ID, "id", context.packageName)
@@ -78,7 +84,9 @@
 //
 //        while (true) {
 //            ticker.receive()
+//
 //            val recognitions = objectDetector.recognitions
+//                .filter { it.width < 200 && it.height < 200 }
 //
 //            val gold = recognitions
 //                .filter { it.isGold() }
