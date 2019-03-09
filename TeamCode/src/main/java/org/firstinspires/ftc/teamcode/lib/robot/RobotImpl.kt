@@ -2,16 +2,20 @@ package org.firstinspires.ftc.teamcode.lib.robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.lib.action.Action
 import org.firstinspires.ftc.teamcode.lib.feature.*
+import org.firstinspires.ftc.teamcode.lib.pipeline.Pipeline
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 private class RobotImpl(
     private val telemetry: Telemetry,
-    private val hardwareMap: HardwareMap,
+    override val hardwareMap: HardwareMap,
     private val parentContext: CoroutineContext
 ) : Robot, RobotFeatureInstaller, CoroutineScope {
 
@@ -22,14 +26,16 @@ private class RobotImpl(
 
     private val features: MutableFeatureSet = MutableFeatureSet()
 
+    override val actionPipeline = Pipeline<Action, RobotFeatureInstaller>()
+
     override suspend fun <F : Feature, C : FeatureConfiguration> install(
         installer: FeatureInstaller<F, C>,
         key: FeatureKey<F>,
         configure: C.() -> Unit
     ) {
         if (key !in features) {
-            telemetry.log().add("[Robot] Installing ${installer.featureName}")
-            val feature = installer.install(hardwareMap, configure)
+            telemetry.log().add("[Robot] Installing ${installer.name}")
+            val feature = installer.install(this, features, configure)
             features[key] = feature
         } else {
             throw InvalidInstallKeyException()
@@ -37,7 +43,8 @@ private class RobotImpl(
     }
 
     override suspend fun perform(action: Action) = withContext(coroutineContext) {
-        action.run(features)
+        val modifiedAction = actionPipeline.execute(action, this@RobotImpl)
+        modifiedAction.run(features)
     }
 }
 

@@ -2,12 +2,10 @@ package org.firstinspires.ftc.teamcode.lib.opmode
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import kotlinx.coroutines.*
-import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl
 import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
-abstract class CoroutineOpMode : OpMode(), CoroutineScope {
+abstract class CoroutineOpMode : OpMode(), OpmodeStatus,  CoroutineScope {
 
     private lateinit var job: Job
 
@@ -20,7 +18,11 @@ abstract class CoroutineOpMode : OpMode(), CoroutineScope {
     final override val coroutineContext: CoroutineContext
         get() = CoroutineName("OpMode") + Dispatchers.Default + job + exceptionHandler
 
-    private lateinit var initializeJob: Job
+    override var isInitialized: Boolean = false
+
+    override var isStarted: Boolean = false
+
+    override var isStopped: Boolean = false
 
     private fun handleLoop() {
         if (throwable != NullThrowable) {
@@ -35,14 +37,23 @@ abstract class CoroutineOpMode : OpMode(), CoroutineScope {
 
     abstract suspend fun run()
 
+    private suspend fun waitForStart() {
+        while (!isStarted && isActive) {
+            yield()
+        }
+    }
+
     final override fun init() {
         telemetry.log().add("[OpMode] Starting initialization")
+        isInitialized = true
         job = Job()
-        initializeJob = launch {
-            val time = measureTimeMillis {
-                initialize()
-            }
+        launch {
+            val time = measureTimeMillis { initialize() }
             telemetry.log().add("[OpMode] Done initialization (${time}ms)")
+            waitForStart()
+            telemetry.log().add("[OpMode] Starting opmode")
+            run()
+            requestOpModeStop()
         }
     }
 
@@ -51,11 +62,7 @@ abstract class CoroutineOpMode : OpMode(), CoroutineScope {
     }
 
     final override fun start() {
-        launch {
-            initializeJob.join()
-            telemetry.log().add("[OpMode] Starting opmode")
-            run()
-        }
+        isStarted = true
     }
 
     final override fun loop() {
@@ -63,7 +70,9 @@ abstract class CoroutineOpMode : OpMode(), CoroutineScope {
     }
 
     final override fun stop() {
-        job.cancel()
+        telemetry.log().add("[OpMode] Stopping opmode")
+        isStopped = true
+        runBlocking { job.cancelAndJoin() }
     }
 
 }

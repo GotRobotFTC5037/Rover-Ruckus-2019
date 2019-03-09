@@ -87,14 +87,14 @@
 //        val leftMotors: MutableList<DcMotor> = mutableListOf()
 //        val rightMotors: MutableList<DcMotor> = mutableListOf()
 //
-//        fun addLeftMotor(featureName: String, direction: MotorDirection = MotorDirection.REVERSE) {
-//            val motor = hardwareMap.get(DcMotor::class.java, featureName)
+//        fun addLeftMotor(name: String, direction: MotorDirection = MotorDirection.REVERSE) {
+//            val motor = hardwareMap.get(DcMotor::class.java, name)
 //            motor.direction = direction
 //            leftMotors.add(motor)
 //        }
 //
-//        fun addRightMotor(featureName: String, direction: MotorDirection = MotorDirection.FORWARD) {
-//            val motor = hardwareMap.get(DcMotor::class.java, featureName)
+//        fun addRightMotor(name: String, direction: MotorDirection = MotorDirection.FORWARD) {
+//            val motor = hardwareMap.get(DcMotor::class.java, name)
 //            motor.direction = direction
 //            rightMotors.add(motor)
 //        }

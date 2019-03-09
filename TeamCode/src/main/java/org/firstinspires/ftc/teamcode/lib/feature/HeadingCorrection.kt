@@ -1,66 +1,48 @@
-//package org.firstinspires.ftc.teamcode.lib.feature
-//
-//import org.firstinspires.ftc.teamcode.lib.pipeline.PipelineContext
-//import org.firstinspires.ftc.teamcode.lib.action.*
-//import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.TankDriveTrain
-//import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
-//import org.firstinspires.ftc.teamcode.lib.robot.robot
-//
-//class HeadingCorrection(
-//    localizer: IMULocalizer,
-//    private val targetHeading: TargetHeading,
-//    private val coefficient: Double
-//) : Feature {
-//
-//    var enabled = true
-//
-//    private val headingChannel = localizer.newHeadingChannel()
-//
-//    suspend fun interceptor(context: PipelineContext<TankDriveTrain.MotorPowers, TankDriveTrain>) {
-//        if (enabled) {
-//            val currentPowers = context.subject
-//            val targetHeading = targetHeading.targetHeading
-//            val currentHeading = headingChannel.receive()
-//            val error = currentHeading - targetHeading
-//            val correction = coefficient * error
-//            val newPowerPowers = TankDriveTrain.MotorPowers(
-//                currentPowers.left - correction,
-//                currentPowers.right + correction
-//            )
-//            context.proceedWith(newPowerPowers)
-//        } else {
-//            context.proceed()
-//        }
-//    }
-//
-//    fun actionInterceptor(context: PipelineContext<Action, robot>) {
-//        val subject = context.subject
-//        if (subject is MoveAction) {
-//            enabled = when(subject.context.type) {
-//                is Drive -> true
-//                is TurnTo -> false
-//                else -> true
-//            }
-//        }
-//    }
-//
-//    companion object Installer : FeatureInstaller<Configuration, HeadingCorrection> {
-//        override fun install(robot: robot, configure: Configuration.() -> Unit): HeadingCorrection {
-//            val localizer = robot[IMULocalizer]
-//            val targetHeading = robot[TargetHeading]
-//            val configuration = Configuration().apply(configure)
-//            val headingCorrection = HeadingCorrection(localizer, targetHeading, configuration.coefficient)
-//            robot[TankDriveTrain].powerPipeline.intercept {
-//                headingCorrection.interceptor(this)
-//            }
-//            robot.actionPipeline.intercept {
-//                headingCorrection.actionInterceptor(this)
-//            }
-//            return headingCorrection
-//        }
-//    }
-//
-//    class Configuration : FeatureConfiguration{
-//        var coefficient = 0.0
-//    }
-//}
+package org.firstinspires.ftc.teamcode.lib.feature
+
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrainMotorPowers
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.InterceptableDriveTrain
+import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.MecanumDriveTrain
+import org.firstinspires.ftc.teamcode.lib.pipeline.PipelineContext
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+
+class HeadingCorrection(
+    private val targetHeading: TargetHeading,
+    private val coefficient: Double
+) : Feature() {
+
+    var enabled: Boolean = true
+
+    suspend fun interceptor(context: PipelineContext<out DriveTrainMotorPowers, DriveTrain>) {
+        if (enabled) {
+            context.subject.adjustHeadingPower(targetHeading.deltaFromTarget() * coefficient)
+        }
+        context.proceed()
+    }
+
+    companion object Installer : KeyedFeatureInstaller<HeadingCorrection, Configuration>() {
+
+        override val name: String = "Heading Correction"
+
+        override suspend fun install(
+            robot: RobotFeatureInstaller,
+            featureSet: FeatureSet,
+            configure: Configuration.() -> Unit
+        ): HeadingCorrection {
+            val driveTrain: InterceptableDriveTrain<*> = featureSet[MecanumDriveTrain]
+            val targetHeading = featureSet[TargetHeading]
+            val configuration = Configuration().apply(configure)
+            val headingCorrection = HeadingCorrection(targetHeading, configuration.coefficient)
+            driveTrain.powerPipeline.intercept {
+                headingCorrection.interceptor(this)
+            }
+            return headingCorrection
+        }
+
+    }
+
+    class Configuration : FeatureConfiguration {
+        var coefficient: Double = 0.0
+    }
+}

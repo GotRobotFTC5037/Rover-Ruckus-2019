@@ -10,14 +10,12 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureSet
 import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.reflect.KClass
 
 /**
  * The scope that an [Action]'s block is run in.
  */
 interface ActionScope {
     fun <F : Feature> getFeature(featureKey: FeatureKey<F>): F
-    fun <F : Feature> getFeature(featureClass: KClass<F>): F
     suspend fun perform(action: Action)
 }
 
@@ -30,7 +28,6 @@ abstract class AbstractActionScope(
 ) : ActionScope, CoroutineScope {
     override val coroutineContext: CoroutineContext = parentContext + Job(parentContext[Job])
     override fun <F : Feature> getFeature(featureKey: FeatureKey<F>): F = featureSet[featureKey]
-    override fun <F : Feature> getFeature(featureClass: KClass<F>): F = featureSet[featureClass]
     override suspend fun perform(action: Action): Unit = action.run(featureSet)
 }
 
@@ -63,7 +60,6 @@ abstract class AbstractAction : Action {
  * An [Action] that used in situations where no configuration is needed.
  */
 private class StandardAction(private val block: suspend ActionScope.() -> Unit) : AbstractAction() {
-
     override suspend fun run(featureSet: FeatureSet) {
         if (!disabled) {
             withTimeout(timeoutMillis) {
@@ -72,7 +68,6 @@ private class StandardAction(private val block: suspend ActionScope.() -> Unit) 
             }
         }
     }
-
 }
 
 /**
@@ -80,7 +75,8 @@ private class StandardAction(private val block: suspend ActionScope.() -> Unit) 
  */
 fun action(block: suspend ActionScope.() -> Unit): Action = StandardAction(block)
 
-suspend fun Robot.perform(block: suspend ActionScope.() -> Unit) = perform(action(block))
+suspend fun Robot.perform(block: suspend ActionScope.() -> Unit) =
+    perform(action(block).apply { this.timeoutMillis = Long.MAX_VALUE })
 
 /**
  * Returns an action that performs the current action and the provided action in sequence.

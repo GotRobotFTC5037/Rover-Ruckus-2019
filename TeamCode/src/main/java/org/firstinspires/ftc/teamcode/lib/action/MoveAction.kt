@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.lib.action
 import kotlinx.coroutines.withTimeout
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureSet
 
-open class MoveAction(
+class MoveAction(
     private val block: suspend MoveActionScope.() -> Unit,
     var context: MoveActionContext = MoveActionContext()
 ) : AbstractAction() {

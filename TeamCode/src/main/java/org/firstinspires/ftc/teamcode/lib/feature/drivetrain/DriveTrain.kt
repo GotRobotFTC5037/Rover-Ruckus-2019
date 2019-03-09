@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
 
-import org.firstinspires.ftc.teamcode.lib.feature.Feature
+import org.firstinspires.ftc.teamcode.lib.pipeline.Pipeline
 
 interface DriveTrain
 
@@ -22,4 +22,12 @@ interface OmnidirectionalDriveTrain : LinearDriveTrain, LateralDriveTrain, Rotat
         lateralPower: Double,
         rotationalPower: Double
     )
+}
+
+interface DriveTrainMotorPowers {
+    fun adjustHeadingPower(power: Double)
+}
+
+interface InterceptableDriveTrain<T : DriveTrainMotorPowers> {
+    val powerPipeline: Pipeline<T, DriveTrain>
 }
