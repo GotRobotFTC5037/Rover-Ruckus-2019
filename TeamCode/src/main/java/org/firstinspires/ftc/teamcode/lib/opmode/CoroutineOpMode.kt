@@ -2,30 +2,33 @@ package org.firstinspires.ftc.teamcode.lib.opmode
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.sendBlocking
 import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
-abstract class CoroutineOpMode : OpMode(), OpmodeStatus,  CoroutineScope {
+abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
 
     private lateinit var job: Job
 
-    private var throwable: Throwable = NullThrowable
+    private val throwableChannel = Channel<Throwable>()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        this.throwable = throwable
+        throwableChannel.sendBlocking(throwable)
     }
 
     final override val coroutineContext: CoroutineContext
         get() = CoroutineName("OpMode") + Dispatchers.Default + job + exceptionHandler
 
-    override var isInitialized: Boolean = false
+    final override var isInitialized: Boolean = false
 
-    override var isStarted: Boolean = false
+    final override var isStarted: Boolean = false
 
-    override var isStopped: Boolean = false
+    final override var isStopped: Boolean = false
 
     private fun handleLoop() {
-        if (throwable != NullThrowable) {
+        val throwable = throwableChannel.poll()
+        if (throwable != null) {
             when (throwable) {
                 is RuntimeException -> throw throwable
                 else -> throw RuntimeException(throwable)
@@ -76,5 +79,3 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus,  CoroutineScope {
     }
 
 }
-
-object NullThrowable : Throwable()

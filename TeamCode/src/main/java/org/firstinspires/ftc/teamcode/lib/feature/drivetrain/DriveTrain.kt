@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib.feature.drivetrain
 
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import org.firstinspires.ftc.teamcode.lib.pipeline.Pipeline
 
 interface DriveTrain
@@ -31,3 +33,5 @@ interface DriveTrainMotorPowers {
 interface InterceptableDriveTrain<T : DriveTrainMotorPowers> {
     val powerPipeline: Pipeline<T, DriveTrain>
 }
+
+fun DcMotor.toDcMotorEx() = this as DcMotorEx

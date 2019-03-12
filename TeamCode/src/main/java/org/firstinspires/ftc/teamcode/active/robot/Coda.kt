@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.active.robot
 
+import com.acmerobotics.roadrunner.Pose2d
+import com.acmerobotics.roadrunner.control.PIDCoefficients
+import com.acmerobotics.roadrunner.trajectory.Trajectory
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import org.firstinspires.ftc.teamcode.lib.action.ConstantPowerManager
 import org.firstinspires.ftc.teamcode.lib.feature.DefaultPowerManager
@@ -7,34 +12,104 @@ import org.firstinspires.ftc.teamcode.lib.feature.HeadingCorrection
 import org.firstinspires.ftc.teamcode.lib.feature.TargetHeading
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.MecanumDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
+import org.firstinspires.ftc.teamcode.lib.robot.Robot
 import org.firstinspires.ftc.teamcode.lib.robot.install
 import org.firstinspires.ftc.teamcode.lib.robot.robot
 
-object CodaConstants {
+object Coda {
     const val FRONT_LEFT_MOTOR = "front left motor"
     const val FRONT_RIGHT_MOTOR = "front right motor"
     const val BACK_LEFT_MOTOR = "back left motor"
     const val BACK_RIGHT_MOTOR = "back right motor"
+
+    const val GEAR_RATIO = 1.0
+    const val WHEEL_DIAMETER = 0.0
+
     const val IMU = "imu"
+
+    const val TRACK_WIDTH = 0.0
+    const val WHEEL_BASE = 0.0
+    const val TRANSLATIONAL_COEFFICIENTS_P = 0.0
+    const val TRANSLATIONAL_COEFFICIENTS_I = 0.0
+    const val TRANSLATIONAL_COEFFICIENTS_D = 0.0
+    const val HEADING_COEFFICIENTS_P = 0.0
+    const val HEADING_COEFFICIENTS_I = 0.0
+    const val HEADING_COEFFICIENTS_D = 0.0
+    const val FEED_FORWARD_VELOCITY_GAIN = 0.0
+    const val FEED_FORWARD_ACCELERATION_GAIN = 0.0
+    const val FEED_FORWARD_CONSTANT = 0.0
+    const val ADMISSIBLE_ERROR_X = 10.0
+    const val ADMISSIBLE_ERROR_Y = 10.0
+    const val ADMISSIBLE_ERROR_HEADING = 2.5
+    const val TIMEOUT = 0.0
+
     const val HEADING_CORRECTION_COEFFICIENT = 0.0
+
+    private const val MAXIMUM_TRANSLATIONAL_VELOCITY = 0.0
+    private const val MAXIMUM_TRANSLATIONAL_ACCELERATION = 0.0
+    private const val MAXIMUM_ANGULAR_VELOCITY = 0.0
+    private const val MAXIMUM_ANGULAR_ACCELERATION = 0.0
+
+    suspend operator fun invoke(opMode: OpMode): Robot = opMode.Coda()
+
+    fun buildTrajectory(config: TrajectoryBuilder.() -> Unit): Trajectory {
+        val builder = TrajectoryBuilder(
+            Pose2d(x = 0.0, y = 0.0, heading = 0.0),
+            DriveConstraints(
+                MAXIMUM_TRANSLATIONAL_VELOCITY,
+                MAXIMUM_TRANSLATIONAL_ACCELERATION,
+                MAXIMUM_ANGULAR_VELOCITY,
+                MAXIMUM_ANGULAR_ACCELERATION
+            )
+        )
+        builder.apply(config)
+        return builder.build()
+    }
 }
 
 @Suppress("FunctionName")
 suspend fun OpMode.Coda() = robot {
     install(MecanumDriveTrain) {
-        frontLeftMotorName = CodaConstants.FRONT_LEFT_MOTOR
-        frontRightMotorName = CodaConstants.FRONT_RIGHT_MOTOR
-        backLeftMotorName = CodaConstants.BACK_LEFT_MOTOR
-        backRightMotorName = CodaConstants.BACK_RIGHT_MOTOR
+        frontLeftMotorName = Coda.FRONT_LEFT_MOTOR
+        frontRightMotorName = Coda.FRONT_RIGHT_MOTOR
+        backLeftMotorName = Coda.BACK_LEFT_MOTOR
+        backRightMotorName = Coda.BACK_RIGHT_MOTOR
+    }
+    install(MecanumDriveTrain.Localizer) {
+        gearRatio = Coda.GEAR_RATIO
+        wheelDiameter = Coda.WHEEL_DIAMETER
     }
     install(IMULocalizer) {
-        imuName = CodaConstants.IMU
+        imuName = Coda.IMU
+    }
+    install(MecanumDriveTrain.RoadRunnerExtension) {
+        trackWidth = Coda.TRACK_WIDTH
+        wheelBase = Coda.WHEEL_BASE
+        translationalCoefficients = PIDCoefficients(
+            kP = Coda.TRANSLATIONAL_COEFFICIENTS_P,
+            kI = Coda.TRANSLATIONAL_COEFFICIENTS_I,
+            kD = Coda.TRANSLATIONAL_COEFFICIENTS_D
+        )
+        headingCoefficients = PIDCoefficients(
+            kP = Coda.HEADING_COEFFICIENTS_P,
+            kI = Coda.HEADING_COEFFICIENTS_I,
+            kD = Coda.HEADING_COEFFICIENTS_D
+        )
+        kV = Coda.FEED_FORWARD_VELOCITY_GAIN
+        kA = Coda.FEED_FORWARD_ACCELERATION_GAIN
+        kStatic = Coda.FEED_FORWARD_CONSTANT
+        admissibleError = Pose2d(
+            x = Coda.ADMISSIBLE_ERROR_X,
+            y = Coda.ADMISSIBLE_ERROR_Y,
+            heading = Coda.ADMISSIBLE_ERROR_HEADING
+        )
+        timeout = Coda.TIMEOUT
     }
     install(TargetHeading) {
         headingLocalizerKey = IMULocalizer
     }
     install(HeadingCorrection) {
-        coefficient = CodaConstants.HEADING_CORRECTION_COEFFICIENT
+        coefficient = Coda.HEADING_CORRECTION_COEFFICIENT
     }
     install(DefaultPowerManager) {
         powerManager = ConstantPowerManager(0.5)
