@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.lib.feature
 
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.HeadingLocalizer
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
-import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstallContext
 import kotlin.math.abs
 
 class TargetHeading(
@@ -38,7 +38,7 @@ class TargetHeading(
         override val name: String = "Target Heading"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): TargetHeading {

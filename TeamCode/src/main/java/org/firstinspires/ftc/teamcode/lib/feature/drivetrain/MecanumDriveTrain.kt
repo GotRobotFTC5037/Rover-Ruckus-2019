@@ -20,7 +20,8 @@ import org.firstinspires.ftc.teamcode.lib.feature.FeatureSet
 import org.firstinspires.ftc.teamcode.lib.feature.KeyedFeatureInstaller
 import org.firstinspires.ftc.teamcode.lib.feature.localizer.IMULocalizer
 import org.firstinspires.ftc.teamcode.lib.pipeline.Pipeline
-import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstallContext
+import org.firstinspires.ftc.teamcode.lib.util.get
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.coroutineContext
@@ -58,21 +59,24 @@ class MecanumDriveTrain(
         }
     }
 
-    override suspend fun setLinearPower(power: Double) =
-        powerChannel.send(MotorPowers(power, power, power, power))
+    override suspend fun setLinearPower(power: Double) {
+        powerChannel.offer(MotorPowers(power, power, power, power))
+    }
 
-    override suspend fun setLateralPower(power: Double) =
-        powerChannel.send(MotorPowers(power, -power, -power, power))
+    override suspend fun setLateralPower(power: Double) {
+        powerChannel.offer(MotorPowers(power, -power, -power, power))
+    }
 
-    override suspend fun setRotationalPower(power: Double) =
-        powerChannel.send(MotorPowers(-power, power, -power, power))
+    override suspend fun setRotationalPower(power: Double) {
+        powerChannel.offer(MotorPowers(-power, power, -power, power))
+    }
 
     override suspend fun setDirectionPower(
         linearPower: Double,
         lateralPower: Double,
         rotationalPower: Double
     ) {
-        powerChannel.send(
+        powerChannel.offer(
             MotorPowers(
                 frontLeftPower = linearPower + lateralPower + rotationalPower,
                 frontRightPower = linearPower - lateralPower - rotationalPower,
@@ -107,42 +111,35 @@ class MecanumDriveTrain(
         override val name: String = "Mecanum Drive Train"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): MecanumDriveTrain {
-            val config = Configuration().apply(configure)
-
-            val frontLeftMotor =
-                robot.hardwareMap.get(DcMotor::class.java, config.frontLeftMotorName)
-                    .apply { setup(DcMotorSimple.Direction.REVERSE) }.toDcMotorEx()
-
-            val frontRightMotor =
-                robot.hardwareMap.get(DcMotor::class.java, config.frontRightMotorName)
-                    .apply { setup(DcMotorSimple.Direction.FORWARD) }.toDcMotorEx()
-
-            val backLeftMotor =
-                robot.hardwareMap.get(DcMotor::class.java, config.backLeftMotorName)
-                    .apply { setup(DcMotorSimple.Direction.REVERSE) }.toDcMotorEx()
-
-            val backRightMotor =
-                robot.hardwareMap.get(DcMotor::class.java, config.backRightMotorName)
-                    .apply { setup(DcMotorSimple.Direction.FORWARD) }.toDcMotorEx()
-
+            val (fl, fr, bl, br) = Configuration().apply(configure)
+            val hm = context.hardwareMap
+            val frontLeft = hm[DcMotorEx::class, fl].apply { setup(); toggleDirection() }
+            val frontRight = hm[DcMotorEx::class, fr].apply { setup() }
+            val backLeft = hm[DcMotorEx::class, bl].apply { setup(); toggleDirection() }
+            val backRight = hm[DcMotorEx::class, br].apply { setup() }
             return MecanumDriveTrain(
-                frontLeftMotor, frontRightMotor,
-                backLeftMotor, backRightMotor,
-                coroutineContext
+                frontLeft, frontRight, backLeft, backRight, coroutineContext
             ).apply {
                 @Suppress("EXPERIMENTAL_API_USAGE")
                 startUpdatingPowers(ticker(10, 0, this.coroutineContext, TickerMode.FIXED_DELAY))
             }
         }
 
-        private fun DcMotor.setup(direction: DcMotorSimple.Direction) {
-            this.direction = direction
+        private fun DcMotor.setup() {
             this.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
             this.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        }
+
+        private fun DcMotor.toggleDirection() {
+            direction = if (direction == DcMotorSimple.Direction.FORWARD) {
+                DcMotorSimple.Direction.REVERSE
+            } else {
+                DcMotorSimple.Direction.FORWARD
+            }
         }
 
     }
@@ -152,6 +149,10 @@ class MecanumDriveTrain(
         var frontRightMotorName: String = "front right motor"
         var backLeftMotorName: String = "back left motor"
         var backRightMotorName: String = "back right motor"
+        operator fun component1() = frontLeftMotorName
+        operator fun component2() = frontRightMotorName
+        operator fun component3() = backLeftMotorName
+        operator fun component4() = backRightMotorName
     }
 
     /* Localizer */
@@ -201,7 +202,7 @@ class MecanumDriveTrain(
         override val name: String = "Mecanum Drive Train Localizer"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: LocalizerConfiguration.() -> Unit
         ): LocalizerFeature {
@@ -294,7 +295,7 @@ class MecanumDriveTrain(
         override val name: String = "Mecanum Drive Train Road Runner Extension"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: RoadRunnerConfig.() -> Unit
         ): RoadRunnerFeature {

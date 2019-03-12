@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.lib.feature
 
-import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstallContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -13,7 +13,7 @@ abstract class FeatureInstaller<TFeature : Feature, TConfiguration : FeatureConf
     abstract val name: String
 
     abstract suspend fun install(
-        robot: RobotFeatureInstaller,
+        context: RobotFeatureInstallContext,
         featureSet: FeatureSet,
         configure: TConfiguration.() -> Unit
     ): TFeature

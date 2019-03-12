@@ -17,7 +17,7 @@ private class RobotImpl(
     private val telemetry: Telemetry,
     override val hardwareMap: HardwareMap,
     private val parentContext: CoroutineContext
-) : Robot, RobotFeatureInstaller, CoroutineScope {
+) : Robot, RobotFeatureInstallContext, CoroutineScope {
 
     private val job: Job = Job(parentContext[Job])
 
@@ -26,7 +26,7 @@ private class RobotImpl(
 
     private val features: MutableFeatureSet = MutableFeatureSet()
 
-    override val actionPipeline = Pipeline<Action, RobotFeatureInstaller>()
+    override val actionPipeline = Pipeline<Action, RobotFeatureInstallContext>()
 
     override suspend fun <F : Feature, C : FeatureConfiguration> install(
         installer: FeatureInstaller<F, C>,
@@ -48,7 +48,7 @@ private class RobotImpl(
     }
 }
 
-suspend fun OpMode.robot(configure: suspend RobotFeatureInstaller.() -> Unit = {}): Robot {
+suspend fun OpMode.robot(configure: suspend RobotFeatureInstallContext.() -> Unit = {}): Robot {
     val robot = RobotImpl(telemetry, hardwareMap, coroutineContext)
     robot.configure()
     return robot

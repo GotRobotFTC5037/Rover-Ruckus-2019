@@ -9,11 +9,11 @@ interface Robot {
     suspend fun perform(action: Action)
 }
 
-interface RobotFeatureInstaller {
+interface RobotFeatureInstallContext {
 
     val hardwareMap: HardwareMap
 
-    val actionPipeline: Pipeline<Action, RobotFeatureInstaller>
+    val actionPipeline: Pipeline<Action, RobotFeatureInstallContext>
 
     suspend fun <F : Feature, C : FeatureConfiguration> install(
         installer: FeatureInstaller<F, C>,
@@ -23,7 +23,7 @@ interface RobotFeatureInstaller {
 
 }
 
-suspend fun <F : Feature, C : FeatureConfiguration> RobotFeatureInstaller.install(
+suspend fun <F : Feature, C : FeatureConfiguration> RobotFeatureInstallContext.install(
     installer: KeyedFeatureInstaller<F, C>,
     configure: C.() -> Unit
 ) {

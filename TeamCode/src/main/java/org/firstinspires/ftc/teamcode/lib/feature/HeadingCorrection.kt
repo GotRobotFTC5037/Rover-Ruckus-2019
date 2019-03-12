@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.DriveTrainMotorPowe
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.InterceptableDriveTrain
 import org.firstinspires.ftc.teamcode.lib.feature.drivetrain.MecanumDriveTrain
 import org.firstinspires.ftc.teamcode.lib.pipeline.PipelineContext
-import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstallContext
 
 class HeadingCorrection(
     private val targetHeading: TargetHeading,
@@ -26,7 +26,7 @@ class HeadingCorrection(
         override val name: String = "Heading Correction"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): HeadingCorrection {

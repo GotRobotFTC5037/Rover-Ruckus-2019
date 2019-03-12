@@ -5,13 +5,13 @@ import org.firstinspires.ftc.teamcode.lib.action.MoveAction
 import org.firstinspires.ftc.teamcode.lib.action.NothingPowerManager
 import org.firstinspires.ftc.teamcode.lib.action.PowerManager
 import org.firstinspires.ftc.teamcode.lib.pipeline.PipelineContext
-import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstallContext
 
 class DefaultPowerManager(
     private val powerManager: PowerManager
 ) : Feature() {
 
-    suspend fun interceptor(context: PipelineContext<Action, RobotFeatureInstaller>) {
+    suspend fun interceptor(context: PipelineContext<Action, RobotFeatureInstallContext>) {
         val subject = context.subject
         if (subject is MoveAction) {
             if (!subject.context.contains(PowerManager)) {
@@ -26,13 +26,13 @@ class DefaultPowerManager(
         override val name: String = "Default Power Manager"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): DefaultPowerManager {
             val configuration = Configuration().apply(configure)
             val defaultPowerManager = DefaultPowerManager(configuration.powerManager)
-            robot.actionPipeline.intercept {
+            context.actionPipeline.intercept {
                 defaultPowerManager.interceptor(this)
             }
             return defaultPowerManager

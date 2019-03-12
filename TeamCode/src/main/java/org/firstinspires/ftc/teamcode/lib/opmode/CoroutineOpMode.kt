@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 import kotlin.system.measureTimeMillis
 
 abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
@@ -21,10 +22,13 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
         get() = CoroutineName("OpMode") + Dispatchers.Default + job + exceptionHandler
 
     final override var isInitialized: Boolean = false
+        private set
 
     final override var isStarted: Boolean = false
+        private set
 
     final override var isStopped: Boolean = false
+        private set
 
     private fun handleLoop() {
         val throwable = throwableChannel.poll()
@@ -52,7 +56,7 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
         job = Job()
         launch {
             val time = measureTimeMillis { initialize() }
-            telemetry.log().add("[OpMode] Done initialization (${time}ms)")
+            telemetry.log().add("[OpMode] Done initialization (${(time / 1000.0).roundToInt()}s)")
             waitForStart()
             telemetry.log().add("[OpMode] Starting opmode")
             run()

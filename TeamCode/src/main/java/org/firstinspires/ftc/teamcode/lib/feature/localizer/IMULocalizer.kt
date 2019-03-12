@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.lib.feature.Feature
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureConfiguration
 import org.firstinspires.ftc.teamcode.lib.feature.FeatureSet
 import org.firstinspires.ftc.teamcode.lib.feature.KeyedFeatureInstaller
-import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstaller
+import org.firstinspires.ftc.teamcode.lib.robot.RobotFeatureInstallContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
@@ -49,12 +49,12 @@ class IMULocalizer(
         override val name: String = "IMU Localizer"
 
         override suspend fun install(
-            robot: RobotFeatureInstaller,
+            context: RobotFeatureInstallContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): IMULocalizer {
             val configuration = Configuration().apply(configure)
-            val imu = robot.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
+            val imu = context.hardwareMap.get(BNO055IMU::class.java, configuration.imuName)
             val parameters = BNO055IMU.Parameters().apply {
                 angleUnit = BNO055IMU.AngleUnit.DEGREES
             }
