@@ -71,6 +71,10 @@ class MecanumDriveTrain(
         powerChannel.offer(MotorPowers(-power, power, -power, power))
     }
 
+    fun setMotorPowers(powers: MotorPowers) {
+        powerChannel.offer(powers)
+    }
+
     override suspend fun setDirectionPower(
         linearPower: Double,
         lateralPower: Double,
@@ -195,6 +199,13 @@ class MecanumDriveTrain(
         suspend fun motorPositions(): MotorPositions =
             positionChannel.receive()
 
+        fun rawMotorPositions(): MotorPositions = MotorPositions(
+            frontLeftMotor.currentUnitPosition,
+            frontRightMotor.currentUnitPosition,
+            backLeftMotor.currentUnitPosition,
+            backRightMotor.currentUnitPosition
+        )
+
     }
 
     object Localizer : KeyedFeatureInstaller<LocalizerFeature, LocalizerConfiguration>() {
@@ -254,14 +265,11 @@ class MecanumDriveTrain(
                 powerChannel.offer(MotorPowers(frontLeft, frontRight, rearLeft, rearRight))
             }
 
-            override fun getWheelPositions(): List<Double> = runBlocking {
-                driveTrainLocalizer.motorPositions().toRoadRunnerPositionList()
-            }
+            override fun getWheelPositions(): List<Double> =
+                driveTrainLocalizer.rawMotorPositions().toRoadRunnerPositionList()
 
 
-            override fun getExternalHeading(): Double = runBlocking {
-                imuLocalizer.heading()
-            }
+            override fun getExternalHeading(): Double = Math.toRadians(imuLocalizer.rawHeading())
 
         }
 
@@ -292,7 +300,7 @@ class MecanumDriveTrain(
 
     object RoadRunnerExtension : KeyedFeatureInstaller<RoadRunnerFeature, RoadRunnerConfig>() {
 
-        override val name: String = "Mecanum Drive Train Road Runner Extension"
+        override val name: String = "Mecanum Road Runner Extension"
 
         override suspend fun install(
             context: RobotFeatureInstallContext,
