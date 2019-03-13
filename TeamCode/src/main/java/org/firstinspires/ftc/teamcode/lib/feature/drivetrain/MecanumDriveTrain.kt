@@ -130,7 +130,7 @@ class MecanumDriveTrain(
         }
 
         private fun DcMotor.setup() {
-            this.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
+            this.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             this.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         }
 
