@@ -44,6 +44,9 @@ class IMULocalizer(
 
     override suspend fun heading() = headingChannel.receive()
 
+    fun rawHeading() =
+        imu.getAngularOrientation(IMUAngularOrientationOptions()).firstAngle.toDouble()
+
     companion object Installer : KeyedFeatureInstaller<IMULocalizer, Configuration>() {
 
         override val name: String = "IMU Localizer"

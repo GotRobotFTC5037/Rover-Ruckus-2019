@@ -24,32 +24,32 @@ object Coda {
     const val BACK_RIGHT_MOTOR = "back right motor"
 
     const val GEAR_RATIO = 1.0
-    const val WHEEL_DIAMETER = 0.0
+    const val WHEEL_DIAMETER = 10.16
 
     const val IMU = "imu"
 
-    const val TRACK_WIDTH = 0.0
-    const val WHEEL_BASE = 0.0
-    const val TRANSLATIONAL_COEFFICIENTS_P = 0.01
+    const val TRACK_WIDTH = 35.56
+    const val WHEEL_BASE = 31.43
+    const val TRANSLATIONAL_COEFFICIENTS_P = 0.0
     const val TRANSLATIONAL_COEFFICIENTS_I = 0.0
     const val TRANSLATIONAL_COEFFICIENTS_D = 0.0
     const val HEADING_COEFFICIENTS_P = 0.01
     const val HEADING_COEFFICIENTS_I = 0.0
     const val HEADING_COEFFICIENTS_D = 0.0
-    const val FEED_FORWARD_CONSTANT = 0.01
-    const val FEED_FORWARD_VELOCITY_GAIN = 0.0
-    const val FEED_FORWARD_ACCELERATION_GAIN = 0.0
-    const val ADMISSIBLE_ERROR_X = 10.0
-    const val ADMISSIBLE_ERROR_Y = 10.0
-    const val ADMISSIBLE_ERROR_HEADING = 2.5
-    const val TIMEOUT = 30.0
+    const val FEED_FORWARD_CONSTANT = 0.1
+    const val FEED_FORWARD_VELOCITY_GAIN = 1.0
+    const val FEED_FORWARD_ACCELERATION_GAIN = 1.0
+    const val ADMISSIBLE_ERROR_X = 0.0
+    const val ADMISSIBLE_ERROR_Y = 0.0
+    const val ADMISSIBLE_ERROR_HEADING = 0.0
+    val TIMEOUT = Double.MAX_VALUE
 
     const val HEADING_CORRECTION_COEFFICIENT = 0.01
 
-    private const val MAXIMUM_TRANSLATIONAL_VELOCITY = 50.0
-    private const val MAXIMUM_TRANSLATIONAL_ACCELERATION = 10.0
-    private const val MAXIMUM_ANGULAR_VELOCITY = 50.0
-    private const val MAXIMUM_ANGULAR_ACCELERATION = 10.0
+    private const val MAXIMUM_TRANSLATIONAL_VELOCITY = 1.0
+    private const val MAXIMUM_TRANSLATIONAL_ACCELERATION = 0.1
+    private const val MAXIMUM_ANGULAR_VELOCITY = Math.PI / 2
+    private const val MAXIMUM_ANGULAR_ACCELERATION = Math.PI / 2
 
     suspend operator fun invoke(opMode: OpMode): Robot = opMode.Coda()
 
