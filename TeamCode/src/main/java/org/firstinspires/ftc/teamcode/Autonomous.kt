@@ -2,16 +2,12 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import us.gotrobot.grbase.action.*
-import us.gotrobot.grbase.opmode.CoroutineOpMode
-import us.gotrobot.grbase.robot.Robot
+import us.gotrobot.grbase.opmode.RobotOpMode
 
-@Suppress("unused", "SpellCheckingInspection")
 @Autonomous(name = "Depot")
-class DepotAutonomous : CoroutineOpMode() {
+class DepotAutonomous : RobotOpMode() {
 
-    lateinit var robot: Robot
-
-    private val actionSequence = actionSequenceOf(
+    override val action = actionSequenceOf(
         timeDrive(time = 500, power = 0.2),
         lateralDrive(distance = 25.0),
         linearDrive(distance = 190.0),
@@ -24,24 +20,14 @@ class DepotAutonomous : CoroutineOpMode() {
         driveForever(power = 0.2)
     )
 
-    override suspend fun initialize() {
-        robot = Metabot()
-
-    }
-
-    override suspend fun run() {
-        robot.perform(actionSequence)
-    }
+    override suspend fun robot() = Metabot()
 
 }
 
-@Suppress("unused", "SpellCheckingInspection")
 @Autonomous(name = "Crater")
-class CraterAutonomous : CoroutineOpMode() {
+class CraterAutonomous : RobotOpMode() {
 
-    lateinit var robot: Robot
-
-    private val actionSequence = actionSequenceOf(
+    override val action = actionSequenceOf(
         timeDrive(time = 500, power = 0.2),
         lateralDrive(distance = 25.0),
         linearDrive(distance = 80.0),
@@ -55,12 +41,6 @@ class CraterAutonomous : CoroutineOpMode() {
         driveForever(power = -0.2)
     )
 
-    override suspend fun initialize() {
-        robot = Metabot()
-    }
-
-    override suspend fun run() {
-        robot.perform(actionSequence)
-    }
+    override suspend fun robot() = Metabot()
 
 }
