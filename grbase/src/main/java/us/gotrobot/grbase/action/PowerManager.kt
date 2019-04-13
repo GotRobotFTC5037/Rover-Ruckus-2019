@@ -57,3 +57,5 @@ infix fun MoveAction.with(manger: PowerManager): MoveAction {
     context[PowerManager] = manger
     return this
 }
+
+fun power(power: Double): PowerManager = ConstantPowerManager(power)

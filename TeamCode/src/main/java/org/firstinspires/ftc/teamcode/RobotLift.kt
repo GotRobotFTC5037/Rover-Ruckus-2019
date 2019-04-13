@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode
 
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.TouchSensor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import us.gotrobot.grbase.action.ActionScope
 import us.gotrobot.grbase.action.action
@@ -11,6 +15,7 @@ import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
 import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.util.addData
 import us.gotrobot.grbase.util.get
 
 class RobotLift(
@@ -28,7 +33,7 @@ class RobotLift(
 
     companion object Installer : KeyedFeatureInstaller<RobotLift, Configuration>() {
 
-        const val MAX_POSITION: Int = 1000
+        const val MAX_POSITION: Int = 19_100
 
         override val name: String = "Lift"
         override suspend fun install(
@@ -37,9 +42,20 @@ class RobotLift(
             configure: Configuration.() -> Unit
         ): RobotLift {
             val (liftMotorName, limitSwitchName) = Configuration().apply(configure)
-            val liftMotor = context.hardwareMap[DcMotorEx::class, liftMotorName]
+            val liftMotor = context.hardwareMap[DcMotorEx::class, liftMotorName].apply {
+                mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                delay(100)
+                mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            }
             val limitSwitch = context.hardwareMap[TouchSensor::class, limitSwitchName]
-            return RobotLift(liftMotor, limitSwitch)
+            return RobotLift(liftMotor, limitSwitch).also {
+                context.coroutineScope.launch {
+                    while (isActive) {
+                        context.telemetry.addData("Position: ${liftMotor.currentPosition}")
+                        context.telemetry.update()
+                    }
+                }
+            }
         }
     }
 
@@ -52,20 +68,20 @@ class RobotLift(
 
 }
 
-val ActionScope.lift get() = feature(RobotLift)
+val ActionScope.robotLift get() = feature(RobotLift)
 
 fun lowerLift() = action {
-    lift.setLiftMotorPower(-1.0)
-    while (!lift.isLowered) {
+    robotLift.setLiftMotorPower(-1.0)
+    while (!robotLift.isLowered) {
         yield()
     }
-    lift.setLiftMotorPower(0.0)
+    robotLift.setLiftMotorPower(0.0)
 }
 
 fun extendLift() = action {
-    lift.setLiftMotorPower(1.0)
-    while (lift.position < RobotLift.MAX_POSITION) {
+    robotLift.setLiftMotorPower(1.0)
+    while (robotLift.position < RobotLift.MAX_POSITION) {
         yield()
     }
-    lift.setLiftMotorPower(0.0)
+    robotLift.setLiftMotorPower(0.0)
 }

@@ -1,21 +1,17 @@
 package org.firstinspires.ftc.teamcode
 
-import com.beust.klaxon.JsonValue
-import com.beust.klaxon.Klaxon
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import us.gotrobot.grbase.action.ConstantPowerManager
-import us.gotrobot.grbase.drivercontrol.DriverControl
 import us.gotrobot.grbase.feature.DefaultPowerManager
 import us.gotrobot.grbase.feature.HeadingCorrection
 import us.gotrobot.grbase.feature.TargetHeading
+import us.gotrobot.grbase.feature.drivercontrol.DriverControl
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.localizer.IMULocalizer
-import us.gotrobot.grbase.feature.vision.Vuforia
 import us.gotrobot.grbase.opmode.isAutonomous
 import us.gotrobot.grbase.opmode.isTeleOp
 import us.gotrobot.grbase.robot.install
 import us.gotrobot.grbase.robot.robot
-import java.io.File
 
 object Metabot {
     const val FRONT_LEFT_MOTOR = "front left motor"
@@ -35,7 +31,7 @@ object Metabot {
 
     const val IMU = "imu"
 
-    const val HEADING_CORRECTION_COEFFICIENT = 0.02
+    const val HEADING_CORRECTION_COEFFICIENT = 0.015
     const val HEADING_CORRECTION_MAX_VALUE = 0.25
 
     const val POWER_MANAGER_VALUE = 0.60
@@ -83,17 +79,6 @@ suspend fun OpMode.Metabot() = robot {
         imuName = Metabot.IMU
     }
 
-    // Camera
-    install(Vuforia) {
-        val file = File("VuforiaKey.json")
-        val key = Klaxon().parse<JsonValue>(file)!!.objString("vuforia_key")
-        licenceKey = key
-    }
-
-    install(CargoDetector) {
-        // No configuration.
-    }
-
     // Discrete Features
     install(TargetHeading) {
         headingLocalizerKey = IMULocalizer
@@ -113,9 +98,7 @@ suspend fun OpMode.Metabot() = robot {
             powerManager = ConstantPowerManager(Metabot.POWER_MANAGER_VALUE)
         }
     } else if (isTeleOp) {
-        install(DriverControl) {
-            // No configuration.
-        }
+        install(DriverControl)
     }
 
 }

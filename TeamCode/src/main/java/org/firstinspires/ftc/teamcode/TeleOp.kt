@@ -6,7 +6,9 @@ import kotlinx.coroutines.yield
 import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.action.perform
 import us.gotrobot.grbase.feature.HeadingCorrection
+import us.gotrobot.grbase.feature.drivercontrol.driverControl
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
+import us.gotrobot.grbase.feature.drivetrain.mecanumDriveTrain
 import us.gotrobot.grbase.opmode.CoroutineOpMode
 import us.gotrobot.grbase.robot.Robot
 
@@ -34,14 +36,9 @@ class TeleOp : CoroutineOpMode() {
             driveTrain.setDirectionPower(linearPower, lateralPower, rotationalPower)
 
             when {
-                gamepad1.dpad_up -> lift.setLiftMotorPower(1.0)
-                gamepad1.dpad_down -> if (lift.isLowered.not()) lift.setLiftMotorPower(-1.0)
-                else -> lift.setLiftMotorPower(0.0)
-            }
-
-            when {
-                gamepad2.dpad_up -> cargoDelivery.setRotationalMotorPosition(2100)
-                gamepad2.dpad_down -> cargoDelivery.setRotationalMotorPosition(0)
+                gamepad1.dpad_up -> robotLift.setLiftMotorPower(1.0)
+                gamepad1.dpad_down -> if (robotLift.isLowered.not()) robotLift.setLiftMotorPower(-1.0)
+                else -> robotLift.setLiftMotorPower(0.0)
             }
 
             when {
@@ -72,6 +69,32 @@ class TeleOp : CoroutineOpMode() {
             }
 
             yield()
+        }
+    }
+
+}
+
+@TeleOp(name = "One Man TeleOp")
+class OneManTeleOp : CoroutineOpMode() {
+
+    private lateinit var robot: Robot
+
+    override suspend fun initialize() {
+        robot = Metabot().apply {
+            features[HeadingCorrection].enabled = false
+        }
+    }
+
+    override suspend fun run() = robot.perform {
+        val driveTrain = mecanumDriveTrain
+
+        driverControl {
+            loop {
+                val linearPower = driver.leftStick.y
+                val lateralPower = driver.leftStick.x
+                val rotationalPower = driver.rightStick.x
+                driveTrain.setDirectionPower(linearPower, lateralPower, rotationalPower)
+            }
         }
     }
 

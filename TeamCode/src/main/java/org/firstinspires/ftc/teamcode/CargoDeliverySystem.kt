@@ -10,6 +10,8 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.TickerMode
 import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.selects.select
+import us.gotrobot.grbase.action.ActionScope
+import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
@@ -61,8 +63,8 @@ class CargoDeliverySystem(
     fun setSortingDirection(direction: SortingDirection) {
         sortingDirection = direction
         sortingServo.position = when (direction) {
-            SortingDirection.LEFT -> 0.0
-            SortingDirection.RIGHT -> 1.0
+            SortingDirection.LEFT -> 0.25
+            SortingDirection.RIGHT -> 0.75
         }
     }
 
@@ -79,6 +81,7 @@ class CargoDeliverySystem(
             select<Unit> {
                 powerChannel.onReceive {
                     outputPower = if (it == 0.0 && lastDesiredPower != 0.0) {
+                        delay(250)
                         targetPosition = motor.currentPosition
                         0.0
                     } else if (it == 0.0) {
@@ -175,3 +178,5 @@ class CargoDeliverySystem(
     }
 
 }
+
+val ActionScope.cargoDeliverySystem get() = feature(CargoDeliverySystem)

@@ -1,5 +1,7 @@
 package us.gotrobot.grbase.feature
 
+import us.gotrobot.grbase.action.action
+import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.drivetrain.InterceptableDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.localizer.IMULocalizer
@@ -7,7 +9,7 @@ import us.gotrobot.grbase.robot.FeatureInstallContext
 
 class HeadingCorrection : Feature() {
 
-    var enabled: Boolean = true
+    var enabled: Boolean = false
 
     companion object Installer : KeyedFeatureInstaller<HeadingCorrection, Configuration>() {
 
@@ -48,4 +50,9 @@ class HeadingCorrection : Feature() {
         var coefficient: Double = 0.0
         var maxValue: Double = 0.0
     }
+}
+
+fun toggleHeadingCorrection() = action {
+    val correction = feature(HeadingCorrection)
+    correction.enabled = !correction.enabled
 }

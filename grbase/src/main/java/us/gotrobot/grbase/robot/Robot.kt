@@ -37,5 +37,5 @@ interface FeatureInstallContext {
 
 suspend fun <F : Feature, C : FeatureConfiguration> FeatureInstallContext.install(
     installer: KeyedFeatureInstaller<F, C>,
-    configure: C.() -> Unit
+    configure: C.() -> Unit = {}
 ): F = install(installer, installer, configure)
