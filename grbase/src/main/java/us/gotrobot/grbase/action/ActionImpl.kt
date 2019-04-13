@@ -49,12 +49,6 @@ suspend fun Robot.perform(block: suspend ActionScope.() -> Unit) =
     perform(action(block).apply { this.timeoutMillis = Long.MAX_VALUE })
 
 /**
- *
- */
-suspend fun Robot.performAsync(action: Action) =
-    perform { launch { this@performAsync.perform(action) } }
-
-/**
  * Returns an action that performs the current action and the provided action in sequence.
  */
 infix fun Action.then(action: Action): Action = actionSequenceOf(this, action)
@@ -71,10 +65,19 @@ fun actionSequenceOf(vararg actions: Action): Action = action {
 /**
  *
  */
-fun repeat(action: Action, times: Int): Action =
-    action { kotlin.repeat(times) { perform(action) } }
+fun repeat(action: Action, times: Int): Action = action {
+    repeat(times) {
+        perform(action)
+    }
+}
 
 /**
  * Returns an action that waits [duration] in milliseconds.
  */
 fun wait(duration: Long): Action = action { delay(duration) }
+
+fun async(action: Action): Action = action {
+    launch {
+        perform(action)
+    }
+}
