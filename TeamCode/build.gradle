@@ -14,13 +14,17 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply plugin: 'kotlin-android'
+
 repositories {
+    google()
     mavenCentral()
+    jcenter()
 }
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation "com.acmerobotics.roadrunner:core:0.2.6"
-    implementation 'com.acmerobotics.dashboard:dashboard:0.2.3'
+    implementation project(':grbase')
+    implementation 'com.beust:klaxon:5.0.1'
 }
