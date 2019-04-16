@@ -32,7 +32,6 @@ object Metabot {
     const val IMU = "imu"
 
     const val HEADING_CORRECTION_COEFFICIENT = 0.015
-    const val HEADING_CORRECTION_MAX_VALUE = 0.25
 
     const val POWER_MANAGER_VALUE = 0.60
 
@@ -88,7 +87,6 @@ suspend fun OpMode.Metabot() = robot {
     }
     install(HeadingCorrection) {
         coefficient = Metabot.HEADING_CORRECTION_COEFFICIENT
-        maxValue = Metabot.HEADING_CORRECTION_MAX_VALUE
     }
 
     // Game Mode Specific
@@ -98,7 +96,7 @@ suspend fun OpMode.Metabot() = robot {
             gearRatio = Metabot.GEAR_RATIO
         }
         install(DefaultPowerManager) {
-            powerManager = ConstantPowerManager(0.6)
+            powerManager = ConstantPowerManager(Metabot.POWER_MANAGER_VALUE)
         }
     } else if (isTeleOp) {
         install(DriverControl)

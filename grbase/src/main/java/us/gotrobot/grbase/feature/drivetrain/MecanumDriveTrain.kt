@@ -33,8 +33,9 @@ class MecanumDriveTrain(
 
     private val job: Job = Job(parentContext[Job])
 
+    @Suppress("EXPERIMENTAL_API_USAGE")
     override val coroutineContext: CoroutineContext
-        get() = parentContext + CoroutineName("Mecanum Drive Train") + job
+        get() = parentContext + CoroutineName("Mecanum Drive Train") + job + newSingleThreadContext("Drive Train")
 
     private val powerChannel: Channel<MotorMagnitudes> = Channel(Channel.CONFLATED)
 

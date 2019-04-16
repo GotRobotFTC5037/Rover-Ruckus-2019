@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.TickerMode
 import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.selects.select
 import us.gotrobot.grbase.action.ActionScope
+import us.gotrobot.grbase.action.action
 import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
@@ -195,3 +196,5 @@ class CargoDeliverySystem(
 }
 
 val ActionScope.cargoDeliverySystem get() = feature(CargoDeliverySystem)
+
+fun raiseRotationMotor() = action { feature(CargoDeliverySystem).setRotationalMotorPosition(500) }

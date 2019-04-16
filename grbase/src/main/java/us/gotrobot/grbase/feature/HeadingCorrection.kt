@@ -1,5 +1,6 @@
 package us.gotrobot.grbase.feature
 
+import us.gotrobot.grbase.action.ActionName
 import us.gotrobot.grbase.action.action
 import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.drivetrain.InterceptableDriveTrain
@@ -26,7 +27,6 @@ class HeadingCorrection : Feature() {
 
             val configuration = Configuration().apply(configure)
             val coefficient = configuration.coefficient
-            val maxValue = configuration.maxValue
 
             val headingCorrection = HeadingCorrection()
 
@@ -36,7 +36,8 @@ class HeadingCorrection : Feature() {
                 if (headingCorrection.enabled) {
                     val current = headingChannel.receive()
                     val target = targetHeading.targetHeading
-                    val adjustment = ((target - current) * coefficient).coerceAtMost(maxValue)
+                    val error = target - current
+                    val adjustment = error * coefficient
                     subject.adjustHeadingPower(adjustment)
                 }
                 proceed()
@@ -48,11 +49,12 @@ class HeadingCorrection : Feature() {
 
     class Configuration : FeatureConfiguration {
         var coefficient: Double = 0.0
-        var maxValue: Double = 0.0
     }
 }
 
 fun toggleHeadingCorrection() = action {
     val correction = feature(HeadingCorrection)
     correction.enabled = !correction.enabled
+}.apply {
+    context.add(ActionName("Toggle Heading Correction"))
 }
