@@ -295,6 +295,8 @@ class MecanumDriveTrain(
             drive.updatePoseEstimate()
             follower.update(drive.poseEstimate)
         }
+        // TODO TCS if ((averageSpeedOfWheels) * 1.05 < specificWheel) then decrease wheel speed to 95% for a few seconds
+        //val averageWheelVelocity = (frontLeftMotor.getVelocity() + frontRightMotor.getVelocity() + backLeftMotor.getVelocity() + backRightMotor.getVelocity()) * 1.05
 
     }
 
