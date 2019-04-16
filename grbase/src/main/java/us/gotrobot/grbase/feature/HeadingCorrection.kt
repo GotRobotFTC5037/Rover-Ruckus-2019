@@ -5,7 +5,7 @@ import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.drivetrain.InterceptableDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.localizer.IMULocalizer
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 
 class HeadingCorrection : Feature() {
 
@@ -16,7 +16,7 @@ class HeadingCorrection : Feature() {
         override val name: String = "Heading Correction"
 
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): HeadingCorrection {

@@ -16,7 +16,7 @@ import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 import us.gotrobot.grbase.util.get
 import kotlin.coroutines.CoroutineContext
 
@@ -131,10 +131,25 @@ class CargoDeliverySystem(
         }
     }
 
+    suspend fun setExtendtionMotorPosition(position: Int) {
+        val currentPosition = extensionMotor.currentPosition
+        if (currentPosition > position) {
+            while (extensionMotor.currentPosition > position) {
+                setRotationMotorPower(-0.85)
+                yield()
+            }
+        } else if (currentPosition < position) {
+            while (extensionMotor.currentPosition < position) {
+                setRotationMotorPower(0.85)
+                yield()
+            }
+        }
+    }
+
     companion object Installer : KeyedFeatureInstaller<CargoDeliverySystem, Configuration>() {
         override val name: String = "Cargo Delivery System"
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): CargoDeliverySystem {

@@ -9,12 +9,11 @@ import us.gotrobot.grbase.feature.drivetrain.LinearDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.RotationalDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.mecanumDriveTrain
-import us.gotrobot.grbase.feature.getSingle
 
 // TODO: Redesign this action to work on all types of drive trains.
-fun linearDrive(distance: Double): MoveAction = move {
-    val driveTrain = features.getSingle(LinearDriveTrain::class)
-    val localizer = features[MecanumDriveTrain.Localizer]
+fun linearDrive(distance: Double): Action = action {
+    val driveTrain = feature(LinearDriveTrain::class)
+    val localizer = feature(MecanumDriveTrain.Localizer)
 
     val linearPositionChannel = localizer.linearPosition()
     target = distance
@@ -31,12 +30,14 @@ fun linearDrive(distance: Double): MoveAction = move {
 
     linearPositionChannel.cancel()
     driveTrain.setLinearPower(0.0)
+}.apply {
+    context.add(ActionName("Linear Drive"))
 }
 
 // TODO: Redesign this action to work on all types of drive trains.
-fun lateralDrive(distance: Double): MoveAction = move {
-    val driveTrain = features[MecanumDriveTrain]
-    val localizer = features[MecanumDriveTrain.Localizer]
+fun lateralDrive(distance: Double): Action = action {
+    val driveTrain = feature(MecanumDriveTrain)
+    val localizer = feature(MecanumDriveTrain.Localizer)
 
     val lateralPositionChannel = localizer.lateralPosition()
     target = distance
@@ -53,13 +54,15 @@ fun lateralDrive(distance: Double): MoveAction = move {
 
     lateralPositionChannel.cancel()
     driveTrain.setLinearPower(0.0)
+}.apply {
+    context.add(ActionName("Lateral Drive"))
 }
 
 // TODO: Redesign this action to work on all types of drive trains.
-fun turnTo(heading: Double): MoveAction = move {
-    val driveTrain = features.getSingle(RotationalDriveTrain::class)
-    val headingCorrection = features[HeadingCorrection].apply { enabled = false }
-    val targetHeading = features[TargetHeading].apply { targetHeading = heading }
+fun turnTo(heading: Double): Action = action {
+    val driveTrain = feature(RotationalDriveTrain::class)
+    val headingCorrection = feature(HeadingCorrection).apply { enabled = false }
+    val targetHeading = feature(TargetHeading).apply { targetHeading = heading }
 
     val initialDelta = targetHeading.deltaFromHeading(heading)
     target = initialDelta
@@ -76,18 +79,24 @@ fun turnTo(heading: Double): MoveAction = move {
 
     driveTrain.setRotationalPower(0.0)
     headingCorrection.enabled = true
+}.apply {
+    context.add(ActionName("Turn To"))
 }
 
-fun driveForever(power: Double): MoveAction = move {
-    val driveTrain = features.getSingle(LinearDriveTrain::class)
+fun driveForever(power: Double): Action = action {
+    val driveTrain = feature(LinearDriveTrain::class)
     while (isActive) {
         driveTrain.setLinearPower(power)
         yield()
     }
+}.apply {
+    context.add(ActionName("Drive Forever"))
 }
 
-fun timeDrive(time: Long, power: Double) = move {
+fun timeDrive(time: Long, power: Double) = action {
     mecanumDriveTrain.setLinearPower(power)
     delay(time)
     mecanumDriveTrain.stop()
+}.apply {
+    context.add(ActionName("Time Drive"))
 }

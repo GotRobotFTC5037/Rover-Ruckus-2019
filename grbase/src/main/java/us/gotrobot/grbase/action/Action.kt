@@ -2,47 +2,51 @@ package us.gotrobot.grbase.action
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import us.gotrobot.grbase.feature.FeatureSet
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.feature.Feature
+import us.gotrobot.grbase.feature.FeatureKey
+import us.gotrobot.grbase.robot.Robot
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.coroutineContext
+import kotlin.reflect.KClass
 
-/**
- * The scope that an [Action]'s block is run in.
- */
-interface ActionScope : CoroutineScope {
-    val features: FeatureSet
-    suspend fun perform(action: Action)
-}
+typealias ActionBlock = suspend ActionScope.() -> Unit
 
-/**
- * An [ActionScope] that contains the basic functions used in an [Action] block.
- */
-abstract class AbstractActionScope(
-    private val context: FeatureInstallContext,
-    parentContext: CoroutineContext = EmptyCoroutineContext
-) : ActionScope {
-    override val features: FeatureSet = context.features
-    override val coroutineContext: CoroutineContext = parentContext + Job(parentContext[Job])
-    override suspend fun perform(action: Action) {
-        context.telemetry.log().add("[Action] Performing Action")
-        context.actionPipeline.execute(action, context).run(context)
+class Action internal constructor(
+    private val block: ActionBlock
+) {
+
+    var context: ActionContext = ActionContext()
+
+    internal suspend fun run(robot: Robot) {
+        val scope = ActionScope(robot, context, coroutineContext)
+        block.invoke(scope)
+        scope.coroutineContext[Job]?.join()
     }
+
 }
 
-/**
- * Describes a block of work for the robot to do.
- */
-interface Action {
-    var disabled: Boolean
-    var timeoutMillis: Long
-    suspend fun run(context: FeatureInstallContext)
+class ActionScope internal constructor(
+    internal val robot: Robot,
+    val context: ActionContext,
+    private val parentContext: CoroutineContext
+) : CoroutineScope {
+
+    private val job: Job = Job(coroutineContext[Job])
+
+    override val coroutineContext: CoroutineContext
+        get() = parentContext + job
+
 }
 
-/**
- * An [Action] that contains the basic functions and properties to run an action.
- */
-abstract class AbstractAction : Action {
-    override var disabled: Boolean = false
-    override var timeoutMillis: Long = 30_000 // Autonomous is 30 seconds.
+fun <F : Feature> ActionScope.feature(key: FeatureKey<F>) = robot.features[key]
+fun <F : Any> ActionScope.feature(clazz: KClass<F>) = robot.features.getAll(clazz).single()
+suspend fun ActionScope.perform(action: Action) = robot.perform(action)
+suspend fun Robot.perform(block: ActionBlock) = perform(action(block))
+
+fun action(block: ActionBlock) = Action(block)
+
+fun actionSequenceOf(vararg actions: Action) = action {
+    for (action in actions) {
+        perform(action)
+    }
 }

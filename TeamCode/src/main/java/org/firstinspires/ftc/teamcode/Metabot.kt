@@ -59,6 +59,9 @@ suspend fun OpMode.Metabot() = robot {
         backRightMotorName = Metabot.BACK_RIGHT_MOTOR
     }
 
+    // Hardware
+//    val extensionMotor = install(ManagedMotor, )
+
     // Sub-components
     install(CargoDeliverySystem) {
         extensionMotorName = Metabot.EXTENSION_MOTOR
@@ -95,7 +98,7 @@ suspend fun OpMode.Metabot() = robot {
             gearRatio = Metabot.GEAR_RATIO
         }
         install(DefaultPowerManager) {
-            powerManager = ConstantPowerManager(Metabot.POWER_MANAGER_VALUE)
+            powerManager = ConstantPowerManager(0.6)
         }
     } else if (isTeleOp) {
         install(DriverControl)

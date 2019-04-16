@@ -6,7 +6,7 @@ import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 
 class Vuforia(private val licenceKey: String) : Feature() {
 
@@ -23,7 +23,7 @@ class Vuforia(private val licenceKey: String) : Feature() {
     companion object Installer : KeyedFeatureInstaller<Vuforia, Configuration>() {
         override val name: String = "Vuforia"
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): Vuforia {

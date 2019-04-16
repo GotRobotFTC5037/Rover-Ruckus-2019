@@ -3,7 +3,7 @@ package us.gotrobot.grbase.feature
 import kotlinx.coroutines.channels.ReceiveChannel
 import us.gotrobot.grbase.feature.localizer.HeadingLocalizer
 import us.gotrobot.grbase.feature.localizer.IMULocalizer
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 import kotlin.math.abs
 
 class TargetHeading(
@@ -30,7 +30,7 @@ class TargetHeading(
         override val name: String = "Target Heading"
 
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): TargetHeading {

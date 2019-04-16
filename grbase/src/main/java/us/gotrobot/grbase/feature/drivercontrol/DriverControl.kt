@@ -7,7 +7,7 @@ import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 import kotlin.coroutines.CoroutineContext
 
 class DriverControl(
@@ -32,7 +32,7 @@ class DriverControl(
     companion object Installer : KeyedFeatureInstaller<DriverControl, Nothing>() {
         override val name: String = "Driver Control"
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Nothing.() -> Unit
         ): DriverControl {

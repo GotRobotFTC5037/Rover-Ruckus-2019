@@ -13,19 +13,14 @@ interface Robot {
     suspend fun perform(action: Action)
 }
 
-interface FeatureInstallContext {
+interface RobotContext {
 
     val features: FeatureSet
-
     val hardwareMap: HardwareMap
-
     val telemetry: Telemetry
-
     val gamepads: Pair<Gamepad, Gamepad>
-
     val coroutineScope: CoroutineScope
-
-    val actionPipeline: Pipeline<Action, FeatureInstallContext>
+    val actionPipeline: Pipeline<Action, RobotContext>
 
     suspend fun <F : Feature, C : FeatureConfiguration> install(
         installer: FeatureInstaller<F, C>,
@@ -35,7 +30,7 @@ interface FeatureInstallContext {
 
 }
 
-suspend fun <F : Feature, C : FeatureConfiguration> FeatureInstallContext.install(
+suspend fun <F : Feature, C : FeatureConfiguration> RobotContext.install(
     installer: KeyedFeatureInstaller<F, C>,
     configure: C.() -> Unit = {}
 ): F = install(installer, installer, configure)

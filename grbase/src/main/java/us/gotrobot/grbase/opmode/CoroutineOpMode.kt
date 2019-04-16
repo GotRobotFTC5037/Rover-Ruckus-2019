@@ -34,7 +34,12 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
         val throwable = throwableChannel.poll()
         if (throwable != null) {
             when (throwable) {
-                is RuntimeException -> throw throwable
+                is RuntimeException -> {
+                    telemetry.log()
+                        .add(throwable.stackTrace.toList().toString())
+                    telemetry.update()
+                    throw throwable
+                }
                 else -> throw RuntimeException(throwable)
             }
         }

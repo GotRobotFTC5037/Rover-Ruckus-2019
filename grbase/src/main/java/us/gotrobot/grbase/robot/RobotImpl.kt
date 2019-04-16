@@ -9,6 +9,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import us.gotrobot.grbase.action.Action
+import us.gotrobot.grbase.action.ActionName
 import us.gotrobot.grbase.feature.*
 import us.gotrobot.grbase.pipeline.Pipeline
 import kotlin.coroutines.CoroutineContext
@@ -19,7 +20,7 @@ private class RobotImpl(
     override val hardwareMap: HardwareMap,
     override val gamepads: Pair<Gamepad, Gamepad>,
     private val parentContext: CoroutineContext
-) : Robot, FeatureInstallContext, CoroutineScope {
+) : Robot, RobotContext, CoroutineScope {
 
     private val job: Job = Job(parentContext[Job])
 
@@ -34,7 +35,7 @@ private class RobotImpl(
     override val features: FeatureSet
         get() = _features
 
-    override val actionPipeline = Pipeline<Action, FeatureInstallContext>()
+    override val actionPipeline = Pipeline<Action, RobotContext>()
 
     override suspend fun <F : Feature, C : FeatureConfiguration> install(
         installer: FeatureInstaller<F, C>,
@@ -51,12 +52,17 @@ private class RobotImpl(
     }
 
     override suspend fun perform(action: Action) = withContext(coroutineContext) {
-        telemetry.log().add("[Robot] Performing Action")
+        val name = try {
+            action.context[ActionName].name
+        } catch (ignore: Throwable) {
+            null
+        } ?: "(Unnamed)"
+        telemetry.log().add("[Robot] Performing $name")
         actionPipeline.execute(action, this@RobotImpl).run(this@RobotImpl)
     }
 }
 
-suspend fun OpMode.robot(configure: suspend FeatureInstallContext.() -> Unit = {}): Robot {
+suspend fun OpMode.robot(configure: suspend RobotContext.() -> Unit = {}): Robot {
     val robot = RobotImpl(telemetry, hardwareMap, Pair(gamepad1, gamepad2), coroutineContext)
     robot.configure()
     return robot

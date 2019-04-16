@@ -1,12 +1,13 @@
 package us.gotrobot.grbase.feature
 
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 abstract class Feature {
     lateinit var telemetry: Telemetry
+        internal set
 }
 
 interface FeatureConfiguration
@@ -16,7 +17,7 @@ abstract class FeatureInstaller<TFeature : Feature, TConfiguration : FeatureConf
     abstract val name: String
 
     abstract suspend fun install(
-        context: FeatureInstallContext,
+        context: RobotContext,
         featureSet: FeatureSet,
         configure: TConfiguration.() -> Unit
     ): TFeature

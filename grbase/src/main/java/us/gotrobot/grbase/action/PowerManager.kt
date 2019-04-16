@@ -2,60 +2,42 @@ package us.gotrobot.grbase.action
 
 import kotlin.math.sign
 
-interface PowerManager : MoveActionContext.Element {
-    var target: Double
-    suspend fun power(): Double
+abstract class PowerManager : ActionContext.Element() {
 
-    companion object Key : MoveActionContext.Key<PowerManager>
+    var target: Double = 0.0
+
+    var currentValue: Double = 0.0
+
+    abstract suspend fun power(): Double
+
+    override val key: ActionContext.Key<*> get() = PowerManager
+
+    companion object Key : ActionContext.Key<PowerManager>
+
 }
 
-class NothingPowerManager : PowerManager {
-    override var target: Double = 0.0
+object NothingPowerManager : PowerManager() {
     override suspend fun power(): Double = 0.0
 }
 
-class ConstantPowerManager(private val power: Double) : PowerManager {
-    override var target: Double = 0.0
+class ConstantPowerManager(private val power: Double) : PowerManager() {
     override suspend fun power(): Double = power * sign(target)
 }
 
-class EasingPowerManager() : PowerManager {
-    override var target: Double = TODO()
-
-    override suspend fun power(): Double {
-        return 0.0
-    }
+class EasingPowerManager(
+    private val minimumPower: Double,
+    private val maximumPower: Double,
+    private val gain: Double
+) : PowerManager() {
+    override suspend fun power(): Double = TODO()
 }
 
-class MotionProfilePowerManager(
-    private val maximumSpeed: Double,
-    private val maximumAcceleration: Double
-) : PowerManager {
+suspend fun ActionScope.power() = context[PowerManager].power()
 
-    private var motionProfile: MotionProfile = MotionProfile.Empty
-
-    override var target: Double
-        get() = motionProfile.endState.position
-        set(value) {
-            motionProfile = MotionProfile.generate(value, maximumSpeed, maximumAcceleration)
-        }
-
-    override suspend fun power(): Double {
-        TODO()
-    }
-}
-
-var MoveActionScope.target: Double
+var ActionScope.target: Double
     get() = context[PowerManager].target
     set(value) {
         context[PowerManager].target = value
     }
 
-suspend fun MoveActionScope.power() = context[PowerManager].power()
-
-infix fun MoveAction.with(manger: PowerManager): MoveAction {
-    context[PowerManager] = manger
-    return this
-}
-
-fun power(power: Double): PowerManager = ConstantPowerManager(power)
+fun constantPower(power: Double): PowerManager = ConstantPowerManager(power)

@@ -13,7 +13,7 @@ import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
 import us.gotrobot.grbase.pipeline.Pipeline
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 import us.gotrobot.grbase.util.get
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -120,7 +120,7 @@ class MecanumDriveTrain(
         override val name: String = "Mecanum Drive Train"
 
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): MecanumDriveTrain {
@@ -240,7 +240,7 @@ class MecanumDriveTrain(
         override val name: String = "Mecanum Drive Train Localizer"
 
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: LocalizerConfiguration.() -> Unit
         ): LocalizerFeature {

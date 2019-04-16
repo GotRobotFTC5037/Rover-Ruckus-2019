@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.TouchSensor
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import us.gotrobot.grbase.action.ActionScope
 import us.gotrobot.grbase.action.action
@@ -14,8 +12,7 @@ import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
-import us.gotrobot.grbase.robot.FeatureInstallContext
-import us.gotrobot.grbase.util.addData
+import us.gotrobot.grbase.robot.RobotContext
 import us.gotrobot.grbase.util.get
 
 class RobotLift(
@@ -37,7 +34,7 @@ class RobotLift(
 
         override val name: String = "Lift"
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): RobotLift {
@@ -48,14 +45,7 @@ class RobotLift(
                 mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
             }
             val limitSwitch = context.hardwareMap[TouchSensor::class, limitSwitchName]
-            return RobotLift(liftMotor, limitSwitch).also {
-                context.coroutineScope.launch {
-                    while (isActive) {
-                        context.telemetry.addData("Position: ${liftMotor.currentPosition}")
-                        context.telemetry.update()
-                    }
-                }
-            }
+            return RobotLift(liftMotor, limitSwitch)
         }
     }
 

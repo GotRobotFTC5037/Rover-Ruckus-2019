@@ -8,7 +8,7 @@ import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
 import us.gotrobot.grbase.feature.vision.Vuforia
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 
 
 private val TFOD_MODEL_ASSET = "RoverRuckus.tflite"
@@ -41,7 +41,7 @@ class CargoDetector(
     companion object Installer : KeyedFeatureInstaller<CargoDetector, Configuration>() {
         override val name: String = "Cargo Detector"
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): CargoDetector {

@@ -8,7 +8,7 @@ import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
-import us.gotrobot.grbase.robot.FeatureInstallContext
+import us.gotrobot.grbase.robot.RobotContext
 import us.gotrobot.grbase.util.get
 
 class MarkerDeployer(private val servo: ServoImplEx) : Feature() {
@@ -36,7 +36,7 @@ class MarkerDeployer(private val servo: ServoImplEx) : Feature() {
         override val name: String = "Marker Deployer"
 
         override suspend fun install(
-            context: FeatureInstallContext,
+            context: RobotContext,
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): MarkerDeployer {
