@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.TouchSensor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
+import us.gotrobot.grbase.action.ActionName
 import us.gotrobot.grbase.action.ActionScope
 import us.gotrobot.grbase.action.action
 import us.gotrobot.grbase.action.feature
@@ -74,4 +75,6 @@ fun extendLift() = action {
         yield()
     }
     robotLift.setLiftMotorPower(0.0)
+}.apply {
+    context.add(ActionName("Extend Lift"))
 }

@@ -36,7 +36,7 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
             when (throwable) {
                 is RuntimeException -> {
                     telemetry.log()
-                        .add(throwable.stackTrace.toList().toString())
+                        .add(throwable.stackTrace[1].let { "${it.lineNumber}: ${it.fileName}" })
                     telemetry.update()
                     throw throwable
                 }

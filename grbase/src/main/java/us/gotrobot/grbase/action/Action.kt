@@ -1,11 +1,11 @@
 package us.gotrobot.grbase.action
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureKey
 import us.gotrobot.grbase.robot.Robot
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.reflect.KClass
 
@@ -20,7 +20,6 @@ class Action internal constructor(
     internal suspend fun run(robot: Robot) {
         val scope = ActionScope(robot, context, coroutineContext)
         block.invoke(scope)
-        scope.coroutineContext[Job]?.join()
     }
 
 }
@@ -28,14 +27,10 @@ class Action internal constructor(
 class ActionScope internal constructor(
     internal val robot: Robot,
     val context: ActionContext,
-    private val parentContext: CoroutineContext
+    private val parentContext: CoroutineContext = EmptyCoroutineContext
 ) : CoroutineScope {
-
-    private val job: Job = Job(coroutineContext[Job])
-
     override val coroutineContext: CoroutineContext
-        get() = parentContext + job
-
+        get() = parentContext
 }
 
 fun <F : Feature> ActionScope.feature(key: FeatureKey<F>) = robot.features[key]
@@ -49,4 +44,6 @@ fun actionSequenceOf(vararg actions: Action) = action {
     for (action in actions) {
         perform(action)
     }
+}.apply {
+    context.add(ActionName("Action Sequence"))
 }

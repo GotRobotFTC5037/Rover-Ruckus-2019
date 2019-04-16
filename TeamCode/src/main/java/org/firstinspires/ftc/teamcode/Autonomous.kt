@@ -10,14 +10,14 @@ import us.gotrobot.grbase.robot.Robot
 class DepotAutonomous : RobotOpMode() {
 
     override val action = actionSequenceOf(
-//        extendLift(),
+        extendLift(),
         timeDrive(time = 200, power = 0.2),
         lateralDrive(distance = 5.0) with constantPower(0.25),
         toggleHeadingCorrection(),
-        linearDrive(distance = 140.0),
-//        async(lowerLift()),
+        linearDrive(distance = 155.0),
+        lowerLift(),
         releaseMarker(),
-        linearDrive(distance = -50.0) with constantPower(0.5),
+        linearDrive(distance = -55.0) with constantPower(0.5),
         turnTo(heading = 90.0) with constantPower(0.35),
         linearDrive(distance = 130.0),
         turnTo(heading = 135.0) with constantPower(0.25),
@@ -33,16 +33,16 @@ class DepotAutonomous : RobotOpMode() {
 class CraterAutonomous : RobotOpMode() {
 
     override val action = actionSequenceOf(
-//        extendLift(),
+        extendLift(),
         timeDrive(time = 200, power = 0.2),
-        lateralDrive(distance = 5.0) with constantPower(0.25),
+        lateralDrive(distance = 5.0) with constantPower(0.35),
         toggleHeadingCorrection(),
         linearDrive(distance = 50.0),
-//        async(lowerLift()),
-        linearDrive(distance = -10.0) with constantPower(0.25),
+        lowerLift(),
+        linearDrive(distance = -10.0) with constantPower(0.35),
         lateralDrive(distance = -140.0),
         turnTo(heading = 135.0),
-        lateralDrive(distance = 25.0) with constantPower(0.25),
+        lateralDrive(distance = 25.0) with constantPower(0.35),
         linearDrive(distance = 130.0),
         releaseMarker(),
         linearDrive(distance = -175.0),

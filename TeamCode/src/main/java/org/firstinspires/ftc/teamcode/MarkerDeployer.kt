@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import us.gotrobot.grbase.action.ActionName
 import us.gotrobot.grbase.action.ActionScope
 import us.gotrobot.grbase.action.action
 import us.gotrobot.grbase.action.feature
@@ -54,4 +55,8 @@ class MarkerDeployer(private val servo: ServoImplEx) : Feature() {
 
 val ActionScope.markerDeployer get() = feature(MarkerDeployer)
 
-fun releaseMarker() = action { markerDeployer.deploy() }
+fun releaseMarker() = action {
+    markerDeployer.deploy()
+}.apply {
+    context.add(ActionName("Release Marker"))
+}
