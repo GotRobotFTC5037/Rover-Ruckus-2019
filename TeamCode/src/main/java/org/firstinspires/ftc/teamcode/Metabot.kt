@@ -2,14 +2,11 @@ package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import us.gotrobot.grbase.action.ConstantPowerManager
-import us.gotrobot.grbase.feature.DefaultPowerManager
-import us.gotrobot.grbase.feature.HeadingCorrection
-import us.gotrobot.grbase.feature.TargetHeading
-import us.gotrobot.grbase.feature.drivercontrol.DriverControl
+import us.gotrobot.grbase.feature.*
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.localizer.IMULocalizer
+import us.gotrobot.grbase.feature.vision.Vuforia
 import us.gotrobot.grbase.opmode.isAutonomous
-import us.gotrobot.grbase.opmode.isTeleOp
 import us.gotrobot.grbase.robot.install
 import us.gotrobot.grbase.robot.robot
 
@@ -18,6 +15,9 @@ object Metabot {
     const val FRONT_RIGHT_MOTOR = "front right motor"
     const val BACK_LEFT_MOTOR = "back left motor"
     const val BACK_RIGHT_MOTOR = "back right motor"
+
+    val ExtensionMotor = object : FeatureKey<ManagedMotor> {}
+    val RotationMotor = object : FeatureKey<ManagedMotor> {}
 
     const val EXTENSION_MOTOR = "extension motor"
     const val ROTATION_MOTOR = "rotation motor"
@@ -35,9 +35,6 @@ object Metabot {
 
     const val POWER_MANAGER_VALUE = 0.60
 
-    const val WHEEL_DIAMETER = 15.50
-    const val GEAR_RATIO = 1.0
-
     @Suppress("SpellCheckingInspection")
     const val VUFORIA_LICENCE_KEY =
         "AdIaYr//////AAABmbPW4cADC0JWmq5z8YPKV2BLhjRavE34U++fSDpW2nfDwTsg99Uz5YWBQL02Wgz62sORWmPO" +
@@ -45,6 +42,9 @@ object Metabot {
                 "K+urV2h51WpIyaZCL1Aa1BjNBODanTcX2yFTMDjno9QIbzQZ3ZfFwy6Nx/y196DvIa8/47/y0x2OLFzc" +
                 "VpeiUvDwtKKc9CzrAUVSpd8/qLcOKPTKy5VUxRawILhbovkLTntIzBFtikuLp9kqqrysX4kW2gzW2H4X" +
                 "jF2z+cqrypKT8dwHCsLlEdcS1jXBVlfbExfj+7efvMPP3dSi4Zjo"
+
+    const val WHEEL_DIAMETER = 15.50
+    const val GEAR_RATIO = 1.0
 }
 
 @Suppress("FunctionName")
@@ -58,8 +58,13 @@ suspend fun OpMode.Metabot() = robot {
         backRightMotorName = Metabot.BACK_RIGHT_MOTOR
     }
 
-    // Hardware
-//    val extensionMotor = install(ManagedMotor, )
+    // Motors
+    install(ManagedMotor, Metabot.ExtensionMotor) {
+        name = Metabot.EXTENSION_MOTOR
+    }
+    install(ManagedMotor, Metabot.RotationMotor) {
+        name = Metabot.ROTATION_MOTOR
+    }
 
     // Sub-components
     install(CargoDeliverySystem) {
@@ -98,8 +103,13 @@ suspend fun OpMode.Metabot() = robot {
         install(DefaultPowerManager) {
             powerManager = ConstantPowerManager(Metabot.POWER_MANAGER_VALUE)
         }
-    } else if (isTeleOp) {
-        install(DriverControl)
+        val vuforia = install(Vuforia) {
+            licenceKey = Metabot.VUFORIA_LICENCE_KEY
+            cameraName = "webcam"
+        }
+        install(CargoDetector) {
+            this.vuforia = vuforia
+        }
     }
 
 }

@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.ServoImplEx
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.TickerMode
 import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.selects.select
 import us.gotrobot.grbase.action.ActionScope
@@ -32,8 +31,9 @@ class CargoDeliverySystem(
 
     private val job: Job = Job(parentContext[Job])
 
+    @Suppress("EXPERIMENTAL_API_USAGE")
     override val coroutineContext: CoroutineContext
-        get() = parentContext + CoroutineName("Cargo Delivery System") + job
+        get() = CoroutineName("Cargo Delivery System") + job + newSingleThreadContext("Cargo Delivery System")
 
     private val rotationPowerChannel = Channel<Double>(Channel.CONFLATED)
     private val extensionPowerChannel = Channel<Double>(Channel.CONFLATED)
@@ -42,23 +42,30 @@ class CargoDeliverySystem(
         LEFT, RIGHT
     }
 
-    private var sortingDirection: SortingDirection =
-        SortingDirection.LEFT
+    private var sortingDirection: SortingDirection = SortingDirection.LEFT
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     fun startPowerUpdates() {
-        startRetainingSetPosition(
-            rotationMotor,
-            rotationPowerChannel,
-            ticker(100L, 0L, mode = TickerMode.FIXED_PERIOD),
-            0.0015
-        )
-        startRetainingSetPosition(
-            extensionMotor,
-            extensionPowerChannel,
-            ticker(100L, 0L, mode = TickerMode.FIXED_PERIOD),
-            0.0015
-        )
+        startUpdatingMotorPower(rotationPowerChannel, rotationMotor, ticker(50L, 0L))
+        startUpdatingMotorPower(extensionPowerChannel, extensionMotor, ticker(50L, 0L))
+    }
+
+    private fun CoroutineScope.startUpdatingMotorPower(
+        channel: ReceiveChannel<Double>,
+        motor: DcMotorEx,
+        ticker: ReceiveChannel<Unit>
+    ) = launch {
+        while (isActive) {
+            var targetPower = 0.0
+            select<Unit> {
+                channel.onReceive {
+                    targetPower = it
+                }
+                ticker.onReceive {
+                    motor.power = targetPower
+                }
+            }
+        }
     }
 
     fun setSortingDirection(direction: SortingDirection) {
@@ -69,40 +76,14 @@ class CargoDeliverySystem(
         }
     }
 
-    private fun CoroutineScope.startRetainingSetPosition(
-        motor: DcMotor,
-        powerChannel: ReceiveChannel<Double>,
-        ticker: ReceiveChannel<Unit>,
-        coefficient: Double
-    ) = launch {
-        var outputPower = 0.0
-        var lastDesiredPower = 0.0
-        var targetPosition = 0
-        while (true) {
-            select<Unit> {
-                powerChannel.onReceive {
-                    outputPower = if (it == 0.0 && lastDesiredPower != 0.0) {
-                        delay(250)
-                        targetPosition = motor.currentPosition
-                        0.0
-                    } else if (it == 0.0) {
-                        (targetPosition - motor.currentPosition) * coefficient
-                    } else it
-                    lastDesiredPower = it
-                }
-                ticker.onReceive {
-                    motor.power = outputPower
-                }
-            }
-        }
-    }
-
     fun setRotationMotorPower(power: Double) {
-        rotationPowerChannel.offer(power)
+        rotationMotor.power = power
+//        rotationPowerChannel.offer(power)
     }
 
     fun setExtensionMotorPower(power: Double) {
-        extensionPowerChannel.offer(power)
+        extensionMotor.power = power
+//        extensionPowerChannel.offer(power)
     }
 
     enum class IntakeStatus {
@@ -156,11 +137,11 @@ class CargoDeliverySystem(
         ): CargoDeliverySystem {
             val (extension, intake, rotation, sorting) = Configuration().apply(configure)
             val extensionMotor = context.hardwareMap[DcMotorEx::class, extension].apply {
-                direction = DcMotorSimple.Direction.REVERSE
+                direction = DcMotorSimple.Direction.FORWARD
                 zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
             }
             val intakeMotor = context.hardwareMap[DcMotorEx::class, intake].apply {
-                direction = DcMotorSimple.Direction.FORWARD
+                direction = DcMotorSimple.Direction.REVERSE
                 zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
             }
             val rotationMotor = context.hardwareMap[DcMotorEx::class, rotation].apply {

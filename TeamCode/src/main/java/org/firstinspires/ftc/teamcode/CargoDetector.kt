@@ -45,15 +45,15 @@ class CargoDetector(
             featureSet: FeatureSet,
             configure: Configuration.() -> Unit
         ): CargoDetector {
-            val vuforia = featureSet[Vuforia]
-            val cargoDetector = CargoDetector(
-                vuforia,
-                context.hardwareMap.appContext
-            )
+            val configuration = Configuration().apply(configure)
+            val vuforia = configuration.vuforia
+            val cargoDetector = CargoDetector(vuforia, context.hardwareMap.appContext)
             cargoDetector.init()
             return cargoDetector
         }
     }
 
-    class Configuration : FeatureConfiguration
+    class Configuration : FeatureConfiguration {
+        lateinit var vuforia: Vuforia
+    }
 }

@@ -6,7 +6,7 @@ abstract class PowerManager : ActionContext.Element() {
 
     var target: Double = 0.0
 
-    var currentValue: Double = 0.0
+    var currentPosition: Double = 0.0
 
     abstract suspend fun power(): Double
 

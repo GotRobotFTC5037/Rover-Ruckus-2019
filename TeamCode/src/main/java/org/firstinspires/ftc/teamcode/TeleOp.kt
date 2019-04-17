@@ -6,9 +6,7 @@ import kotlinx.coroutines.yield
 import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.action.perform
 import us.gotrobot.grbase.feature.HeadingCorrection
-import us.gotrobot.grbase.feature.drivercontrol.driverControl
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
-import us.gotrobot.grbase.feature.drivetrain.mecanumDriveTrain
 import us.gotrobot.grbase.opmode.CoroutineOpMode
 import us.gotrobot.grbase.robot.Robot
 
@@ -29,37 +27,49 @@ class TeleOp : CoroutineOpMode() {
         val cargoDelivery = feature(CargoDeliverySystem)
         val markerDeployer = feature(MarkerDeployer)
 
+        var reversed = false
+
         while (isActive) {
-            val linearPower = -gamepad1.left_stick_y.toDouble()
-            val lateralPower = gamepad1.left_stick_x.toDouble()
+            val multiplyer =
+                (if (gamepad1.left_stick_button) 1.0 else 0.65) * (if (reversed) 1 else -1)
+            val linearPower = -gamepad1.left_stick_y.toDouble() * multiplyer
+            val lateralPower = gamepad1.left_stick_x.toDouble() * multiplyer
             val rotationalPower = gamepad1.right_stick_x.toDouble()
             driveTrain.setDirectionPower(linearPower, lateralPower, rotationalPower)
 
             when {
-                gamepad1.dpad_up -> robotLift.setLiftMotorPower(1.0)
-                gamepad1.dpad_down -> if (robotLift.isLowered.not()) robotLift.setLiftMotorPower(-1.0)
+                gamepad1.y -> robotLift.setLiftMotorPower(1.0)
+                gamepad1.a -> if (robotLift.isLowered.not()) robotLift.setLiftMotorPower(-1.0)
                 else -> robotLift.setLiftMotorPower(0.0)
             }
 
-            when {
-                gamepad1.y -> {
-                    markerDeployer.toggle()
-                    while (gamepad1.y) {
-                        yield()
-                    }
+            if (gamepad1.start) {
+                reversed = !reversed
+                while (gamepad1.start) {
+                    yield()
+                }
+            }
+
+            if (gamepad2.y) {
+                markerDeployer.toggle()
+                while (gamepad2.y) {
+                    yield()
                 }
             }
 
             when {
-                gamepad1.left_trigger >= 0.5 -> {
+                gamepad2.dpad_left ->
                     cargoDelivery.setSortingDirection(CargoDeliverySystem.SortingDirection.LEFT)
-                }
-                gamepad1.right_trigger >= 0.5 -> {
+                gamepad2.dpad_right ->
                     cargoDelivery.setSortingDirection(CargoDeliverySystem.SortingDirection.RIGHT)
-                }
             }
 
-            cargoDelivery.setRotationMotorPower(-gamepad2.left_stick_y.toDouble())
+            when {
+                gamepad2.left_trigger >= 0.5 ->
+                    cargoDelivery.setRotationMotorPower(1.0)
+                gamepad2.right_trigger >= 0.5 ->
+                    cargoDelivery.setRotationMotorPower(-1.0)
+            }
             cargoDelivery.setExtensionMotorPower(-gamepad2.right_stick_y.toDouble())
 
             when {
@@ -74,28 +84,4 @@ class TeleOp : CoroutineOpMode() {
 
 }
 
-@TeleOp(name = "One Man TeleOp")
-class OneManTeleOp : CoroutineOpMode() {
 
-    private lateinit var robot: Robot
-
-    override suspend fun initialize() {
-        robot = Metabot().apply {
-            features[HeadingCorrection].enabled = false
-        }
-    }
-
-    override suspend fun run() = robot.perform {
-        val driveTrain = mecanumDriveTrain
-
-        driverControl {
-            loop {
-                val linearPower = driver.leftStick.y
-                val lateralPower = driver.leftStick.x
-                val rotationalPower = driver.rightStick.x
-                driveTrain.setDirectionPower(linearPower, lateralPower, rotationalPower)
-            }
-        }
-    }
-
-}
