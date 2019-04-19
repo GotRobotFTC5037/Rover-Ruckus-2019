@@ -70,7 +70,7 @@ class TeleOp : CoroutineOpMode() {
                 gamepad2.right_trigger >= 0.5 ->
                     cargoDelivery.setRotationMotorPower(-1.0)
             }
-            cargoDelivery.setExtensionMotorPower(-gamepad2.right_stick_y.toDouble())
+            cargoDelivery.setExtensionMotorPower(gamepad2.left_stick_y.toDouble())
 
             when {
                 gamepad2.a -> cargoDelivery.setIntakeStatus(CargoDeliverySystem.IntakeStatus.ADMIT)
@@ -78,10 +78,17 @@ class TeleOp : CoroutineOpMode() {
                 else -> cargoDelivery.setIntakeStatus(CargoDeliverySystem.IntakeStatus.STOPPED)
             }
 
+            when {
+                gamepad2.dpad_up ->
+                    cargoDelivery.setExtendtionMotorPosition(-1000)
+            }
+
+        }
+
             yield()
         }
     }
 
-}
+
 
 
