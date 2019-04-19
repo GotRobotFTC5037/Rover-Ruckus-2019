@@ -15,15 +15,19 @@ import kotlin.coroutines.CoroutineContext
 
 class ManagedMotor(
     private val motor: DcMotorEx,
+    private val adjustmentCoefficient: Double,
     parentContext: CoroutineContext
 ) : Feature(), CoroutineScope {
 
     private val job = Job(parentContext[Job])
 
-    override val coroutineContext: CoroutineContext = parentContext + job + CoroutineName("Managed Motor")
+    override val coroutineContext: CoroutineContext =
+        parentContext + job + CoroutineName("Managed Motor")
 
     private val powerChannel = Channel<Double>(Channel.CONFLATED)
     private val positionChannel = Channel<Int>(Channel.CONFLATED)
+
+    var positionRange: IntRange = Int.MIN_VALUE..Int.MAX_VALUE
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     fun init() {
@@ -33,15 +37,32 @@ class ManagedMotor(
 
     private fun CoroutineScope.startUpdatingMotorPowers(ticker: ReceiveChannel<Unit>) = launch {
         var outputPower = 0.0
+        var lastDesiredPower = 0.0
+        var currentPosition = 0
         var targetPosition = 0
+        var holdPosition: Boolean
         while (isActive) {
             select<Unit> {
                 ticker.onReceive {
                     motor.power = outputPower
-                    positionChannel.offer(motor.currentPosition)
+                    currentPosition = motor.currentPosition
+                    positionChannel.offer(currentPosition)
                 }
-                powerChannel.onReceive {
-                    outputPower = it
+                powerChannel.onReceive { desiredPower ->
+                    holdPosition = if (desiredPower == 0.0) {
+                        if (lastDesiredPower != 0.0) {
+                            targetPosition = currentPosition
+                        }
+                        true
+                    } else false
+                    val adjustmentPower = if (holdPosition)
+                        (targetPosition - currentPosition) * adjustmentCoefficient else 0.0
+                    outputPower = when {
+                        desiredPower < 0.0 && currentPosition > positionRange.start -> desiredPower
+                        desiredPower > 0.0 && currentPosition < positionRange.endInclusive -> desiredPower
+                        else -> 0.0
+                    } + adjustmentPower
+                    lastDesiredPower = desiredPower
                 }
             }
         }
@@ -60,8 +81,6 @@ class ManagedMotor(
             }
         } else if (currentPosition < targetPosition) {
             while (positionChannel.receive() < targetPosition) {
-                telemetry.addData("Position", positionChannel.receive())
-                telemetry.update()
                 setPower(1.0)
                 yield()
             }
@@ -84,7 +103,11 @@ class ManagedMotor(
                 delay(1000)
                 mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
             }
-            return ManagedMotor(motor, context.coroutineScope.coroutineContext).apply {
+            return ManagedMotor(
+                motor,
+                configuration.coefficient,
+                context.coroutineScope.coroutineContext
+            ).apply {
                 init()
             }
         }
@@ -94,6 +117,7 @@ class ManagedMotor(
         lateinit var name: String
         var direction: DcMotorSimple.Direction = DcMotorSimple.Direction.FORWARD
         var zeroPowerBehavior: DcMotor.ZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        var coefficient: Double = 0.0
     }
 
 }

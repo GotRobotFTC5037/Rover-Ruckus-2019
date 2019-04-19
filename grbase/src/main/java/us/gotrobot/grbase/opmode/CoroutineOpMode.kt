@@ -8,7 +8,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlin.system.measureTimeMillis
 
-abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
+abstract class CoroutineOpMode : OpMode(), CoroutineScope {
 
     private lateinit var job: Job
 
@@ -21,25 +21,20 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
     final override val coroutineContext: CoroutineContext
         get() = CoroutineName("OpMode") + Dispatchers.Default + job + exceptionHandler
 
-    final override var isInitialized: Boolean = false
+    var isInitialized: Boolean = false
         private set
 
-    final override var isStarted: Boolean = false
+    var isStarted: Boolean = false
         private set
 
-    final override var isStopped: Boolean = false
+    var isStopped: Boolean = false
         private set
 
     private fun handleLoop() {
         val throwable = throwableChannel.poll()
         if (throwable != null) {
             when (throwable) {
-                is RuntimeException -> {
-                    telemetry.log()
-                        .add(throwable.stackTrace[1].let { "${it.lineNumber}: ${it.fileName}" })
-                    telemetry.update()
-                    throw throwable
-                }
+                is RuntimeException -> throw throwable
                 else -> throw RuntimeException(throwable)
             }
         }
@@ -69,17 +64,13 @@ abstract class CoroutineOpMode : OpMode(), OpmodeStatus, CoroutineScope {
         }
     }
 
-    final override fun init_loop() {
-        handleLoop()
-    }
+    final override fun init_loop() = handleLoop()
 
     final override fun start() {
         isStarted = true
     }
 
-    final override fun loop() {
-        handleLoop()
-    }
+    final override fun loop() = handleLoop()
 
     final override fun stop() {
         telemetry.log().add("[OpMode] Stopping opmode")

@@ -4,29 +4,19 @@ import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.ServoImplEx
-import kotlinx.coroutines.*
 import us.gotrobot.grbase.action.ActionScope
-import us.gotrobot.grbase.action.action
 import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.*
 import us.gotrobot.grbase.robot.RobotContext
 import us.gotrobot.grbase.util.get
-import kotlin.coroutines.CoroutineContext
 
 
 class CargoDeliverySystem(
     private val extensionMotor: ManagedMotor,
     private val rotationMotor: ManagedMotor,
     private val intakeMotor: DcMotorEx,
-    private val sortingServo: ServoImplEx,
-    parentContext: CoroutineContext
-) : Feature(), CoroutineScope {
-
-    private val job: Job = Job(parentContext[Job])
-
-    @Suppress("EXPERIMENTAL_API_USAGE")
-    override val coroutineContext: CoroutineContext
-        get() = CoroutineName("Cargo Delivery System") + job + newSingleThreadContext("Cargo Delivery System")
+    private val sortingServo: ServoImplEx
+) : Feature() {
 
     enum class SortingDirection {
         LEFT, RIGHT
@@ -79,26 +69,22 @@ class CargoDeliverySystem(
         ): CargoDeliverySystem {
             val configuration = Configuration().apply(configure)
 
-            val extensionMotor = configuration.extensionMotor
-            val rotationMotor = configuration.rotationMotor
+            val extensionMotor = configuration.extensionMotor.apply {
+                positionRange = 500..Int.MAX_VALUE
+            }
+            val rotationMotor = configuration.rotationMotor.apply {
+                positionRange = 0..2000
+            }
+
             val intakeMotorName = configuration.intakeMotorName
             val sorterServoName = configuration.sortingServoName
-
             val intakeMotor = context.hardwareMap[DcMotorEx::class, intakeMotorName].apply {
                 direction = DcMotorSimple.Direction.REVERSE
                 zeroPowerBehavior = DcMotor.ZeroPowerBehavior.FLOAT
             }
-            val sorterServo = context.hardwareMap[ServoImplEx::class, sorterServoName].apply {
+            val sorterServo = context.hardwareMap[ServoImplEx::class, sorterServoName]
 
-            }
-
-            return CargoDeliverySystem(
-                extensionMotor,
-                rotationMotor,
-                intakeMotor,
-                sorterServo,
-                context.coroutineScope.coroutineContext
-            )
+            return CargoDeliverySystem(extensionMotor, rotationMotor, intakeMotor, sorterServo)
         }
     }
 

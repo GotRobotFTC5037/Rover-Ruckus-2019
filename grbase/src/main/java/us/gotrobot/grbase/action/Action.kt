@@ -1,6 +1,9 @@
 package us.gotrobot.grbase.action
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureKey
 import us.gotrobot.grbase.robot.Robot
@@ -20,6 +23,7 @@ class Action internal constructor(
     internal suspend fun run(robot: Robot) {
         val scope = ActionScope(robot, context, coroutineContext)
         block.invoke(scope)
+        scope.coroutineContext[Job]?.cancel()
     }
 
 }
@@ -27,18 +31,23 @@ class Action internal constructor(
 class ActionScope internal constructor(
     internal val robot: Robot,
     val context: ActionContext,
-    private val parentContext: CoroutineContext = EmptyCoroutineContext
+    val parentContext: CoroutineContext = EmptyCoroutineContext
 ) : CoroutineScope {
+
+    private val job = Job(parentContext[Job])
+
     override val coroutineContext: CoroutineContext
-        get() = parentContext
+        get() = parentContext + job
 }
 
 fun <F : Feature> ActionScope.feature(key: FeatureKey<F>) = robot.features[key]
 fun <F : Any> ActionScope.feature(clazz: KClass<F>) = robot.features.getAll(clazz).single()
 suspend fun ActionScope.perform(action: Action) = robot.perform(action)
-suspend fun Robot.perform(block: ActionBlock) = perform(action(block))
+suspend fun Robot.perform(name: String = "(inline unnamed)", block: ActionBlock) =
+    perform(action(block).apply { context.add(ActionName(name)) })
 
 fun action(block: ActionBlock) = Action(block)
+fun async(action: Action) = action { GlobalScope.launch { perform(action) } }
 
 fun actionSequenceOf(vararg actions: Action) = action {
     for (action in actions) {

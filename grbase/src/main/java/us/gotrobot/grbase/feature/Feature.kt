@@ -6,9 +6,18 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 abstract class Feature {
+
     lateinit var telemetry: Telemetry
         internal set
+
+    private val log by lazy { telemetry.log() }
+
+    fun log(data: String) {
+        log.add(data)
+    }
+
 }
+
 
 interface FeatureConfiguration
 

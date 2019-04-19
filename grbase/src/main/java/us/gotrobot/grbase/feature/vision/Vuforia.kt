@@ -12,18 +12,19 @@ import us.gotrobot.grbase.util.get
 
 class Vuforia(
     private val licenceKey: String,
-    private val webcamName: WebcamName
+    private val webcamName: WebcamName?
 ) : Feature() {
 
     lateinit var localizer: VuforiaLocalizer
 
     fun init() {
+        val classFactory = ClassFactory.getInstance()
         val parameters = VuforiaLocalizer.Parameters().apply {
             this.vuforiaLicenseKey = licenceKey
             this.cameraDirection = VuforiaLocalizer.CameraDirection.BACK
-            this.cameraName = webcamName
+            this.cameraName = webcamName ?: classFactory.cameraManager.nameForUnknownCamera()
         }
-        localizer = ClassFactory.getInstance().createVuforia(parameters)
+        localizer = classFactory.createVuforia(parameters)
     }
 
     companion object Installer : KeyedFeatureInstaller<Vuforia, Configuration>() {
@@ -34,16 +35,16 @@ class Vuforia(
             configure: Configuration.() -> Unit
         ): Vuforia {
             val configuration = Configuration().apply(configure)
-            val webcamName = context.hardwareMap[WebcamName::class, configuration.cameraName]
-            val vuforia = Vuforia(configuration.licenceKey, webcamName)
-            vuforia.init()
-            return vuforia
+            val webcamName = configuration.cameraName?.let {
+                context.hardwareMap[WebcamName::class, it]
+            }
+            return Vuforia(configuration.licenceKey, webcamName).apply { init() }
         }
     }
 
     class Configuration : FeatureConfiguration {
         lateinit var licenceKey: String
-        lateinit var cameraName: String
+        var cameraName: String? = null
     }
 
 }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import us.gotrobot.grbase.action.ConstantPowerManager
 import us.gotrobot.grbase.feature.*
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
@@ -35,6 +36,7 @@ object Metabot {
 
     const val POWER_MANAGER_VALUE = 0.60
 
+    const val CAMERA_NAME = "webcam"
     @Suppress("SpellCheckingInspection")
     const val VUFORIA_LICENCE_KEY =
         "AdIaYr//////AAABmbPW4cADC0JWmq5z8YPKV2BLhjRavE34U++fSDpW2nfDwTsg99Uz5YWBQL02Wgz62sORWmPO" +
@@ -61,10 +63,12 @@ suspend fun OpMode.Metabot() = robot {
     // Motors
     val extensionMotor = install(ManagedMotor, Metabot.ExtensionMotor) {
         name = Metabot.EXTENSION_MOTOR
-
+        direction = DcMotorSimple.Direction.REVERSE
+        coefficient = 0.0025
     }
     val rotationMotor = install(ManagedMotor, Metabot.RotationMotor) {
         name = Metabot.ROTATION_MOTOR
+        coefficient = 0.00005
     }
 
     // Sub-components
@@ -106,7 +110,7 @@ suspend fun OpMode.Metabot() = robot {
         }
         val vuforia = install(Vuforia) {
             licenceKey = Metabot.VUFORIA_LICENCE_KEY
-            cameraName = "webcam"
+            cameraName = Metabot.CAMERA_NAME
         }
         install(CargoDetector) {
             this.vuforia = vuforia
