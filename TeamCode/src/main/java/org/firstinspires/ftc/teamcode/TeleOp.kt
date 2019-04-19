@@ -80,7 +80,7 @@ class TeleOp : CoroutineOpMode() {
 
             when {
                 gamepad2.dpad_up ->
-                    cargoDelivery.setExtendtionMotorPosition(1500)
+                    cargoDelivery.setExtendtionMotorPosition(-1000)
             }
 
         }
