@@ -16,8 +16,8 @@ object Metabot {
     const val BACK_LEFT_MOTOR = "back left motor"
     const val BACK_RIGHT_MOTOR = "back right motor"
 
-    val ExtensionMotor = object : FeatureKey<ManagedMotor> {}
-    val RotationMotor = object : FeatureKey<ManagedMotor> {}
+    val ExtensionMotor = featureKey<ManagedMotor>()
+    val RotationMotor = featureKey<ManagedMotor>()
 
     const val EXTENSION_MOTOR = "extension motor"
     const val ROTATION_MOTOR = "rotation motor"
@@ -59,19 +59,20 @@ suspend fun OpMode.Metabot() = robot {
     }
 
     // Motors
-    install(ManagedMotor, Metabot.ExtensionMotor) {
+    val extensionMotor = install(ManagedMotor, Metabot.ExtensionMotor) {
         name = Metabot.EXTENSION_MOTOR
+
     }
-    install(ManagedMotor, Metabot.RotationMotor) {
+    val rotationMotor = install(ManagedMotor, Metabot.RotationMotor) {
         name = Metabot.ROTATION_MOTOR
     }
 
     // Sub-components
     install(CargoDeliverySystem) {
-        extensionMotorName = Metabot.EXTENSION_MOTOR
-        rotationMotorName = Metabot.ROTATION_MOTOR
-        intakeMotorName = Metabot.INTAKE_MOTOR
-        sortingServoName = Metabot.SORTING_SERVO
+        this.extensionMotor = extensionMotor
+        this.rotationMotor = rotationMotor
+        this.intakeMotorName = Metabot.INTAKE_MOTOR
+        this.sortingServoName = Metabot.SORTING_SERVO
     }
     install(MarkerDeployer) {
         servoName = Metabot.MARKER_DEPLOYER_SERVO

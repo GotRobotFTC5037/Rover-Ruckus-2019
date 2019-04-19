@@ -26,6 +26,8 @@ abstract class FeatureInstaller<TFeature : Feature, TConfiguration : FeatureConf
 
 interface FeatureKey<T : Any>
 
+fun <F: Any> featureKey() = object : FeatureKey<F> {}
+
 abstract class KeyedFeatureInstaller<F : Feature, C : FeatureConfiguration> :
     FeatureInstaller<F, C>(), FeatureKey<F>
 

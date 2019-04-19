@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.action.perform
@@ -28,6 +30,8 @@ class TeleOp : CoroutineOpMode() {
         val markerDeployer = feature(MarkerDeployer)
 
         var reversed = false
+
+        var rotationJob: Job? = null
 
         while (isActive) {
             val multiplyer =
@@ -66,11 +70,12 @@ class TeleOp : CoroutineOpMode() {
 
             when {
                 gamepad2.left_trigger >= 0.5 ->
-                    cargoDelivery.setRotationMotorPower(1.0)
+                    cargoDelivery.setRotationPower(1.0)
                 gamepad2.right_trigger >= 0.5 ->
-                    cargoDelivery.setRotationMotorPower(-1.0)
+                    cargoDelivery.setRotationPower(-1.0)
+                else -> cargoDelivery.setRotationPower(0.0)
             }
-            cargoDelivery.setExtensionMotorPower(gamepad2.left_stick_y.toDouble())
+            cargoDelivery.setExtensionPower(gamepad2.left_stick_y.toDouble())
 
             when {
                 gamepad2.a -> cargoDelivery.setIntakeStatus(CargoDeliverySystem.IntakeStatus.ADMIT)
@@ -79,15 +84,31 @@ class TeleOp : CoroutineOpMode() {
             }
 
             when {
-                gamepad2.dpad_up ->
-                    cargoDelivery.setExtendtionMotorPosition(-1000)
+                gamepad2.dpad_up ->  {
+                    while (gamepad2.dpad_up) {
+                        yield()
+                    }
+                    if (rotationJob == null || !rotationJob.isActive) {
+                        rotationJob = launch {
+                            cargoDelivery.setRotationPosition(1500)
+                        }
+                    }
+                }
+                gamepad2.dpad_down ->  {
+                    while (gamepad2.dpad_down) {
+                        yield()
+                    }
+                    if (rotationJob == null || !rotationJob.isActive) {
+                        rotationJob = launch {
+                            cargoDelivery.setRotationPosition(0)
+                        }
+                    }
+                }
             }
 
         }
-
-            yield()
-        }
     }
+}
 
 
 
