@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
@@ -38,7 +40,7 @@ class DepotAutonomous : RobotOpMode() {
         detectGoldPosition(),
         extendLift(),
         timeDrive(time = 200, power = 0.2),
-        biasedLateralDrive(distance = 20.0, bias = 0.25) with constantPower(0.25),
+        biasedLateralDrive(distance = 20.0, bias = 0.05) with constantPower(0.25),
         toggleHeadingCorrection(),
         cargoConditionalAction(
             left = actionSequenceOf(
@@ -90,7 +92,7 @@ class CraterAutonomous : RobotOpMode() {
         detectGoldPosition(),
         extendLift(),
         timeDrive(time = 200, power = 0.2),
-        biasedLateralDrive(distance = 20.0, bias = 0.25) with constantPower(0.35),
+        biasedLateralDrive(distance = 20.0, bias = 0.05) with constantPower(0.35),
         toggleHeadingCorrection(),
         cargoConditionalAction(
             left = actionSequenceOf(
@@ -132,34 +134,4 @@ class CraterAutonomous : RobotOpMode() {
 class RetractLift : RobotOpMode() {
     override val action: Action = lowerLift()
     override suspend fun robot(): Robot = Metabot()
-}
-
-@Autonomous(name = "Camera Test", group = "2_tests")
-class CameraTest : CoroutineOpMode() {
-
-    lateinit var robot: Robot
-
-    override suspend fun initialize() {
-        robot = robot {
-            val vuforia = install(Vuforia) {
-                licenceKey = Metabot.VUFORIA_LICENCE_KEY
-            }
-            val objectDetector = install(ObjectDetector) {
-                this.vuforia = vuforia
-                this.data = ObjectDetector.AssetData(
-                    CargoDetector.TFOD_MODEL_ASSET,
-                    listOf(
-                        CargoDetector.LABEL_GOLD_MINERAL,
-                        CargoDetector.LABEL_SILVER_MINERAL
-                    )
-                )
-            }
-            install(CargoDetector) {
-                this.objectDetector = objectDetector
-            }
-        }
-    }
-
-    override suspend fun run() = robot.perform(foreverNothing())
-
 }

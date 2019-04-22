@@ -35,7 +35,7 @@ abstract class FeatureInstaller<TFeature : Feature, TConfiguration : FeatureConf
 
 interface FeatureKey<T : Any>
 
-fun <F: Any> featureKey() = object : FeatureKey<F> {}
+fun <F : Any> featureKey() = object : FeatureKey<F> {}
 
 abstract class KeyedFeatureInstaller<F : Feature, C : FeatureConfiguration> :
     FeatureInstaller<F, C>(), FeatureKey<F>
@@ -69,7 +69,13 @@ class MutableFeatureSet : FeatureSet {
         features.toList().any { it.second::class.isSubclassOf(featureClass) }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <F : Feature> get(key: FeatureKey<F>): F = features[key] as F
+    override fun <F : Feature> get(key: FeatureKey<F>): F =
+        try {
+            features[key] as F
+        } catch (e: ClassCastException) {
+            throw MissingFeatureException(key)
+        }
+
 
     @Suppress("UNCHECKED_CAST")
     override fun <F : Any> getAll(featureClass: KClass<F>): List<F> =
@@ -84,3 +90,6 @@ class MutableFeatureSet : FeatureSet {
     }
 
 }
+
+class MissingFeatureException(key: FeatureKey<*>) :
+    RuntimeException("${key::class.qualifiedName} isn't installed.")

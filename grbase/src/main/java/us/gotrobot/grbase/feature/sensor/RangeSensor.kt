@@ -14,6 +14,7 @@ import us.gotrobot.grbase.feature.KeyedFeatureInstaller
 import us.gotrobot.grbase.robot.RobotContext
 import kotlin.coroutines.CoroutineContext
 
+@Suppress("UNUSED_VARIABLE", "UNREACHABLE_CODE")
 class RangeSensor(
     private val sensor: DistanceSensor,
     private val alpha: Double,

@@ -131,6 +131,7 @@ suspend fun OpMode.Metabot() = robot {
         install(CargoDetector) {
             this.objectDetector = objectDetector
         }
+        install(DetectedGoldPosition)
     }
 
 }
