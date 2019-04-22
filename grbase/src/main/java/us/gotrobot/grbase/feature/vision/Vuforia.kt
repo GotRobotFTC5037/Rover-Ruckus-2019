@@ -1,5 +1,6 @@
 package us.gotrobot.grbase.feature.vision
 
+import android.content.Context
 import org.firstinspires.ftc.robotcore.external.ClassFactory
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer
@@ -12,12 +13,13 @@ import us.gotrobot.grbase.util.get
 
 class Vuforia(
     private val licenceKey: String,
-    private val webcamName: WebcamName?
+    private val webcamName: WebcamName?,
+    private val context: Context
 ) : Feature() {
 
     lateinit var localizer: VuforiaLocalizer
 
-    fun init() {
+    fun initilize() {
         val classFactory = ClassFactory.getInstance()
         val parameters = VuforiaLocalizer.Parameters().apply {
             this.vuforiaLicenseKey = licenceKey
@@ -38,7 +40,16 @@ class Vuforia(
             val webcamName = configuration.cameraName?.let {
                 context.hardwareMap[WebcamName::class, it]
             }
-            return Vuforia(configuration.licenceKey, webcamName).apply { init() }
+            context.telemetry.log().add(webcamName!!.deviceName)
+            context.telemetry.log().add(webcamName.serialNumber.string)
+            context.telemetry.log().add(webcamName.usbDeviceNameIfAttached)
+            return Vuforia(
+                configuration.licenceKey,
+                webcamName,
+                context.hardwareMap.appContext
+            ).apply {
+                initilize()
+            }
         }
     }
 

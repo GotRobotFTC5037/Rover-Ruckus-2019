@@ -1,98 +1,101 @@
 package org.firstinspires.ftc.teamcode
 
-import android.content.Context
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import org.firstinspires.ftc.robotcore.external.ClassFactory
+import kotlinx.coroutines.channels.first
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector
+import us.gotrobot.grbase.action.action
+import us.gotrobot.grbase.action.feature
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureConfiguration
 import us.gotrobot.grbase.feature.FeatureSet
 import us.gotrobot.grbase.feature.KeyedFeatureInstaller
-import us.gotrobot.grbase.feature.vision.Vuforia
+import us.gotrobot.grbase.feature.vision.ObjectDetector
 import us.gotrobot.grbase.robot.RobotContext
 import kotlin.coroutines.CoroutineContext
 
 class CargoDetector(
-    private val vuforia: Vuforia,
-    private val appContext: Context,
+    private val objectDetector: ObjectDetector,
     private val parentContext: CoroutineContext
 ) : Feature(), CoroutineScope {
 
     private val job = Job(parentContext[Job])
 
     override val coroutineContext: CoroutineContext
-        get() = CoroutineName("Cargo Detector") + parentContext + job
+        get() = parentContext + CoroutineName("CargoDetector") + job
 
-    private lateinit var objectDetector: TFObjectDetector
+    private val Recognition.isGold: Boolean get() = label == LABEL_GOLD_MINERAL
+    private val Recognition.isSilver: Boolean get() = label == LABEL_SILVER_MINERAL
+    private infix fun Recognition.leftOf(other: Recognition): Boolean = this.right < other.left
+    private infix fun Recognition.rightOf(other: Recognition): Boolean = this.left > other.right
+    private infix fun Recognition.between(others: Pair<Recognition, Recognition>): Boolean =
+        this leftOf others.first && this rightOf others.second || this leftOf others.second && this rightOf others.first
 
-    private val recognitionsChannel = Channel<List<Recognition>>(Channel.CONFLATED)
-    private val _goldPositionChannel = Channel<GoldPosition>(Channel.CONFLATED)
-    val goldPositionChannel: ReceiveChannel<GoldPosition> = _goldPositionChannel
+
+    private val _goldPosition: Channel<GoldPosition> = Channel(Channel.CONFLATED)
+    val goldPosition: ReceiveChannel<GoldPosition> get() = _goldPosition
 
     enum class GoldPosition {
         LEFT, CENTER, RIGHT, UNKNOWN
     }
 
-    fun CoroutineScope.updateRecognitions() = launch {
+    fun initilize() {
+        updateGoldPosition(objectDetector.recognitions)
+    }
+
+    private fun CoroutineScope.updateGoldPosition(
+        recognitionsChannel: ReceiveChannel<List<Recognition>>
+    ) = launch {
         while (isActive) {
-            val recognitions = objectDetector.updatedRecognitions
-            if (recognitions != null) {
-                recognitionsChannel.offer(recognitions)
-            } else {
-                yield()
+            val recognitions = recognitionsChannel.receive().filter {
+                it.top > it.imageHeight * (4 / 5)
             }
+            val goldRecognitions =
+                recognitions.filter { it.isGold }.sortedBy { it.top }.reversed()
+            val silverRecognitions =
+                recognitions.filter { it.isSilver }.sortedBy { it.top }.reversed()
+
+            val gold = goldRecognitions.firstOrNull()
+            val silver0 = silverRecognitions.firstOrNull()
+            val silver1 = silverRecognitions.getOrNull(1)
+
+            val position = if (gold != null && silver0 != null && silver1 != null) {
+                when {
+                    gold between (silver0 to silver1) -> GoldPosition.CENTER
+                    gold leftOf silver0 && gold leftOf silver1 -> GoldPosition.LEFT
+                    gold rightOf silver0 && gold rightOf silver0 -> GoldPosition.RIGHT
+                    else -> GoldPosition.UNKNOWN
+                }
+            } else if (gold != null && silver0 != null) {
+                when {
+                    gold leftOf silver0 -> GoldPosition.LEFT
+                    gold rightOf silver0 -> GoldPosition.CENTER
+                    else -> GoldPosition.UNKNOWN
+                }
+            } else if (gold == null && silver0 != null && silver1 != null) {
+                GoldPosition.RIGHT
+            } else GoldPosition.UNKNOWN
+
+            telemetry.addData("Gold", gold?.left)
+            telemetry.addData("Silver0", silver0?.left)
+            telemetry.addData("Silver1", silver1?.left)
+            telemetry.addData("Position", position)
+            telemetry.update()
+
+            _goldPosition.offer(position)
         }
     }
 
-    private val Recognition.isGold: Boolean get() = label == LABEL_GOLD_MINERAL
-    private val Recognition.isSilver: Boolean get() = label == LABEL_SILVER_MINERAL
+    suspend fun shutdown() = withContext(newSingleThreadContext("Shutdown ")) {
 
-    fun CoroutineScope.updateGoldPosition() = launch {
-        while (isActive) {
-            val recognitions = recognitionsChannel.receive()
-            val goldRecognitions = recognitions
-                .filter { it.isGold }
-                .sortedBy { it.width }
-            val silverRecognitions = recognitions
-                .filter { it.isSilver }
-                .sortedBy { it.width }
-
-            if (goldRecognitions.count() >= 1 && silverRecognitions.count() >= 2) {
-                _goldPositionChannel.offer(GoldPosition.CENTER)
-            } else {
-                _goldPositionChannel.offer(GoldPosition.UNKNOWN)
-            }
-        }
-    }
-
-    fun init() {
-        val tfodMonitorViewId = appContext.resources
-            .getIdentifier("tfodMonitorViewId", "id", appContext.packageName)
-        val parameters = TFObjectDetector.Parameters(tfodMonitorViewId)
-        val classFactory = ClassFactory.getInstance()
-        objectDetector = classFactory.createTFObjectDetector(parameters, vuforia.localizer)
-        objectDetector.loadModelFromAsset(
-            TFOD_MODEL_ASSET,
-            LABEL_GOLD_MINERAL,
-            LABEL_SILVER_MINERAL
-        )
-        objectDetector.activate()
-        updateRecognitions()
-        updateGoldPosition()
-    }
-
-    suspend fun shutdown() = withContext(Dispatchers.IO) {
-        objectDetector.shutdown()
     }
 
     companion object Installer : KeyedFeatureInstaller<CargoDetector, Configuration>() {
 
-        private const val TFOD_MODEL_ASSET = "RoverRuckus.tflite"
-        private const val LABEL_GOLD_MINERAL = "Gold Mineral"
-        private const val LABEL_SILVER_MINERAL = "Silver Mineral"
+        const val TFOD_MODEL_ASSET = "RoverRuckus.tflite"
+        const val LABEL_GOLD_MINERAL = "Gold Mineral"
+        const val LABEL_SILVER_MINERAL = "Silver Mineral"
 
         override val name: String = "Cargo Detector"
 
@@ -102,17 +105,26 @@ class CargoDetector(
             configure: Configuration.() -> Unit
         ): CargoDetector {
             val configuration = Configuration().apply(configure)
-            val vuforia = configuration.vuforia
-            val appContext = context.hardwareMap.appContext
-            val parentCoroutineContext = context.coroutineScope.coroutineContext
-            return CargoDetector(vuforia, appContext, parentCoroutineContext).apply {
-                this.init()
+            val objectDetector = configuration.objectDetector
+            return CargoDetector(objectDetector, context.coroutineScope.coroutineContext).apply {
+                initilize()
             }
         }
 
     }
 
     class Configuration : FeatureConfiguration {
-        lateinit var vuforia: Vuforia
+        lateinit var objectDetector: ObjectDetector
+    }
+
+}
+
+@Suppress("EXPERIMENTAL_API_USAGE")
+suspend fun ReceiveChannel<CargoDetector.GoldPosition>.firstKnownPosition() =
+    first { it != CargoDetector.GoldPosition.UNKNOWN }
+
+fun shutdownObjectDetector() = action {
+    GlobalScope.launch {
+        feature(CargoDetector).shutdown()
     }
 }

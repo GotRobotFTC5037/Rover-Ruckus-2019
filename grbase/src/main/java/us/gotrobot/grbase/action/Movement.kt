@@ -58,6 +58,29 @@ fun lateralDrive(distance: Double): Action = action {
     context.add(ActionName("Lateral Drive"))
 }
 
+fun biasedLateralDrive(distance: Double, bias: Double) = action {
+    val driveTrain = feature(MecanumDriveTrain)
+    val localizer = feature(MecanumDriveTrain.Localizer)
+
+    val lateralPositionChannel = localizer.lateralPosition()
+    target = distance
+
+    if (distance > 0.0) {
+        while (isActive && distance > lateralPositionChannel.receive()) {
+            driveTrain.setDirectionPower(bias, power(), 0.0)
+        }
+    } else if (distance < 0.0) {
+        while (isActive && distance < lateralPositionChannel.receive()) {
+            driveTrain.setDirectionPower(bias, power(), 0.0)
+        }
+    }
+
+    lateralPositionChannel.cancel()
+    driveTrain.setLinearPower(0.0)
+}.apply {
+    context.add(ActionName("Biased Lateral Drive"))
+}
+
 // TODO: Redesign this action to work on all types of drive trains.
 fun turnTo(heading: Double): Action = action {
     val driveTrain = feature(RotationalDriveTrain::class)

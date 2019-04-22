@@ -1,9 +1,6 @@
 package us.gotrobot.grbase.action
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import us.gotrobot.grbase.feature.Feature
 import us.gotrobot.grbase.feature.FeatureKey
 import us.gotrobot.grbase.robot.Robot
@@ -47,6 +44,12 @@ suspend fun Robot.perform(name: String = "(inline unnamed)", block: ActionBlock)
     perform(action(block).apply { context.add(ActionName(name)) })
 
 fun action(block: ActionBlock) = Action(block)
+fun foreverNothing() = action {
+    while (isActive) {
+        yield()
+    }
+}
+
 fun async(action: Action) = action { GlobalScope.launch { perform(action) } }
 
 fun actionSequenceOf(vararg actions: Action) = action {

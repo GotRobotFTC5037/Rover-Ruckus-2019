@@ -22,8 +22,9 @@ class IMULocalizer(
 
     private val job: Job = Job(parentContext[Job])
 
+    @Suppress("EXPERIMENTAL_API_USAGE")
     override val coroutineContext: CoroutineContext
-        get() = parentContext + CoroutineName("IMU Localizer") + job
+        get() = parentContext + CoroutineName("IMU Localizer") + job + newSingleThreadContext("IMULocalizer")
 
     private val orientationChannel: Channel<Orientation> = Channel(Channel.CONFLATED)
 
