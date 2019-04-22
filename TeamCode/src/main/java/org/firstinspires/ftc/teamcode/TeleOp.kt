@@ -101,7 +101,7 @@ class TeleOp : CoroutineOpMode() {
                 gamepad2.right_trigger.isPressed -> cargoDelivery.setRotationPower(-1.0)
                 else -> cargoDelivery.setRotationPower(0.0)
             }
-            cargoDelivery.setExtensionPower(-gamepad2.left_stick_y.toDouble())
+            cargoDelivery.setExtensionPower(-gamepad2.right_stick_y.toDouble())
             when {
                 gamepad2.dpad_up -> with(cargoDelivery) {
                     setRotationPosition(500)
@@ -119,7 +119,9 @@ class TeleOp : CoroutineOpMode() {
                     setExtendtionPosition(0)
                     setRotationPosition(200)
                 }
+
             }
+
         }
 
         coroutineContext[Job]!!.children.forEach { it.join() }
