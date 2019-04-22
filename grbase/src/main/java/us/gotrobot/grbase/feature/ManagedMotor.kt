@@ -16,13 +16,14 @@ import kotlin.coroutines.CoroutineContext
 class ManagedMotor(
     private val motor: DcMotorEx,
     private val adjustmentCoefficient: Double,
+    private val adjustmentDelay: Long,
     parentContext: CoroutineContext
 ) : Feature(), CoroutineScope {
 
     private val job = Job(parentContext[Job])
 
     override val coroutineContext: CoroutineContext =
-        parentContext + job + CoroutineName("Managed Motor")
+        parentContext + job + CoroutineName("ManagedMotor")
 
     private val powerChannel = Channel<Double>(Channel.CONFLATED)
     private val positionChannel = Channel<Int>(Channel.CONFLATED)
@@ -40,7 +41,7 @@ class ManagedMotor(
         var lastDesiredPower = 0.0
         var currentPosition = 0
         var targetPosition = 0
-        var holdPosition: Boolean
+        var holdPosition: Boolean = true
         while (isActive) {
             select<Unit> {
                 ticker.onReceive {
@@ -49,12 +50,17 @@ class ManagedMotor(
                     positionChannel.offer(currentPosition)
                 }
                 powerChannel.onReceive { desiredPower ->
-                    holdPosition = if (desiredPower == 0.0) {
+                    if (desiredPower == 0.0) {
                         if (lastDesiredPower != 0.0) {
-                            targetPosition = currentPosition
+                            launch {
+                                delay(adjustmentDelay)
+                                targetPosition = motor.currentPosition
+                                holdPosition = true
+                            }
                         }
-                        true
-                    } else false
+                    } else {
+                        holdPosition = false
+                    }
                     val adjustmentPower = if (holdPosition)
                         (targetPosition - currentPosition) * adjustmentCoefficient else 0.0
                     outputPower = when {
@@ -106,6 +112,7 @@ class ManagedMotor(
             return ManagedMotor(
                 motor,
                 configuration.coefficient,
+                configuration.adjustmentDelay,
                 context.coroutineScope.coroutineContext
             ).apply {
                 init()
@@ -118,6 +125,7 @@ class ManagedMotor(
         var direction: DcMotorSimple.Direction = DcMotorSimple.Direction.FORWARD
         var zeroPowerBehavior: DcMotor.ZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         var coefficient: Double = 0.0
+        var adjustmentDelay = -1L
     }
 
 }

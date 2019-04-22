@@ -73,7 +73,7 @@ class CargoDeliverySystem(
                 positionRange = 500..Int.MAX_VALUE
             }
             val rotationMotor = configuration.rotationMotor.apply {
-                positionRange = 0..2000
+                positionRange = -1000..1300
             }
 
             val intakeMotorName = configuration.intakeMotorName

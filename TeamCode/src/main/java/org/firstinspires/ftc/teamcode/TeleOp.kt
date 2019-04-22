@@ -95,29 +95,23 @@ class TeleOp : CoroutineOpMode() {
             }
         }
 
+        var deliverJob = launch {}
         loop {
-            when {
-                gamepad2.left_trigger.isPressed -> cargoDelivery.setRotationPower(1.0)
-                gamepad2.right_trigger.isPressed -> cargoDelivery.setRotationPower(-1.0)
-                else -> cargoDelivery.setRotationPower(0.0)
+            if (gamepad2.left_trigger.isPressed || gamepad2.right_trigger.isPressed || -gamepad2.left_stick_y.toDouble() >= 0.0) {
+                deliverJob.cancel()
             }
-            cargoDelivery.setExtensionPower(-gamepad2.left_stick_y.toDouble())
-            when {
-                gamepad2.dpad_up -> with(cargoDelivery) {
-                    setRotationPosition(500)
-                    setExtendtionPosition(1250)
-                    setRotationPosition(2000)
+            if (!deliverJob.isActive) {
+                when {
+                    gamepad2.left_trigger.isPressed -> cargoDelivery.setRotationPower(1.0)
+                    gamepad2.right_trigger.isPressed -> cargoDelivery.setRotationPower(-1.0)
+                    else -> cargoDelivery.setRotationPower(0.0)
                 }
-                gamepad2.dpad_down -> with(cargoDelivery) {
-                    setRotationPosition(1500)
-                    setExtendtionPosition(500)
-                    setRotationPosition(500)
-                    setExtendtionPosition(1250)
-                }
-                gamepad2.start -> with(cargoDelivery) {
-                    setRotationPosition(750)
-                    setExtendtionPosition(0)
-                    setRotationPosition(200)
+                cargoDelivery.setExtensionPower(-gamepad2.left_stick_y.toDouble())
+                when {
+                    gamepad2.dpad_up -> deliverJob = launch {
+                        cargoDelivery.setExtendtionPosition(1025)
+                        cargoDelivery.setRotationPosition(1300)
+                    }
                 }
             }
         }

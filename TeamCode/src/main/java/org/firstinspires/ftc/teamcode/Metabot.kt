@@ -6,6 +6,7 @@ import us.gotrobot.grbase.action.ConstantPowerManager
 import us.gotrobot.grbase.feature.*
 import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.localizer.IMULocalizer
+import us.gotrobot.grbase.feature.vision.ObjectDetector
 import us.gotrobot.grbase.feature.vision.Vuforia
 import us.gotrobot.grbase.opmode.isAutonomous
 import us.gotrobot.grbase.robot.install
@@ -65,10 +66,12 @@ suspend fun OpMode.Metabot() = robot {
         name = Metabot.EXTENSION_MOTOR
         direction = DcMotorSimple.Direction.REVERSE
         coefficient = 0.0025
+        adjustmentDelay = 50
     }
     val rotationMotor = install(ManagedMotor, Metabot.RotationMotor) {
         name = Metabot.ROTATION_MOTOR
-        coefficient = 0.00005
+        coefficient = 0.00075
+        adjustmentDelay = 150
     }
 
     // Sub-components
@@ -101,19 +104,32 @@ suspend fun OpMode.Metabot() = robot {
 
     // Game Mode Specific
     if (isAutonomous) {
+        // Localizer
         install(MecanumDriveTrain.Localizer) {
             wheelDiameter = Metabot.WHEEL_DIAMETER
             gearRatio = Metabot.GEAR_RATIO
         }
+        // Power Managment
         install(DefaultPowerManager) {
             powerManager = ConstantPowerManager(Metabot.POWER_MANAGER_VALUE)
         }
+        // Vistion
         val vuforia = install(Vuforia) {
             licenceKey = Metabot.VUFORIA_LICENCE_KEY
             cameraName = Metabot.CAMERA_NAME
         }
-        install(CargoDetector) {
+        val objectDetector = install(ObjectDetector) {
             this.vuforia = vuforia
+            this.data = ObjectDetector.AssetData(
+                CargoDetector.TFOD_MODEL_ASSET,
+                listOf(
+                    CargoDetector.LABEL_GOLD_MINERAL,
+                    CargoDetector.LABEL_SILVER_MINERAL
+                )
+            )
+        }
+        install(CargoDetector) {
+            this.objectDetector = objectDetector
         }
     }
 
