@@ -100,26 +100,11 @@ class TeleOp : CoroutineOpMode() {
             if (gamepad2.left_trigger.isPressed || gamepad2.right_trigger.isPressed || -gamepad2.left_stick_y.toDouble() >= 0.0) {
                 deliverJob.cancel()
             }
-<<<<<<< HEAD
-            cargoDelivery.setExtensionPower(-gamepad2.right_stick_y.toDouble())
-            when {
-                gamepad2.dpad_up -> with(cargoDelivery) {
-                    setRotationPosition(500)
-                    setExtendtionPosition(1250)
-                    setRotationPosition(2000)
-                }
-                gamepad2.dpad_down -> with(cargoDelivery) {
-                    setRotationPosition(1500)
-                    setExtendtionPosition(500)
-                    setRotationPosition(500)
-                    setExtendtionPosition(1250)
-=======
             if (!deliverJob.isActive) {
                 when {
                     gamepad2.left_trigger.isPressed -> cargoDelivery.setRotationPower(1.0)
                     gamepad2.right_trigger.isPressed -> cargoDelivery.setRotationPower(-1.0)
                     else -> cargoDelivery.setRotationPower(0.0)
->>>>>>> be68b3b78bdcbe813ced2577212cbebd2ff7ef67
                 }
                 cargoDelivery.setExtensionPower(-gamepad2.left_stick_y.toDouble())
                 when {
