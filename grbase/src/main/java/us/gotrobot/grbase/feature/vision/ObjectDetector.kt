@@ -67,6 +67,11 @@ class ObjectDetector(
         updateRecognitions()
     }
 
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    suspend fun shutdown() = withContext(newSingleThreadContext("Shutdown")) {
+        objectDetector.shutdown()
+    }
+
     companion object Installer : KeyedFeatureInstaller<ObjectDetector, Configuration>() {
 
         private const val MONITOR_VIEW_ID = "tfodMonitorViewId"

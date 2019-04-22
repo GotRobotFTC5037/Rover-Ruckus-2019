@@ -87,9 +87,7 @@ class CargoDetector(
         }
     }
 
-    suspend fun shutdown() = withContext(newSingleThreadContext("Shutdown ")) {
-
-    }
+    suspend fun shutdown() = objectDetector.shutdown()
 
     companion object Installer : KeyedFeatureInstaller<CargoDetector, Configuration>() {
 

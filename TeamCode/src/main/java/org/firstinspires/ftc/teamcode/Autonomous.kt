@@ -13,13 +13,17 @@ import us.gotrobot.grbase.robot.Robot
 import us.gotrobot.grbase.robot.install
 import us.gotrobot.grbase.robot.robot
 
-fun cargoConditionalAction(left: Action, center: Action, right: Action) = action {
+fun detectGoldPosition() = action {
     val cargoDetector = feature(CargoDetector)
-    val position = cargoDetector.goldPosition.firstKnownPosition()
+    val detectedGoldPosition = feature(DetectedGoldPosition)
+    detectedGoldPosition.detectedGoldPosition = cargoDetector.goldPosition.firstKnownPosition()
     GlobalScope.launch {
         cargoDetector.shutdown()
     }
-    when (position) {
+}
+
+fun cargoConditionalAction(left: Action, center: Action, right: Action) = action {
+    when (feature(DetectedGoldPosition).detectedGoldPosition) {
         CargoDetector.GoldPosition.LEFT -> perform(left)
         CargoDetector.GoldPosition.CENTER -> perform(center)
         CargoDetector.GoldPosition.RIGHT -> perform(right)
@@ -31,6 +35,7 @@ fun cargoConditionalAction(left: Action, center: Action, right: Action) = action
 class DepotAutonomous : RobotOpMode() {
 
     override val action: Action = actionSequenceOf(
+        detectGoldPosition(),
         extendLift(),
         timeDrive(time = 200, power = 0.2),
         biasedLateralDrive(distance = 20.0, bias = 0.25) with constantPower(0.25),
@@ -82,6 +87,7 @@ class DepotAutonomous : RobotOpMode() {
 class CraterAutonomous : RobotOpMode() {
 
     override val action = actionSequenceOf(
+        detectGoldPosition(),
         extendLift(),
         timeDrive(time = 200, power = 0.2),
         biasedLateralDrive(distance = 20.0, bias = 0.25) with constantPower(0.35),
