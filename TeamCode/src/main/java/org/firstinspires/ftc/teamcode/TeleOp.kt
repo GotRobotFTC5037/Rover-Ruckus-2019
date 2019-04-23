@@ -102,8 +102,8 @@ class TeleOp : CoroutineOpMode() {
             }
             if (!deliverJob.isActive) {
                 when {
-                    gamepad2.left_trigger.isPressed -> cargoDelivery.setRotationPower(1.0)
-                    gamepad2.right_trigger.isPressed -> cargoDelivery.setRotationPower(-1.0)
+                    gamepad2.left_trigger > 0.5 -> cargoDelivery.setRotationPower(gamepad2.left_trigger.toDouble())
+                    gamepad2.right_trigger > 0.5 -> cargoDelivery.setRotationPower(-gamepad2.right_trigger.toDouble())
                     else -> cargoDelivery.setRotationPower(0.0)
                 }
                 cargoDelivery.setExtensionPower(-gamepad2.left_stick_y.toDouble())

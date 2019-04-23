@@ -48,13 +48,20 @@ class CargoDetector(
         recognitionsChannel: ReceiveChannel<List<Recognition>>
     ) = launch {
         while (isActive) {
-            val recognitions = recognitionsChannel.receive().filter {
-                it.top > it.imageHeight * (4 / 5)
-            }
-            val goldRecognitions =
-                recognitions.filter { it.isGold }.sortedBy { it.top }.reversed()
+            val recognitions = recognitionsChannel
+                .receive()
+                .filter { it.width < it.imageWidth / 2 }
+
+            val goldRecognitions = recognitions
+                    .filter { it.isGold }
+                    .sortedBy { it.top }
+                    .reversed()
+
             val silverRecognitions =
-                recognitions.filter { it.isSilver }.sortedBy { it.top }.reversed()
+                recognitions
+                    .filter { it.isSilver }
+                    .sortedBy { it.top }
+                    .reversed()
 
             val gold = goldRecognitions.firstOrNull()
             val silver0 = silverRecognitions.firstOrNull()
@@ -121,8 +128,3 @@ class CargoDetector(
 suspend fun ReceiveChannel<CargoDetector.GoldPosition>.firstKnownPosition() =
     first { it != CargoDetector.GoldPosition.UNKNOWN }
 
-fun shutdownObjectDetector() = action {
-    GlobalScope.launch {
-        feature(CargoDetector).shutdown()
-    }
-}

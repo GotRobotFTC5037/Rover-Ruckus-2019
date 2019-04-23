@@ -40,9 +40,6 @@ class Vuforia(
             val webcamName = configuration.cameraName?.let {
                 context.hardwareMap[WebcamName::class, it]
             }
-            context.telemetry.log().add(webcamName!!.deviceName)
-            context.telemetry.log().add(webcamName.serialNumber.string)
-            context.telemetry.log().add(webcamName.usbDeviceNameIfAttached)
             return Vuforia(
                 configuration.licenceKey,
                 webcamName,

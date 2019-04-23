@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import us.gotrobot.grbase.action.*
 import us.gotrobot.grbase.feature.toggleHeadingCorrection
 import us.gotrobot.grbase.feature.vision.ObjectDetector
@@ -15,10 +16,12 @@ import us.gotrobot.grbase.robot.Robot
 import us.gotrobot.grbase.robot.install
 import us.gotrobot.grbase.robot.robot
 
-fun detectGoldPosition() = action {
+fun detectGoldPosition(timeout: Long) = action {
     val cargoDetector = feature(CargoDetector)
     val detectedGoldPosition = feature(DetectedGoldPosition)
-    detectedGoldPosition.detectedGoldPosition = cargoDetector.goldPosition.firstKnownPosition()
+    detectedGoldPosition.detectedGoldPosition =
+        withTimeoutOrNull(timeout) { cargoDetector.goldPosition.firstKnownPosition() }
+            ?: CargoDetector.GoldPosition.UNKNOWN
     GlobalScope.launch {
         cargoDetector.shutdown()
     }
@@ -33,33 +36,33 @@ fun cargoConditionalAction(left: Action, center: Action, right: Action) = action
     }
 }
 
+private const val GOLD_DETECTION_TIMEOUT = 1500L
+
 @Autonomous(name = "Depot", group = "0_competitive")
 class DepotAutonomous : RobotOpMode() {
 
     override val action: Action = actionSequenceOf(
-        detectGoldPosition(),
+        detectGoldPosition(GOLD_DETECTION_TIMEOUT),
         extendLift(),
         timeDrive(time = 200, power = 0.2),
-        biasedLateralDrive(distance = 20.0, bias = 0.05) with constantPower(0.25),
+        biasedLateralDrive(distance = 20.0, bias = 0.05) with constantPower(0.35),
         toggleHeadingCorrection(),
         cargoConditionalAction(
             left = actionSequenceOf(
-                linearDrive(distance = 50.0),
-                async(lowerLift()),
-                lateralDrive(distance = 50.0),
-                linearDrive(distance = 75.0),
-                turnTo(heading = 45.0),
-                linearDrive(distance = 50.0),
+                linearDrive(distance = 35.0) with constantPower(0.35),
+                lateralDrive(distance = -75.0),
+                linearDrive(distance = 60.0),
+                turnTo(heading = -30.0) with constantPower(0.35),
+                linearDrive(distance = 40.0),
                 releaseMarker(),
-                linearDrive(distance = -150.0),
-                turnTo(heading = 90.0),
-                linearDrive(distance = 200.0),
-                lateralDrive(distance = 35.0),
-                driveForever(power = 0.2)
+                turnTo(-45.0),
+                lateralDrive(-40.0) with constantPower(0.35),
+                linearDrive(distance = -185.0),
+                driveForever(power = -0.2)
             ),
             center = actionSequenceOf(
+                lateralDrive(-20.0) with constantPower(0.35),
                 linearDrive(distance = 165.0),
-                async(lowerLift()),
                 releaseMarker(),
                 linearDrive(distance = -75.0) with constantPower(0.5),
                 turnTo(heading = 90.0) with constantPower(0.35),
@@ -69,14 +72,18 @@ class DepotAutonomous : RobotOpMode() {
                 driveForever(power = 0.2)
             ),
             right = actionSequenceOf(
-                linearDrive(distance = 50.0),
-                async(lowerLift()),
-                lateralDrive(distance = -50.0),
-                linearDrive(distance = 50.0),
+                linearDrive(distance = 35.0) with constantPower(0.35),
+                lateralDrive(distance = 65.0),
+                linearDrive(distance = 65.0),
+                turnTo(45.0) with constantPower(0.35),
+                linearDrive(30.0),
                 releaseMarker(),
-                turnTo(heading = -45.0),
-                linearDrive(distance = -150.0),
-                driveForever(power = -0.2)
+                linearDrive(-100.0),
+                turnTo(heading = 90.0) with constantPower(0.35),
+                linearDrive(distance = 250.0),
+                turnTo(heading = 135.0) with constantPower(0.25),
+                lateralDrive(distance = 35.0),
+                driveForever(power = 0.2)
             )
         )
     )
@@ -89,7 +96,7 @@ class DepotAutonomous : RobotOpMode() {
 class CraterAutonomous : RobotOpMode() {
 
     override val action = actionSequenceOf(
-        detectGoldPosition(),
+        detectGoldPosition(GOLD_DETECTION_TIMEOUT),
         extendLift(),
         timeDrive(time = 200, power = 0.2),
         biasedLateralDrive(distance = 20.0, bias = 0.05) with constantPower(0.35),
@@ -97,31 +104,30 @@ class CraterAutonomous : RobotOpMode() {
         cargoConditionalAction(
             left = actionSequenceOf(
                 linearDrive(distance = 30.0),
-                lateralDrive(50.0),
-                linearDrive(-30.0),
+                lateralDrive(-65.0),
+                linearDrive(30.0) with constantPower(0.35),
                 linearDrive(distance = -15.0) with constantPower(0.35),
-                async(lowerLift()),
-                lateralDrive(distance = -190.0)
+                lateralDrive(distance = -90.0)
             ),
             center = actionSequenceOf(
-                linearDrive(distance = 60.0),
+                lateralDrive(-20.0) with constantPower(0.35),
+                linearDrive(distance = 85.0) with constantPower(0.35),
                 linearDrive(distance = -15.0) with constantPower(0.35),
-                async(lowerLift()),
                 lateralDrive(distance = -140.0)
             ),
             right = actionSequenceOf(
                 linearDrive(distance = 30.0),
-                lateralDrive(-50.0),
-                linearDrive(-30.0),
+                lateralDrive(50.0),
+                linearDrive(30.0) with constantPower(0.35),
                 linearDrive(distance = -15.0) with constantPower(0.35),
-                async(lowerLift()),
-                lateralDrive(distance = -90.0)
+                lateralDrive(distance = -160.0)
             )
         ),
         turnTo(heading = 135.0),
-        lateralDrive(distance = 40.0) with constantPower(0.35),
-        linearDrive(distance = 130.0) with constantPower(1.00),
+        lateralDrive(distance = 50.0) with constantPower(0.55),
+        linearDrive(distance = 130.0) with constantPower(0.80),
         releaseMarker(),
+        lateralDrive(-10.0) with constantPower(0.25),
         linearDrive(distance = -175.0),
         driveForever(power = -0.2)
     )
@@ -133,5 +139,13 @@ class CraterAutonomous : RobotOpMode() {
 @Autonomous(name = "Retract Lift", group = "1_tools")
 class RetractLift : RobotOpMode() {
     override val action: Action = lowerLift()
-    override suspend fun robot(): Robot = Metabot()
+    override suspend fun robot(): Robot = robot {
+        install(RobotLift) {
+            this.liftMotorName = Metabot.LIFT_MOTOR
+            this.limitSwitchName = Metabot.LIMIT_SWITCH
+        }
+        install(MarkerDeployer) {
+            this.servoName = Metabot.MARKER_DEPLOYER_SERVO
+        }
+    }
 }

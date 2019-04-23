@@ -33,7 +33,7 @@ object Metabot {
 
     const val IMU = "imu"
 
-    const val HEADING_CORRECTION_COEFFICIENT = 0.005
+    const val HEADING_CORRECTION_COEFFICIENT = 0.0075
 
     const val POWER_MANAGER_VALUE = 0.60
 
