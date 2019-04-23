@@ -8,9 +8,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import us.gotrobot.grbase.action.*
 import us.gotrobot.grbase.feature.toggleHeadingCorrection
-import us.gotrobot.grbase.feature.vision.ObjectDetector
-import us.gotrobot.grbase.feature.vision.Vuforia
-import us.gotrobot.grbase.opmode.CoroutineOpMode
 import us.gotrobot.grbase.opmode.RobotOpMode
 import us.gotrobot.grbase.robot.Robot
 import us.gotrobot.grbase.robot.install
