@@ -10,7 +10,6 @@ import us.gotrobot.grbase.feature.drivetrain.MecanumDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.RotationalDriveTrain
 import us.gotrobot.grbase.feature.drivetrain.mecanumDriveTrain
 
-// TODO: Redesign this action to work on all types of drive trains.
 fun linearDrive(distance: Double): Action = action {
     val driveTrain = feature(LinearDriveTrain::class)
     val localizer = feature(MecanumDriveTrain.Localizer)
@@ -34,7 +33,6 @@ fun linearDrive(distance: Double): Action = action {
     context.add(ActionName("Linear Drive"))
 }
 
-// TODO: Redesign this action to work on all types of drive trains.
 fun lateralDrive(distance: Double): Action = action {
     val driveTrain = feature(MecanumDriveTrain)
     val localizer = feature(MecanumDriveTrain.Localizer)
@@ -81,7 +79,6 @@ fun biasedLateralDrive(distance: Double, bias: Double) = action {
     context.add(ActionName("Biased Lateral Drive"))
 }
 
-// TODO: Redesign this action to work on all types of drive trains.
 fun turnTo(heading: Double): Action = action {
     val driveTrain = feature(RotationalDriveTrain::class)
     val headingCorrection = feature(HeadingCorrection).apply { enabled = false }
